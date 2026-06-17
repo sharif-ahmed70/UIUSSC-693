@@ -1,0 +1,210 @@
+-- UIUSSC Phase 2A manual security test examples
+--
+-- IMPORTANT:
+-- These examples are intended for a disposable/test database after running the
+-- migration and seed. They should be executed using the anon role or through
+-- the public API context, not as the postgres owner. Owner execution bypasses
+-- normal public permission behavior and will not validate public security.
+--
+-- If testing in SQL with role switching, wrap examples in a transaction and
+-- rollback at the end so inserted test data is not retained.
+
+-- ==================================================
+-- Suggested SQL role-test wrapper
+-- ==================================================
+
+-- begin;
+-- set local role anon;
+
+-- ==================================================
+-- Membership applications
+-- ==================================================
+
+-- Valid public membership insert: expected to succeed.
+-- insert into public.membership_applications (
+--   full_name,
+--   student_id,
+--   department,
+--   trimester,
+--   email,
+--   phone,
+--   blood_group,
+--   interested_department,
+--   skills,
+--   motivation
+-- ) values (
+--   'Security Test Member',
+--   'TEST-001',
+--   'CSE',
+--   '5th Trimester',
+--   'security.member@example.com',
+--   '01700000000',
+--   'O+',
+--   'Volunteer Coordination',
+--   'Event support',
+--   'I want to support UIUSSC volunteer work.'
+-- );
+
+-- Attempt to insert admin_notes: expected to fail with column permission error.
+-- insert into public.membership_applications (
+--   full_name,
+--   student_id,
+--   department,
+--   trimester,
+--   email,
+--   phone,
+--   blood_group,
+--   interested_department,
+--   motivation,
+--   admin_notes
+-- ) values (
+--   'Security Test Admin Notes',
+--   'TEST-002',
+--   'CSE',
+--   '5th Trimester',
+--   'security.admin-notes@example.com',
+--   '01700000001',
+--   'A+',
+--   'Volunteer Coordination',
+--   'Testing blocked admin notes.',
+--   'This should not be accepted from public clients.'
+-- );
+
+-- Attempt to insert approved status: expected to fail with column permission
+-- error or RLS WITH CHECK failure.
+-- insert into public.membership_applications (
+--   full_name,
+--   student_id,
+--   department,
+--   trimester,
+--   email,
+--   phone,
+--   blood_group,
+--   interested_department,
+--   motivation,
+--   status
+-- ) values (
+--   'Security Test Approved',
+--   'TEST-003',
+--   'CSE',
+--   '5th Trimester',
+--   'security.approved@example.com',
+--   '01700000002',
+--   'B+',
+--   'Volunteer Coordination',
+--   'Testing blocked status.',
+--   'approved'
+-- );
+
+-- Public membership SELECT: expected to fail.
+-- select * from public.membership_applications limit 1;
+
+-- ==================================================
+-- Contact messages
+-- ==================================================
+
+-- Valid public contact insert: expected to succeed.
+-- insert into public.contact_messages (
+--   name,
+--   email,
+--   subject,
+--   message
+-- ) values (
+--   'Security Test Contact',
+--   'security.contact@example.com',
+--   'Security test',
+--   'This is a public contact message test.'
+-- );
+
+-- Attempt to insert read status: expected to fail with column permission error
+-- or RLS WITH CHECK failure.
+-- insert into public.contact_messages (
+--   name,
+--   email,
+--   subject,
+--   message,
+--   status
+-- ) values (
+--   'Security Test Read Contact',
+--   'security.read-contact@example.com',
+--   'Security test',
+--   'This should not be accepted with read status.',
+--   'read'
+-- );
+
+-- ==================================================
+-- Event registrations
+-- ==================================================
+
+-- Valid registration for an open published event: expected to succeed.
+-- insert into public.event_registrations (
+--   event_id,
+--   full_name,
+--   student_id,
+--   email,
+--   phone,
+--   blood_group,
+--   motivation
+-- )
+-- select
+--   id,
+--   'Security Test Registrant',
+--   'REG-001',
+--   'security.registrant@example.com',
+--   '01700000003',
+--   'AB+',
+--   'I want to volunteer.'
+-- from public.events
+-- where slug = 'blood-donation-campaign';
+
+-- Registration for a closed event: expected to fail RLS WITH CHECK because
+-- registration_open is false.
+-- insert into public.event_registrations (
+--   event_id,
+--   full_name,
+--   student_id,
+--   email,
+--   phone,
+--   motivation
+-- )
+-- select
+--   id,
+--   'Security Test Closed Event',
+--   'REG-002',
+--   'security.closed-event@example.com',
+--   '01700000004',
+--   'Testing closed registration.'
+-- from public.events
+-- where slug = 'volunteer-orientation';
+
+-- Duplicate registration by normalized email for same event: second insert is
+-- expected to fail unique index enforcement.
+-- insert into public.event_registrations (
+--   event_id,
+--   full_name,
+--   email,
+--   phone
+-- )
+-- select
+--   id,
+--   'Security Test Duplicate One',
+--   'security.duplicate@example.com',
+--   '01700000005'
+-- from public.events
+-- where slug = 'blood-donation-campaign';
+--
+-- insert into public.event_registrations (
+--   event_id,
+--   full_name,
+--   email,
+--   phone
+-- )
+-- select
+--   id,
+--   'Security Test Duplicate Two',
+--   ' SECURITY.DUPLICATE@example.com ',
+--   '01700000006'
+-- from public.events
+-- where slug = 'blood-donation-campaign';
+
+-- rollback;
