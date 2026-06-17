@@ -1,0 +1,73 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root{
+  --color-navy: #0b2545;
+  --color-navy-deep: #071a33;
+  --color-green: #2fa84f;
+  --color-light: #f5f7fb;
+  --color-line: #d9e2ec;
+}
+
+html{
+  scroll-behavior: smooth;
+}
+
+body{
+  background:
+    radial-gradient(circle at top left, rgba(47,168,79,0.08), transparent 30rem),
+    linear-gradient(180deg, #f8fafc 0%, #ffffff 22rem);
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline: 3px solid rgba(47,168,79,0.45);
+  outline-offset: 3px;
+}
+
+.container-center{
+  max-width: 1100px;
+}
+
+.soft-card{
+  background: #ffffff;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(217,226,236,0.92);
+  box-shadow: 0 14px 36px rgba(11,37,69,0.08);
+}
+
+.premium-card{
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid rgba(217,226,236,0.95);
+  border-radius: 0.75rem;
+  box-shadow: 0 18px 45px rgba(11,37,69,0.10);
+}
+
+.field{
+  width: 100%;
+  border-radius: 0.625rem;
+  border: 1px solid #d6dee8;
+  background: #ffffff;
+  padding: 0.85rem 1rem;
+  color: #10233f;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.field:focus{
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 4px rgba(47,168,79,0.12);
+}
+
+.subtle-grid{
+  background-image:
+    linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
