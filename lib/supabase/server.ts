@@ -1,17 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import type { Database } from '@/types/supabase'
+import { getSupabasePublicEnv } from './env'
 
 export async function createServerSupabaseClient(){
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-
-  if(!supabaseUrl || !supabasePublishableKey){
-    throw new Error('Missing public Supabase environment variables.')
-  }
+  const { supabaseUrl, supabasePublishableKey } = getSupabasePublicEnv()
 
   const cookieStore = await cookies()
 
-  return createServerClient(supabaseUrl, supabasePublishableKey, {
+  return createServerClient<Database>(supabaseUrl, supabasePublishableKey, {
     cookies: {
       getAll(){
         return cookieStore.getAll()

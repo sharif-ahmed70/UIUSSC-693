@@ -1,16 +1,47 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import Container from '@/components/Container'
 import EventRegistrationForm from '@/components/forms/EventRegistrationForm'
-import { events } from '@/data/events'
 import { formatEventDate } from '@/lib/date'
 import { notFound } from 'next/navigation'
+import ContentUnavailable from '@/components/states/ContentUnavailable'
+import { getPublishedEventBySlug, normalizeEventSlug } from '@/features/events/queries/getPublishedEventBySlug'
+
+export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const result = await getPublishedEventBySlug(slug)
+
+  if(!result.data){
+    return {
+      title: 'Event Not Found | UIUSSC',
+      description: 'The requested UIUSSC event could not be found.',
+    }
+  }
+
+  return {
+    title: `${result.data.title} | UIUSSC`,
+    description: result.data.summary,
+  }
+}
 
 export default async function EventDetail({ params }: { params: Promise<{ slug: string }> }){
   const { slug } = await params
-  const event = events.find((item) => item.slug === slug)
-  if(!event) return notFound()
+  if(!normalizeEventSlug(slug)) return notFound()
 
-  const isOpen = event.status === 'Open'
+  const result = await getPublishedEventBySlug(slug)
+  if(result.error) {
+    return (
+      <Container>
+        <ContentUnavailable title="Event details are temporarily unavailable" description="Please refresh the page or return to the events list." />
+      </Container>
+    )
+  }
+  if(!result.data) return notFound()
+
+  const event = result.data
+  const isOpen = event.registrationOpen
 
   return (
     <Container>
@@ -24,7 +55,7 @@ export default async function EventDetail({ params }: { params: Promise<{ slug: 
             <div className="flex flex-wrap gap-3">
               <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold backdrop-blur">{event.category}</span>
               <span className={`rounded-full px-3 py-1 text-xs font-bold ${isOpen ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}>
-                {event.status}
+                {isOpen ? 'Open' : 'Closed'}
               </span>
             </div>
             <h1 className="mt-5 max-w-3xl text-4xl font-extrabold tracking-tight md:text-5xl">{event.title}</h1>
@@ -42,7 +73,7 @@ export default async function EventDetail({ params }: { params: Promise<{ slug: 
 
               <section className="premium-card p-6">
                 <h2 className="text-xl font-bold text-uiussc-navy">Volunteer Requirements</h2>
-                <p className="mt-3 leading-7 text-slate-600">{event.requirements || 'General volunteers are welcome. Members should be punctual, responsible, and ready to support coordination tasks.'}</p>
+                <p className="mt-3 leading-7 text-slate-600">{event.volunteerRequirements || 'General volunteers are welcome. Members should be punctual, responsible, and ready to support coordination tasks.'}</p>
               </section>
             </div>
 
@@ -51,8 +82,14 @@ export default async function EventDetail({ params }: { params: Promise<{ slug: 
               <div className="mt-5 space-y-4 text-sm">
                 <div>
                   <p className="font-bold text-slate-500">Date</p>
-                  <p className="mt-1 text-uiussc-navy">{formatEventDate(event.date)}</p>
+                  <p className="mt-1 text-uiussc-navy">{formatEventDate(event.eventDate)}</p>
                 </div>
+                {(event.startTime || event.endTime) && (
+                  <div>
+                    <p className="font-bold text-slate-500">Time</p>
+                    <p className="mt-1 text-uiussc-navy">{[event.startTime, event.endTime].filter(Boolean).join(' - ')}</p>
+                  </div>
+                )}
                 <div>
                   <p className="font-bold text-slate-500">Location</p>
                   <p className="mt-1 text-uiussc-navy">{event.location}</p>
@@ -63,8 +100,14 @@ export default async function EventDetail({ params }: { params: Promise<{ slug: 
                 </div>
                 <div>
                   <p className="font-bold text-slate-500">Status</p>
-                  <p className="mt-1 text-uiussc-navy">{event.status}</p>
+                  <p className="mt-1 text-uiussc-navy">{isOpen ? 'Open' : 'Closed'}</p>
                 </div>
+                {event.capacity && (
+                  <div>
+                    <p className="font-bold text-slate-500">Capacity</p>
+                    <p className="mt-1 text-uiussc-navy">{event.capacity} participants</p>
+                  </div>
+                )}
               </div>
               {isOpen ? (
                 <EventRegistrationForm eventSlug={event.slug} eventTitle={event.title} />
