@@ -1,7 +1,9 @@
-import { Notice } from '@/types'
+import { formatDisplayDate } from '@/lib/date'
+import type { PublicNotice } from '@/features/notices/types'
 
-export default function NoticeCard({ notice }: { notice: Notice }){
-  const isHigh = notice.priority.toLowerCase() === 'high'
+export default function NoticeCard({ notice }: { notice: PublicNotice }){
+  const isHigh = notice.priority === 'urgent' || notice.isPinned
+  const priorityLabel = notice.priority.charAt(0).toUpperCase() + notice.priority.slice(1)
 
   return (
     <article className={`relative overflow-hidden rounded-lg border bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl ${isHigh ? 'border-uiussc-green/35' : 'border-slate-200'}`}>
@@ -12,11 +14,11 @@ export default function NoticeCard({ notice }: { notice: Notice }){
           <h3 className="mt-2 text-lg font-bold text-uiussc-navy">{notice.title}</h3>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-bold ${isHigh ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
-          {notice.priority}
+          {priorityLabel}
         </span>
       </div>
-      <div className="mt-3 text-sm font-semibold text-slate-500">{notice.date}</div>
-      <p className="mt-3 text-sm leading-6 text-slate-600">{notice.summary}</p>
+      {notice.publishedAt && <div className="mt-3 text-sm font-semibold text-slate-500">{formatDisplayDate(notice.publishedAt)}</div>}
+      <p className="mt-3 text-sm leading-6 text-slate-600">{notice.excerpt}</p>
     </article>
   )
 }

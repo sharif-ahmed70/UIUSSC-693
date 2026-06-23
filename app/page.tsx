@@ -3,13 +3,23 @@ import Button from '@/components/Button'
 import ImpactCounter from '@/components/ImpactCounter'
 import EventCard from '@/components/EventCard'
 import SectionHeader from '@/components/SectionHeader'
-import { events } from '@/data/events'
-import { recentActivities, whyJoin } from '@/data/home'
+import ContentUnavailable from '@/components/states/ContentUnavailable'
+import EmptyState from '@/components/states/EmptyState'
+import { whyJoin } from '@/data/home'
 import { formatEventDate } from '@/lib/date'
+import { getUpcomingEvents } from '@/features/events/queries/getUpcomingEvents'
+import { getPublishedGalleryItems } from '@/features/gallery/queries/getPublishedGalleryItems'
 
-export default function Home(){
-  const upcoming = events.slice(0, 3)
-  const featuredEvent = events.find((event) => event.status === 'Open') ?? events[0]
+export const dynamic = 'force-dynamic'
+
+export default async function Home(){
+  const [eventsResult, galleryResult] = await Promise.all([
+    getUpcomingEvents(3),
+    getPublishedGalleryItems(3),
+  ])
+  const upcoming = eventsResult.data ?? []
+  const featuredEvent = upcoming[0]
+  const galleryItems = galleryResult.data ?? []
 
   return (
     <>
@@ -40,10 +50,12 @@ export default function Home(){
                     <div className="flex h-full flex-col justify-between rounded-md border border-white/80 bg-white/70 p-5 shadow-sm">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.18em] text-uiussc-green">Upcoming Event</p>
-                        <h2 className="mt-3 text-2xl font-extrabold">{featuredEvent.title}</h2>
-                        <p className="mt-3 text-sm font-semibold text-slate-600">{formatEventDate(featuredEvent.date)} at {featuredEvent.location}</p>
+                        <h2 className="mt-3 text-2xl font-extrabold">{featuredEvent ? featuredEvent.title : 'UIUSSC Programs'}</h2>
+                        <p className="mt-3 text-sm font-semibold text-slate-600">
+                          {featuredEvent ? `${formatEventDate(featuredEvent.eventDate)} at ${featuredEvent.location}` : 'Upcoming activities will appear here soon.'}
+                        </p>
                       </div>
-                      <p className="text-sm leading-6 text-slate-600">{featuredEvent.description}</p>
+                      <p className="text-sm leading-6 text-slate-600">{featuredEvent ? featuredEvent.summary : 'UIUSSC continues to organize student-led volunteering and social impact activities.'}</p>
                     </div>
                   </div>
                   <div className="mt-5 grid grid-cols-3 gap-3 text-center">
@@ -74,22 +86,30 @@ export default function Home(){
 
         <section className="py-10">
           <SectionHeader title="Upcoming Events" subtitle="Join structured service opportunities led by UIUSSC volunteers." />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {upcoming.map((event) => <EventCard key={event.slug} event={event} />)}
-          </div>
+          {eventsResult.error && <ContentUnavailable title="Upcoming events are temporarily unavailable" description="Please refresh the page or visit the events page later." />}
+          {!eventsResult.error && upcoming.length === 0 && <EmptyState title="No upcoming events published" description="Upcoming UIUSSC programs will appear here after publication." />}
+          {upcoming.length > 0 && (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {upcoming.map((event) => <EventCard key={event.slug} event={event} />)}
+            </div>
+          )}
         </section>
 
         <section className="py-10">
           <SectionHeader title="Recent Activities" subtitle="A snapshot of the work UIUSSC members support across campus and community programs." />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {recentActivities.map((activity) => (
-              <article key={activity.title} className="premium-card p-6">
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">{activity.category}</span>
-                <h3 className="mt-5 text-xl font-bold text-uiussc-navy">{activity.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{activity.summary}</p>
-              </article>
-            ))}
-          </div>
+          {galleryResult.error && <ContentUnavailable title="Activity highlights are temporarily unavailable" description="Please refresh the page or visit the gallery later." />}
+          {!galleryResult.error && galleryItems.length === 0 && <EmptyState title="No activity highlights published" description="Published UIUSSC gallery highlights will appear here." />}
+          {galleryItems.length > 0 && (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {galleryItems.map((item) => (
+                <article key={item.id} className="premium-card p-6">
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">{item.category}</span>
+                  <h3 className="mt-5 text-xl font-bold text-uiussc-navy">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">{item.caption || 'UIUSSC activity documentation'}</p>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="py-10">

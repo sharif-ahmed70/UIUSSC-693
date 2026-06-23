@@ -3,9 +3,9 @@
 import { useMemo, useState } from 'react'
 import EventCard from '@/components/EventCard'
 import { eventFilters, type EventFilter } from '@/data/eventFilters'
-import type { Event } from '@/types'
+import type { PublicEvent } from '@/features/events/types'
 
-export default function EventList({ events }: { events: Event[] }){
+export default function EventList({ events }: { events: PublicEvent[] }){
   const [activeFilter, setActiveFilter] = useState<EventFilter>('All Events')
 
   const filteredEvents = useMemo(() => {
