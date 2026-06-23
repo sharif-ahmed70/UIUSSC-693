@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Container from '@/components/Container'
-import Button from '@/components/Button'
+import EventRegistrationForm from '@/components/forms/EventRegistrationForm'
 import { events } from '@/data/events'
 import { formatEventDate } from '@/lib/date'
 import { notFound } from 'next/navigation'
@@ -66,9 +66,16 @@ export default async function EventDetail({ params }: { params: Promise<{ slug: 
                   <p className="mt-1 text-uiussc-navy">{event.status}</p>
                 </div>
               </div>
-              <div className="mt-6">
-                <Button type="button" variant="secondary">Register Interest</Button>
-              </div>
+              {isOpen ? (
+                <EventRegistrationForm eventSlug={event.slug} eventTitle={event.title} />
+              ) : (
+                <div className="mt-6 rounded-lg border border-slate-200 bg-white p-5">
+                  <p className="text-sm font-bold uppercase tracking-[0.16em] text-slate-500">Registration Closed</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Registration for this event is currently closed. Please explore other open UIUSSC events.
+                  </p>
+                </div>
+              )}
             </aside>
           </div>
         </div>
