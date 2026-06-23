@@ -1,6 +1,6 @@
 import Container from '@/components/Container'
 import PageHeader from '@/components/PageHeader'
-import Button from '@/components/Button'
+import ContactForm from '@/components/forms/ContactForm'
 import { contactCards } from '@/data/contact'
 
 export default function Contact(){
@@ -12,17 +12,7 @@ export default function Contact(){
       />
 
       <section className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_420px]">
-        <form className="rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <input className="field" placeholder="Name" />
-            <input className="field" placeholder="Email" type="email" />
-            <input className="field md:col-span-2" placeholder="Subject" />
-            <textarea className="field md:col-span-2" placeholder="Message" rows={6} />
-          </div>
-          <div className="mt-5">
-            <Button type="button" variant="secondary">Send Message</Button>
-          </div>
-        </form>
+        <ContactForm />
 
         <div className="space-y-4">
           {contactCards.map((card) => (
