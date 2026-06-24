@@ -122,7 +122,7 @@ async function getAccessUsers(profileId?: string): Promise<AccessUserSummary[]>{
 
 export async function getAccessControlSummary(): Promise<AccessControlSummary>{
   const supabase = await createServerSupabaseClient()
-  const [{ data: permissions }, { data: overrides }, usersResult, { data: departments }, { data: events }] = await Promise.all([
+  const [{ data: permissions }, { data: overrides }, usersResult, { data: departments }, { data: eventOperations }] = await Promise.all([
     supabase
       .from('system_permissions')
       .select('*')
@@ -142,11 +142,16 @@ export async function getAccessControlSummary(): Promise<AccessControlSummary>{
       .is('archived_at', null)
       .order('display_order', { ascending: true }),
     supabase
-      .from('events')
-      .select('id, title, event_date, status')
-      .order('event_date', { ascending: false })
+      .from('club_event_operations')
+      .select('operational_status, events(id,title,event_date,status)')
+      .not('operational_status', 'in', '("cancelled","archived")')
+      .order('created_at', { ascending: false })
       .limit(50),
   ])
+
+  const events: AccessControlSummary['events'] = ((eventOperations ?? []) as unknown as Array<{ operational_status: string; events: { id: string; title: string; event_date: string; status: string } | null }>)
+    .map((operation) => operation.events ? { ...operation.events, operational_status: operation.operational_status } : null)
+    .filter((event) => event !== null)
 
   return {
     permissions: (permissions ?? []) as SystemPermission[],

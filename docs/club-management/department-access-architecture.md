@@ -291,3 +291,6 @@ Admin approval policies, platform-role management, suspension enforcement helper
 | Manage HR | No | No | No | No | HR-scoped | Yes | No | Yes | Yes | No | No | No |
 | Manage club settings | No | No | No | No | No | No | No | Limited | Yes | No | No | No |
 | View audit logs | No | No | No | No | Department-scoped | HR-scoped | Content-scoped | Yes | Yes | Blood-scoped minimal | Blood-scoped | Blood-scoped |
+## CM-5A Assigned Event Access
+
+Department event access is assignment based. Department Head, Deputy, and Executive roles can read matching active department assignments and their event operation context. Only Department Head and Deputy can update assignment status; Executives remain view-only.

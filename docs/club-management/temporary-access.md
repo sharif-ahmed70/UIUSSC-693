@@ -30,3 +30,6 @@ An override can:
 ## Example
 
 A Public Relations Executive can receive `events.view_internal` scoped to one event with a start and expiry date. After expiry, the permission resolver denies access even if the override row remains present for audit.
+## CM-5A Event-Scoped Grants
+
+Event-scoped temporary grants and denials are available for supported permissions. They are evaluated by `has_effective_permission(permission_key, 'event', event_id)` and expire immediately by timestamp even before cleanup updates status. Record-scoped grants remain intentionally unavailable in the admin UI.

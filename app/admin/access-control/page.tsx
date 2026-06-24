@@ -31,7 +31,7 @@ export default async function AccessControlPage(){
       <section className="mb-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Grant or restrict temporary access</h2>
         <div className="mt-4">
-          <AccessGrantForm action={grantTemporaryAccessAction} users={approvedUsers} permissions={data.permissions} departments={data.departments} />
+          <AccessGrantForm action={grantTemporaryAccessAction} users={approvedUsers} permissions={data.permissions} departments={data.departments} events={data.events} />
         </div>
       </section>
 
@@ -71,7 +71,7 @@ export default async function AccessControlPage(){
                 <StatusBadge status={permission.risk_level} />
               </div>
               <p className="mt-2 text-sm text-slate-600">
-                Supports {[permission.supports_global_scope ? 'global' : null, permission.supports_department_scope ? 'department' : null, permission.supports_event_scope ? 'event later' : null, permission.supports_record_scope ? 'record later' : null].filter(Boolean).join(', ') || 'no selectable scope'} scope.
+                Supports {[permission.supports_global_scope ? 'global' : null, permission.supports_department_scope ? 'department' : null, permission.supports_event_scope ? 'event' : null, permission.supports_record_scope ? 'record later' : null].filter(Boolean).join(', ') || 'no selectable scope'} scope.
               </p>
             </article>
           ))}

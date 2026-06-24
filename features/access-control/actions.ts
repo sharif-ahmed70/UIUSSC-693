@@ -30,7 +30,7 @@ export async function grantTemporaryAccessAction(_state: AdminActionState, formD
 
   const { data: permission } = await admin.supabase
     .from('system_permissions')
-    .select('supports_global_scope, supports_department_scope')
+    .select('supports_global_scope, supports_department_scope, supports_event_scope, supports_record_scope')
     .eq('permission_key', parsed.data.permissionKey)
     .eq('is_active', true)
     .maybeSingle()
@@ -45,6 +45,14 @@ export async function grantTemporaryAccessAction(_state: AdminActionState, formD
 
   if (parsed.data.scopeType === 'department' && !permission.supports_department_scope) {
     return { status: 'error', message: 'This permission does not support department scope.' }
+  }
+
+  if (parsed.data.scopeType === 'event' && !permission.supports_event_scope) {
+    return { status: 'error', message: 'This permission does not support event scope.' }
+  }
+
+  if (parsed.data.targetRecordType || parsed.data.targetRecordId) {
+    return { status: 'error', message: 'Record-scoped temporary access is disabled until an allowlisted picker exists.' }
   }
 
   const args = {

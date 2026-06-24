@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useActionState } from 'react'
 import type { AdminActionState } from '@/features/admin/types'
 import { initialAdminActionState } from '@/features/admin/types'
-import type { AccessUserSummary, ClubDepartment, SystemPermission } from '@/features/access-control/types'
+import type { AccessControlSummary, AccessUserSummary, ClubDepartment, SystemPermission } from '@/features/access-control/types'
 import { formatPlatformRole, maskEmail } from '@/lib/formatters'
 
 type AccessGrantFormProps = {
@@ -11,14 +11,16 @@ type AccessGrantFormProps = {
   users: AccessUserSummary[]
   permissions: SystemPermission[]
   departments: Pick<ClubDepartment, 'id' | 'name' | 'slug'>[]
+  events: AccessControlSummary['events']
   selectedUserId?: string
 }
 
-export default function AccessGrantForm({ action, users, permissions, departments, selectedUserId }: AccessGrantFormProps){
+export default function AccessGrantForm({ action, users, permissions, departments, events, selectedUserId }: AccessGrantFormProps){
   const [state, formAction, pending] = useActionState(action, initialAdminActionState)
   const [query, setQuery] = useState('')
   const [permissionKey, setPermissionKey] = useState(permissions[0]?.permission_key ?? '')
-  const [scopeType, setScopeType] = useState<'global' | 'department'>('global')
+  const [eventQuery, setEventQuery] = useState('')
+  const [scopeType, setScopeType] = useState<'global' | 'department' | 'event'>('global')
   const selectedPermission = permissions.find((permission) => permission.permission_key === permissionKey) ?? permissions[0]
 
   const filteredUsers = useMemo(() => {
@@ -47,14 +49,23 @@ export default function AccessGrantForm({ action, users, permissions, department
 
   const canUseGlobal = selectedPermission?.supports_global_scope
   const canUseDepartment = selectedPermission?.supports_department_scope
+  const canUseEvent = selectedPermission?.supports_event_scope
+
+  const filteredEvents = useMemo(() => {
+    const needle = eventQuery.trim().toLowerCase()
+    if (!needle) return events.slice(0, 25)
+    return events.filter((event) => `${event.title} ${event.event_date} ${event.status} ${event.operational_status ?? ''}`.toLowerCase().includes(needle)).slice(0, 25)
+  }, [eventQuery, events])
 
   useEffect(() => {
     if (scopeType === 'department' && !canUseDepartment) {
       setScopeType('global')
+    } else if (scopeType === 'event' && !canUseEvent) {
+      setScopeType(canUseGlobal ? 'global' : 'department')
     } else if (scopeType === 'global' && !canUseGlobal && canUseDepartment) {
       setScopeType('department')
     }
-  }, [canUseDepartment, canUseGlobal, scopeType])
+  }, [canUseDepartment, canUseEvent, canUseGlobal, scopeType])
 
   return (
     <form action={formAction} className="grid gap-5">
@@ -97,7 +108,7 @@ export default function AccessGrantForm({ action, users, permissions, department
             Supports: {[
               selectedPermission.supports_global_scope ? 'global' : null,
               selectedPermission.supports_department_scope ? 'department' : null,
-              selectedPermission.supports_event_scope ? 'event later' : null,
+              selectedPermission.supports_event_scope ? 'event' : null,
               selectedPermission.supports_record_scope ? 'record later' : null,
             ].filter(Boolean).join(', ') || 'no selectable scope'}.
           </p>
@@ -123,9 +134,9 @@ export default function AccessGrantForm({ action, users, permissions, department
           <input type="radio" name="scopeType" value="department" checked={scopeType === 'department'} disabled={!canUseDepartment} onChange={() => setScopeType('department')} />
           <span>Department-scoped access</span>
         </label>
-        <label className="flex items-start gap-2 text-sm text-slate-400">
-          <input type="radio" disabled />
-          <span>Event-scoped access will become available in CM-5.</span>
+        <label className="flex items-start gap-2 text-sm text-slate-700">
+          <input type="radio" name="scopeType" value="event" checked={scopeType === 'event'} disabled={!canUseEvent} onChange={() => setScopeType('event')} />
+          <span>Event-scoped access</span>
         </label>
         <label className="flex items-start gap-2 text-sm text-slate-400">
           <input type="radio" disabled />
@@ -145,7 +156,27 @@ export default function AccessGrantForm({ action, users, permissions, department
         </div>
       )}
 
-      <input type="hidden" name="eventId" value="" />
+      {scopeType === 'event' && (
+        <div className="grid gap-2">
+          <label htmlFor="access-event-search" className="text-sm font-extrabold text-uiussc-charcoal">Event <span className="text-red-700">*</span></label>
+          <input
+            id="access-event-search"
+            type="search"
+            value={eventQuery}
+            onChange={(event) => setEventQuery(event.target.value)}
+            className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20"
+            placeholder="Search by title, date, public status, or operational status"
+          />
+          <select id="eventId" name="eventId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20" required>
+            <option value="">Select event</option>
+            {filteredEvents.map((event) => (
+              <option key={event.id} value={event.id}>{event.title} - {event.event_date} - public {event.status} - operation {event.operational_status ?? 'unknown'}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {scopeType !== 'event' && <input type="hidden" name="eventId" value="" />}
       <input type="hidden" name="targetRecordType" value="" />
       <input type="hidden" name="targetRecordId" value="" />
 

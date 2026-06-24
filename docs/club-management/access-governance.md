@@ -56,3 +56,6 @@ Expired overrides stop working by timestamp even if their stored status has not 
 ## CM-5 Readiness
 
 CM-4 seeds permissions for events and tasks, but does not implement event/task management. CM-5 can attach resource tables and Server Actions to this permission resolver.
+## CM-5A Event Scope
+
+Temporary access now supports Event scope for permissions that declare `supports_event_scope = true`. The admin form submits the event UUID internally from an event selector showing public and operational status. Record scope remains disabled until an allowlisted resource picker exists.

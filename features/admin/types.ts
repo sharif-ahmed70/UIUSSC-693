@@ -10,6 +10,7 @@ export type AdminPermissions = {
   canManageAccessGrants: boolean
   canReviewApprovalRequests: boolean
   canCreateStaffInvitations: boolean
+  canManageEvents: boolean
 }
 
 export type AdminContext = {

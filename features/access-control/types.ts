@@ -31,7 +31,7 @@ export type AccessControlSummary = {
   overrides: AccessOverrideSummary[]
   users: AccessUserSummary[]
   departments: Pick<ClubDepartment, 'id' | 'name' | 'slug'>[]
-  events: Pick<EventRow, 'id' | 'title' | 'event_date' | 'status'>[]
+  events: Array<Pick<EventRow, 'id' | 'title' | 'event_date' | 'status'> & { operational_status?: string | null }>
 }
 
 export type AccessUserDetail = AccessUserSummary & {

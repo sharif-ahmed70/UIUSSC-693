@@ -41,3 +41,6 @@ CM-4 supports approval foundations for:
 - grant/revoke elevated temporary access
 
 Event cancellation is seeded as a future permission concept, but execution is deferred until CM-5.
+## CM-5A Event Cancellation
+
+`events.cancel` is an allowlisted approval action. VP/GS cancellation of approved, published, or active event operations is routed through the existing maker-checker flow. The requester cannot approve or execute their own request. President or Super Admin approval executes the cancellation branch, closes public registration, retains the public event row, and stores the cancellation reason on the operation.

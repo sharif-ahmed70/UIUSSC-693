@@ -20,6 +20,7 @@ export async function getAdminContext(): Promise<AdminContext>{
         canManageAccessGrants: false,
         canReviewApprovalRequests: false,
         canCreateStaffInvitations: false,
+        canManageEvents: false,
       },
       isAdmin: false,
     }
@@ -36,6 +37,7 @@ export async function getAdminContext(): Promise<AdminContext>{
     manageAccessGrants,
     reviewApprovalRequests,
     createStaffInvitations,
+    manageEvents,
   ] = await Promise.all([
     supabase.rpc('can_review_membership_applications'),
     supabase.rpc('can_manage_volunteers'),
@@ -46,6 +48,7 @@ export async function getAdminContext(): Promise<AdminContext>{
     supabase.rpc('has_effective_permission', { permission_key: 'access_grants.manage', scope_type: 'global' }),
     supabase.rpc('has_effective_permission', { permission_key: 'approval_requests.review', scope_type: 'global' }),
     supabase.rpc('has_effective_permission', { permission_key: 'staff_invitations.create', scope_type: 'global' }),
+    supabase.rpc('has_effective_permission', { permission_key: 'events.view_internal', scope_type: 'global' }),
   ])
 
   const permissions = {
@@ -58,6 +61,7 @@ export async function getAdminContext(): Promise<AdminContext>{
     canManageAccessGrants: Boolean(manageAccessGrants.data),
     canReviewApprovalRequests: Boolean(reviewApprovalRequests.data),
     canCreateStaffInvitations: Boolean(createStaffInvitations.data),
+    canManageEvents: Boolean(manageEvents.data),
   }
 
   return {

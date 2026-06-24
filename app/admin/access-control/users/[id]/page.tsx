@@ -49,7 +49,7 @@ export default async function AccessControlUserPage({ params }: PageProps){
       <section className="mb-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Create scoped temporary access for this user</h2>
         <div className="mt-4">
-          <AccessGrantForm action={grantTemporaryAccessAction} users={[user]} permissions={summary.permissions} departments={summary.departments} selectedUserId={user.id} />
+          <AccessGrantForm action={grantTemporaryAccessAction} users={[user]} permissions={summary.permissions} departments={summary.departments} events={summary.events} selectedUserId={user.id} />
         </div>
       </section>
 
