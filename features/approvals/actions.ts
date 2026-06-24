@@ -26,7 +26,7 @@ export async function reviewApprovalRequestAction(_state: AdminActionState, form
 }
 
 export async function executeApprovalRequestAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
-  const parsed = approvalExecuteSchema.safeParse({ id: formData.get('id'), reason: formData.get('reason') })
+  const parsed = approvalExecuteSchema.safeParse({ id: formData.get('id'), confirmExecution: formData.get('confirmExecution'), reason: formData.get('reason') })
   if (!parsed.success) return { status: 'error', message: 'Please review the highlighted fields.', fieldErrors: parsed.error.flatten().fieldErrors }
 
   const admin = await requireAdminAction('canReviewApprovalRequests')

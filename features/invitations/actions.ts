@@ -10,12 +10,20 @@ function emptyToNull(value: string | undefined){
 }
 
 export async function createStaffInvitationAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
+  const departmentIds = formData.getAll('departmentIds').map(String)
+  const departmentRoles = formData.getAll('departmentRoles').map(String)
+  const scopedDepartments = departmentIds
+    .map((departmentId, index) => ({ departmentId, role: departmentRoles[index] }))
+    .filter((item) => item.departmentId.length > 0)
+
   const parsed = staffInvitationSchema.safeParse({
     invitedEmail: formData.get('invitedEmail'),
     invitedName: formData.get('invitedName') || undefined,
     intendedClubPositionId: formData.get('intendedClubPositionId') || undefined,
     intendedPlatformRole: formData.get('intendedPlatformRole') || '',
     expiresAt: formData.get('expiresAt') || undefined,
+    departmentIds: scopedDepartments.map((item) => item.departmentId),
+    departmentRoles: scopedDepartments.map((item) => item.role),
     reason: formData.get('reason'),
   })
   if (!parsed.success) return { status: 'error', message: 'Please review the highlighted fields.', fieldErrors: parsed.error.flatten().fieldErrors }
@@ -29,7 +37,10 @@ export async function createStaffInvitationAction(_state: AdminActionState, form
     p_intended_club_position_id: emptyToNull(parsed.data.intendedClubPositionId),
     p_intended_platform_role: emptyToNull(parsed.data.intendedPlatformRole),
     p_expires_at: emptyToNull(parsed.data.expiresAt),
-    p_department_scopes: [],
+    p_department_scopes: parsed.data.departmentIds.map((departmentId, index) => ({
+      department_id: departmentId,
+      department_role: parsed.data.departmentRoles[index],
+    })),
     p_reason: parsed.data.reason,
   } as unknown as Database['public']['Functions']['create_staff_invitation']['Args']
 

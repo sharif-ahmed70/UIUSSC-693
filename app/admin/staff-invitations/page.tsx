@@ -1,15 +1,22 @@
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import AdminActionForm from '@/components/admin/AdminActionForm'
 import AdminHeader from '@/components/admin/AdminHeader'
 import EmptyAdminState from '@/components/admin/EmptyAdminState'
+import InvitationPlanForm from '@/components/admin/InvitationPlanForm'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { cancelStaffInvitationAction, createStaffInvitationAction } from '@/features/invitations/actions'
 import { invitationMessages } from '@/features/invitations/errors'
-import { getStaffInvitations } from '@/features/invitations/queries'
-import { formatPlatformRole, maskEmail } from '@/lib/formatters'
+import { getInvitationFormOptions, getStaffInvitations } from '@/features/invitations/queries'
+import { getAdminContext } from '@/features/admin/queries/getAdminContext'
+import { formatDepartmentRole, formatPlatformRole, maskEmail } from '@/lib/formatters'
 
 export default async function StaffInvitationsPage(){
-  const invitations = await getStaffInvitations()
+  const [context, invitations, options] = await Promise.all([getAdminContext(), getStaffInvitations(), getInvitationFormOptions()])
+
+  if (!context.permissions.canCreateStaffInvitations) {
+    notFound()
+  }
 
   return (
     <div>
@@ -23,22 +30,7 @@ export default async function StaffInvitationsPage(){
       <section className="mb-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Create operator-assisted invitation plan</h2>
         <div className="mt-4">
-          <AdminActionForm action={createStaffInvitationAction} submitLabel="Create invitation plan" fields={
-            <>
-              <input name="invitedEmail" type="email" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Invitee email" required />
-              <input name="invitedName" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Invitee name" />
-              <input name="intendedClubPositionId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Intended club position UUID" />
-              <select name="intendedPlatformRole" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm">
-                <option value="">No platform role intent</option>
-                <option value="club_admin">Club Admin</option>
-                <option value="membership_admin">Membership Admin</option>
-                <option value="content_admin">Content Admin</option>
-                <option value="department_admin">Department Admin</option>
-              </select>
-              <input name="expiresAt" type="datetime-local" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" />
-              <textarea name="reason" className="min-h-20 rounded-md border border-slate-200 p-3 text-sm" placeholder="Reason" required />
-            </>
-          } />
+          <InvitationPlanForm action={createStaffInvitationAction} options={options} />
         </div>
       </section>
 
@@ -52,8 +44,13 @@ export default async function StaffInvitationsPage(){
                   <h3 className="font-extrabold text-uiussc-charcoal">{invitation.invited_name ?? 'Staff invitee'}</h3>
                   <p className="mt-1 text-sm text-slate-600">{maskEmail(invitation.normalized_email)}</p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Intended role: {invitation.intended_platform_role ? formatPlatformRole(invitation.intended_platform_role) : 'None'} · expires {new Date(invitation.expires_at).toLocaleString()}
+                    Intended role: {invitation.intended_platform_role ? formatPlatformRole(invitation.intended_platform_role) : 'None'} · position: {invitation.club_positions?.name ?? 'None'} · expires {new Date(invitation.expires_at).toLocaleString()}
                   </p>
+                  {invitation.staff_invitation_department_scopes.length > 0 && (
+                    <p className="mt-1 text-sm text-slate-600">
+                      {invitation.staff_invitation_department_scopes.map((scope) => `${scope.club_departments?.name ?? 'Department'}: ${formatDepartmentRole(scope.intended_department_role)}`).join(' · ')}
+                    </p>
+                  )}
                 </div>
                 <StatusBadge status={invitation.invitation_status} />
               </div>
@@ -62,7 +59,12 @@ export default async function StaffInvitationsPage(){
               </div>
               {['draft', 'ready', 'sent', 'operator_assisted'].includes(invitation.invitation_status) && (
                 <div className="mt-4 max-w-md">
-                  <AdminActionForm action={cancelStaffInvitationAction} id={invitation.id} submitLabel="Cancel invitation" danger fields={<textarea name="reason" className="min-h-20 rounded-md border border-slate-200 p-3 text-sm" placeholder="Reason" required />} />
+                  <AdminActionForm action={cancelStaffInvitationAction} id={invitation.id} submitLabel="Cancel invitation" danger fields={
+                    <label className="grid gap-2 text-sm font-bold text-uiussc-charcoal">
+                      Cancellation reason <span className="text-red-700">*</span>
+                      <textarea name="reason" className="min-h-20 rounded-md border border-slate-200 p-3 text-sm font-normal" required />
+                    </label>
+                  } />
                 </div>
               )}
             </article>

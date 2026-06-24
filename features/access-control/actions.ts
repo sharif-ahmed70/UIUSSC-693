@@ -28,6 +28,25 @@ export async function grantTemporaryAccessAction(_state: AdminActionState, formD
   const admin = await requireAdminAction('canManageAccessGrants')
   if ('error' in admin) return admin.error
 
+  const { data: permission } = await admin.supabase
+    .from('system_permissions')
+    .select('supports_global_scope, supports_department_scope')
+    .eq('permission_key', parsed.data.permissionKey)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (!permission) {
+    return { status: 'error', message: 'Select a valid active permission.' }
+  }
+
+  if (parsed.data.scopeType === 'global' && !permission.supports_global_scope) {
+    return { status: 'error', message: 'This permission does not support global scope.' }
+  }
+
+  if (parsed.data.scopeType === 'department' && !permission.supports_department_scope) {
+    return { status: 'error', message: 'This permission does not support department scope.' }
+  }
+
   const args = {
     p_profile_id: parsed.data.profileId,
     p_permission_key: parsed.data.permissionKey,

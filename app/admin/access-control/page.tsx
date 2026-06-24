@@ -1,13 +1,23 @@
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import AccessGrantForm from '@/components/admin/AccessGrantForm'
 import AdminActionForm from '@/components/admin/AdminActionForm'
 import AdminHeader from '@/components/admin/AdminHeader'
 import EmptyAdminState from '@/components/admin/EmptyAdminState'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { grantTemporaryAccessAction, revokeTemporaryAccessAction } from '@/features/access-control/actions'
 import { getAccessControlSummary } from '@/features/access-control/queries'
-import { maskEmail } from '@/lib/formatters'
+import { getAdminContext } from '@/features/admin/queries/getAdminContext'
+import { formatDepartmentRole, formatPlatformRole, maskEmail } from '@/lib/formatters'
 
 export default async function AccessControlPage(){
-  const data = await getAccessControlSummary()
+  const [context, data] = await Promise.all([getAdminContext(), getAccessControlSummary()])
+
+  if (!context.permissions.canViewAccessControl) {
+    notFound()
+  }
+
+  const approvedUsers = data.users.filter((user) => user.accountStatus === 'approved' && user.onboardingStatus === 'approved')
 
   return (
     <div>
@@ -21,33 +31,30 @@ export default async function AccessControlPage(){
       <section className="mb-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Grant or restrict temporary access</h2>
         <div className="mt-4">
-          <AdminActionForm action={grantTemporaryAccessAction} submitLabel="Create temporary access" fields={
-            <>
-              <input name="profileId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Volunteer profile UUID" required />
-              <select name="permissionKey" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" required>
-                {data.permissions.map((permission) => (
-                  <option key={permission.id} value={permission.permission_key}>{permission.permission_key}</option>
-                ))}
-              </select>
-              <select name="effect" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" required>
-                <option value="allow">Allow</option>
-                <option value="deny">Deny / restrict</option>
-              </select>
-              <select name="scopeType" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" required>
-                <option value="global">Global</option>
-                <option value="department">Department</option>
-                <option value="event">Event</option>
-                <option value="record">Record</option>
-              </select>
-              <input name="departmentId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Department UUID when scoped" />
-              <input name="eventId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Event UUID when scoped" />
-              <input name="targetRecordType" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Record type when scoped" />
-              <input name="targetRecordId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Record UUID when scoped" />
-              <input name="startsAt" type="datetime-local" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" />
-              <input name="expiresAt" type="datetime-local" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" />
-              <textarea name="reason" className="min-h-20 rounded-md border border-slate-200 p-3 text-sm" placeholder="Reason" required />
-            </>
-          } />
+          <AccessGrantForm action={grantTemporaryAccessAction} users={approvedUsers} permissions={data.permissions} departments={data.departments} />
+        </div>
+      </section>
+
+      <section className="mb-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
+        <h2 className="text-xl font-extrabold text-uiussc-charcoal">User directory</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">Showing a limited set of non-archived, non-rejected profiles. Use the selector search above to narrow by name, masked email, club position, platform role, department, or status.</p>
+        <div className="mt-4 grid gap-3">
+          {data.users.length === 0 ? <EmptyAdminState message="No accessible staff profiles found." /> : data.users.map((user) => (
+            <article key={user.id} className="rounded-md border border-slate-200 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-extrabold text-uiussc-charcoal">{user.fullName}</h3>
+                  <p className="mt-1 text-sm text-slate-600">{maskEmail(user.email)} · {user.accountStatus}/{user.onboardingStatus}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {[...user.activeClubPositions, ...user.activePlatformRoles.map(formatPlatformRole), ...user.activeDepartmentMemberships.map((membership) => `${membership.departmentName}: ${formatDepartmentRole(membership.role)}`)].join(' · ') || 'No active internal role'}
+                  </p>
+                </div>
+                <Link href={`/admin/access-control/users/${user.id}`} className="rounded-md border border-slate-200 px-3 py-2 text-sm font-extrabold text-uiussc-charcoal transition hover:border-uiussc-orange hover:text-uiussc-orange focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20">
+                  View access
+                </Link>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
@@ -57,10 +64,15 @@ export default async function AccessControlPage(){
           {data.permissions.map((permission) => (
             <article key={permission.id} className="rounded-md border border-slate-200 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-extrabold text-uiussc-charcoal">{permission.permission_key}</h3>
+                <div>
+                  <h3 className="font-extrabold text-uiussc-charcoal">{permission.name}</h3>
+                  <p className="mt-1 font-mono text-xs text-slate-500">{permission.permission_key}</p>
+                </div>
                 <StatusBadge status={permission.risk_level} />
               </div>
-              <p className="mt-2 text-sm text-slate-600">{permission.name}</p>
+              <p className="mt-2 text-sm text-slate-600">
+                Supports {[permission.supports_global_scope ? 'global' : null, permission.supports_department_scope ? 'department' : null, permission.supports_event_scope ? 'event later' : null, permission.supports_record_scope ? 'record later' : null].filter(Boolean).join(', ') || 'no selectable scope'} scope.
+              </p>
             </article>
           ))}
         </div>
@@ -74,14 +86,19 @@ export default async function AccessControlPage(){
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h3 className="font-extrabold text-uiussc-charcoal">{override.system_permissions?.permission_key ?? override.permission_id}</h3>
-                  <p className="mt-1 text-sm text-slate-600">{override.volunteer_profiles?.full_name ?? override.volunteer_profile_id} {maskEmail(override.volunteer_profiles?.email) ? `(${maskEmail(override.volunteer_profiles?.email)})` : ''}</p>
+                  <p className="mt-1 text-sm text-slate-600">{override.volunteer_profiles?.full_name ?? 'Staff member'} {maskEmail(override.volunteer_profiles?.email) ? `(${maskEmail(override.volunteer_profiles?.email)})` : ''}</p>
                   <p className="mt-1 text-sm text-slate-600">{override.effect} · {override.scope_type} · expires {override.expires_at ?? 'manually'}</p>
                 </div>
                 <StatusBadge status={override.status} />
               </div>
               {override.status === 'active' || override.status === 'scheduled' ? (
                 <div className="mt-4 max-w-md">
-                  <AdminActionForm action={revokeTemporaryAccessAction} id={override.id} submitLabel="Revoke access" danger fields={<textarea name="reason" className="min-h-20 rounded-md border border-slate-200 p-3 text-sm" placeholder="Reason" required />} />
+                  <AdminActionForm action={revokeTemporaryAccessAction} id={override.id} submitLabel="Revoke access" danger fields={
+                    <label className="grid gap-2 text-sm font-bold text-uiussc-charcoal">
+                      Revocation reason <span className="text-red-700">*</span>
+                      <textarea name="reason" className="min-h-20 rounded-md border border-slate-200 p-3 text-sm font-normal" required />
+                    </label>
+                  } />
                 </div>
               ) : null}
             </article>

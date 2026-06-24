@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import AdminHeader from '@/components/admin/AdminHeader'
 import StatusBadge from '@/components/admin/StatusBadge'
-import { getStaffInvitations } from '@/features/invitations/queries'
+import { getAdminContext } from '@/features/admin/queries/getAdminContext'
+import { getStaffInvitation } from '@/features/invitations/queries'
 import { formatDepartmentRole, formatPlatformRole, maskEmail } from '@/lib/formatters'
 
 type PageProps = {
@@ -11,9 +12,9 @@ type PageProps = {
 
 export default async function StaffInvitationDetailPage({ params }: PageProps){
   const { id } = await params
-  const invitation = (await getStaffInvitations()).find((item) => item.id === id)
+  const [context, invitation] = await Promise.all([getAdminContext(), getStaffInvitation(id)])
 
-  if (!invitation) {
+  if (!context.permissions.canCreateStaffInvitations || !invitation) {
     notFound()
   }
 
@@ -58,7 +59,7 @@ export default async function StaffInvitationDetailPage({ params }: PageProps){
             <div className="mt-3 grid gap-2">
               {invitation.staff_invitation_department_scopes.map((scope) => (
                 <p key={scope.id} className="rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-700">
-                  {scope.club_departments?.name ?? scope.department_id} · {formatDepartmentRole(scope.intended_department_role)}
+                  {scope.club_departments?.name ?? 'Department'} · {formatDepartmentRole(scope.intended_department_role)}
                 </p>
               ))}
             </div>

@@ -10,3 +10,8 @@ export type StaffInvitationListItem = StaffInvitation & {
     club_departments: { name: string | null; slug: string | null } | null
   }>
 }
+
+export type InvitationFormOptions = {
+  positions: Array<{ id: string; name: string; slug: string }>
+  departments: Array<{ id: string; name: string; slug: string }>
+}
