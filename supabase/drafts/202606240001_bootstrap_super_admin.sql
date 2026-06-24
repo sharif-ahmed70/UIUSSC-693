@@ -2,7 +2,8 @@
 -- Never run this file automatically as a migration or seed.
 -- Run manually only by the database owner or trusted operator after human approval.
 -- Replace placeholders with one real existing Supabase Auth user id and exact email.
--- Optional: set expected_profile_id and preferred_department_slug after operator review.
+-- Optional: set expected_profile_id after operator review.
+-- preferred_department_slug should normally remain null for Core Panel executives.
 
 begin;
 
@@ -11,9 +12,12 @@ declare
   target_auth_user_id uuid := '00000000-0000-0000-0000-000000000000';
   expected_verified_email text := 'replace-with-exact-admin-email@example.edu';
   expected_profile_id uuid := null;
+  club_position_slug text := 'general-secretary';
   preferred_department_slug text := null;
   target_auth_email text;
   selected_profile public.volunteer_profiles%rowtype;
+  selected_position public.club_positions%rowtype;
+  selected_position_assignment public.volunteer_club_positions%rowtype;
   selected_department public.club_departments%rowtype;
   selected_membership public.volunteer_department_memberships%rowtype;
 begin
@@ -74,6 +78,17 @@ begin
       and status = 'active'
   ) then
     raise exception 'Target profile already has active super_admin.';
+  end if;
+
+  select *
+  into selected_position
+  from public.club_positions
+  where slug = lower(btrim(club_position_slug))
+    and status = 'active'
+    and archived_at is null;
+
+  if selected_position.id is null then
+    raise exception 'Selected club position slug does not reference an active position.';
   end if;
 
   update public.volunteer_profiles
@@ -178,6 +193,43 @@ begin
     );
   end if;
 
+  if exists (
+    select 1
+    from public.volunteer_club_positions
+    where volunteer_profile_id = selected_profile.id
+      and club_position_id = selected_position.id
+      and status = 'active'
+  ) then
+    raise exception 'Target profile already has this active club position.';
+  end if;
+
+  update public.volunteer_club_positions
+  set is_primary = false
+  where volunteer_profile_id = selected_profile.id
+    and status = 'active';
+
+  insert into public.volunteer_club_positions (
+    volunteer_profile_id,
+    club_position_id,
+    status,
+    is_primary,
+    term_start,
+    assigned_by,
+    assigned_at,
+    reason
+  )
+  values (
+    selected_profile.id,
+    selected_position.id,
+    'active',
+    true,
+    current_date,
+    null,
+    now(),
+    'operator bootstrap for first super_admin'
+  )
+  returning * into selected_position_assignment;
+
   insert into public.volunteer_platform_roles (
     volunteer_profile_id,
     role,
@@ -211,7 +263,30 @@ begin
     jsonb_build_object(
       'operator_action', true,
       'manual_bootstrap', true,
+      'club_position_slug', selected_position.slug,
       'preferred_department_slug_supplied', preferred_department_slug is not null
+    )
+  );
+
+  insert into public.club_audit_logs (
+    actor_profile_id,
+    actor_auth_user_id,
+    action,
+    entity_type,
+    entity_id,
+    metadata
+  )
+  values (
+    selected_profile.id,
+    target_auth_user_id,
+    'bootstrap_club_position_assigned',
+    'volunteer_profile',
+    selected_profile.id,
+    jsonb_build_object(
+      'operator_action', true,
+      'manual_bootstrap', true,
+      'club_position_slug', selected_position.slug,
+      'assignment_id', selected_position_assignment.id
     )
   );
 end $$;
@@ -220,10 +295,13 @@ select
   vp.id as volunteer_profile_id,
   vp.account_status,
   vp.onboarding_status,
+  cp.name as primary_club_position,
   count(vpr.id) filter (where vpr.role = 'super_admin' and vpr.status = 'active') as active_super_admin_roles
 from public.volunteer_profiles vp
 left join public.volunteer_platform_roles vpr on vpr.volunteer_profile_id = vp.id
+left join public.volunteer_club_positions vcp on vcp.volunteer_profile_id = vp.id and vcp.status = 'active' and vcp.is_primary = true
+left join public.club_positions cp on cp.id = vcp.club_position_id
 where vp.auth_user_id = '00000000-0000-0000-0000-000000000000'::uuid
-group by vp.id, vp.account_status, vp.onboarding_status;
+group by vp.id, vp.account_status, vp.onboarding_status, cp.name;
 
 commit;

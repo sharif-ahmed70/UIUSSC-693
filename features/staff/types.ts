@@ -21,6 +21,20 @@ export type StaffMembership = {
   department: StaffDepartment
 }
 
+export type StaffClubPosition = {
+  id: string
+  status: string
+  isPrimary: boolean
+  termStart: string
+  termEnd: string | null
+  position: {
+    id: string
+    name: string
+    slug: string
+    isCorePanel: boolean
+  }
+}
+
 export type StaffProfile = {
   id: string
   fullName: string
@@ -41,6 +55,8 @@ export type StaffAccessContext = {
   profile: StaffProfile | null
   approvedMemberships: StaffMembership[]
   pendingMemberships: StaffMembership[]
+  clubPositions: StaffClubPosition[]
+  primaryClubPosition: StaffClubPosition | null
   platformRoles: PlatformRole[]
   primaryMembership: StaffMembership | null
   recommendedDestination: string

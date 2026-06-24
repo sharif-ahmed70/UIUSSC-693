@@ -12,6 +12,12 @@ Phase CM-3 adds controlled administration for department membership approval, ro
 
 The first-admin bootstrap remains operator-only and draft-only. The draft can now approve an eligible submitted/under-review profile and optional selected department request during the first-super-admin transaction, avoiding an impossible pre-approved-profile requirement.
 
+## Leadership/Core Panel Status
+
+Leadership is now modeled outside department membership. `club_positions` stores titles such as President and General Secretary, while `volunteer_club_positions` stores term-based assignments. Core Panel status does not imply `super_admin`; platform authority remains in `volunteer_platform_roles`.
+
+Onboarding can now submit without a preferred department. In that case no department membership is created, `primary_department_id` stays null, and platform administrators can still use the staff dashboard.
+
 ## Departments
 
 Initial departments:
@@ -33,6 +39,8 @@ CM-1 implemented these tables in `supabase/migrations/202606240002_club_manageme
 - `club_departments`
 - `volunteer_profiles`
 - `volunteer_department_memberships`
+- `club_positions`
+- `volunteer_club_positions`
 - `volunteer_platform_roles`
 - `volunteer_status_history`
 - `department_membership_history`
@@ -122,6 +130,17 @@ Trade-offs:
 
 Principle: database tables are the trusted authorization source. Auth claims may only cache hints.
 
+### `club_positions` and `volunteer_club_positions`
+
+Club positions describe UIUSSC organizational leadership. Volunteer club-position assignments track who currently holds a title, whether it is primary, and term boundaries.
+
+Rules:
+
+- General Secretary, President, and other Core Panel titles are not platform roles.
+- Core Panel members normally receive `club_admin` only when application access is needed.
+- A technical `super_admin` can keep that role independently through future club-position changes.
+- General Secretary to President transition changes the active position assignment and preserves platform permissions.
+
 Blood operational permissions are mapped from approved Blood Department membership:
 
 - Blood volunteer: approved Blood membership with `department_role = volunteer`; limited operational read and assistance actions.
@@ -143,7 +162,7 @@ Role/status changes must include actor, previous value, new value, reason, and t
 
 - One approved department: route to that department dashboard.
 - Multiple approved departments: route to `/staff` with approved department switcher.
-- Club admin: show administration dashboard and permitted shortcuts.
+- Platform admin or club admin, including club-wide executives without department membership: show `/staff` and administration shortcuts.
 - Pending profile: `/staff/pending`.
 - No approved department: `/staff/no-access`.
 - Suspended account: deny protected access and show safe status message.

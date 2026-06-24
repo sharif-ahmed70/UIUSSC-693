@@ -8,6 +8,7 @@ import type {
   OnboardingStatus,
   PlatformRole,
   StaffAccessContext,
+  StaffClubPosition,
   StaffMembership,
 } from '@/features/staff/types'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
@@ -45,6 +46,23 @@ type DepartmentRow = {
   short_description: string | null
 }
 
+type ClubPositionRow = {
+  id: string
+  volunteer_profile_id: string
+  club_position_id: string
+  status: string
+  is_primary: boolean
+  term_start: string
+  term_end: string | null
+}
+
+type PositionRow = {
+  id: string
+  name: string
+  slug: string
+  is_core_panel: boolean
+}
+
 function emptyContext(): StaffAccessContext {
   return {
     userId: null,
@@ -52,6 +70,8 @@ function emptyContext(): StaffAccessContext {
     profile: null,
     approvedMemberships: [],
     pendingMemberships: [],
+    clubPositions: [],
+    primaryClubPosition: null,
     platformRoles: [],
     primaryMembership: null,
     recommendedDestination: '/login',
@@ -99,7 +119,7 @@ export async function getStaffAccessContext(): Promise<StaffAccessContext> {
     }
   }
 
-  const [{ data: memberships }, { data: roles }] = await Promise.all([
+  const [{ data: memberships }, { data: roles }, { data: clubPositions }] = await Promise.all([
     supabase
       .from('volunteer_department_memberships')
       .select('id, volunteer_profile_id, department_id, department_role, membership_status, is_primary, requested_at, approved_at')
@@ -107,6 +127,11 @@ export async function getStaffAccessContext(): Promise<StaffAccessContext> {
     supabase
       .from('volunteer_platform_roles')
       .select('role')
+      .eq('volunteer_profile_id', profile.id)
+      .eq('status', 'active'),
+    supabase
+      .from('volunteer_club_positions')
+      .select('id, volunteer_profile_id, club_position_id, status, is_primary, term_start, term_end')
       .eq('volunteer_profile_id', profile.id)
       .eq('status', 'active'),
   ])
@@ -136,6 +161,36 @@ export async function getStaffAccessContext(): Promise<StaffAccessContext> {
     approvedMemberships[0] ??
     null
   const platformRoles = ((roles ?? []) as { role: string }[]).map((role) => role.role as PlatformRole)
+  const clubPositionRows = (clubPositions ?? []) as ClubPositionRow[]
+  const positionIds = Array.from(new Set(clubPositionRows.map((position) => position.club_position_id)))
+  const { data: positions } = positionIds.length
+    ? await supabase
+        .from('club_positions')
+        .select('id, name, slug, is_core_panel')
+        .in('id', positionIds)
+    : { data: [] }
+  const positionById = new Map((positions as PositionRow[] | null ?? []).map((position) => [position.id, position]))
+  const safeClubPositions: StaffClubPosition[] = clubPositionRows
+    .map((assignment) => {
+      const position = positionById.get(assignment.club_position_id)
+      return position
+        ? {
+            id: assignment.id,
+            status: assignment.status,
+            isPrimary: assignment.is_primary,
+            termStart: assignment.term_start,
+            termEnd: assignment.term_end,
+            position: {
+              id: position.id,
+              name: position.name,
+              slug: position.slug,
+              isCorePanel: position.is_core_panel,
+            },
+          }
+        : null
+    })
+    .filter((assignment): assignment is StaffClubPosition => assignment !== null)
+  const primaryClubPosition = safeClubPositions.find((position) => position.isPrimary) ?? safeClubPositions[0] ?? null
 
   let recommendedDestination = '/staff/onboarding'
 
@@ -176,6 +231,8 @@ export async function getStaffAccessContext(): Promise<StaffAccessContext> {
     },
     approvedMemberships,
     pendingMemberships,
+    clubPositions: safeClubPositions,
+    primaryClubPosition,
     platformRoles,
     primaryMembership,
     recommendedDestination,

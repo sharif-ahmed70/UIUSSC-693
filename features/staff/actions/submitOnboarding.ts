@@ -28,6 +28,7 @@ export async function submitOnboardingAction(_previousState: ActionState, formDa
   }
 
   const supabase = await createServerSupabaseClient()
+  const preferredDepartmentId = parsed.data.preferredDepartmentId || null
   const { error } = await supabase.rpc('submit_volunteer_onboarding', {
     p_full_name: parsed.data.fullName,
     p_student_id: normalizeStudentId(parsed.data.studentId),
@@ -36,7 +37,7 @@ export async function submitOnboardingAction(_previousState: ActionState, formDa
     p_academic_department: parsed.data.academicDepartment,
     p_trimester: parsed.data.trimester,
     p_blood_group: parsed.data.bloodGroup || '',
-    p_preferred_department_id: parsed.data.preferredDepartmentId,
+    p_preferred_department_id: preferredDepartmentId,
   })
 
   if (error) {

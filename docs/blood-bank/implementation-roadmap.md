@@ -12,6 +12,10 @@ Secure administration, volunteer verification, department membership review, dep
 
 Before BB-1 begins, bootstrap one real UIUSSC super administrator in the linked development project and complete live authenticated admin verification. CM-3.1 did not add Blood tables or Blood workflows.
 
+## Leadership/Core Panel Gate
+
+The leadership/Core Panel foundation adds club-position tables, Core Panel assignment workflows, optional no-department onboarding, and first-admin bootstrap support for a General Secretary plus technical `super_admin`. It does not add Blood Support tables, donor workflows, matching logic, or donation history.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1

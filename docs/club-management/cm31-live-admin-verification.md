@@ -42,11 +42,15 @@ with:
 {
   "authUserId": "<REAL_AUTH_USER_UUID>",
   "expectedEmail": "<EXACT_VERIFIED_ADMIN_EMAIL>",
-  "preferredDepartmentSlug": "human-resources"
+  "volunteerProfileId": "<OPTIONAL_PROFILE_UUID>",
+  "clubPositionSlug": "general-secretary",
+  "preferredDepartmentSlug": null
 }
 ```
 
 The file must remain local and ignored.
+
+The default bootstrap path assigns the selected real account to the General Secretary club position and `super_admin` platform role. It does not assign a department unless `preferredDepartmentSlug` is intentionally set.
 
 ## Live Admin Verification
 

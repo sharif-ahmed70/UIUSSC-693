@@ -61,8 +61,8 @@ export default function OnboardingForm({ profile, email, departments }: Onboardi
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-extrabold text-uiussc-charcoal">Preferred UIUSSC department</h2>
-        <Select label="Department request" id="preferredDepartmentId" name="preferredDepartmentId" defaultValue={profile?.primaryDepartmentId ?? ''} options={departments} required error={state.fieldErrors?.preferredDepartmentId?.[0]} />
+        <h2 className="text-xl font-extrabold text-uiussc-charcoal">Preferred UIUSSC Department - Optional</h2>
+        <Select label="Department request" id="preferredDepartmentId" name="preferredDepartmentId" defaultValue={profile?.primaryDepartmentId ?? ''} options={[{ value: '', label: 'No department / Club-wide executive role' }, ...departments]} error={state.fieldErrors?.preferredDepartmentId?.[0]} />
       </section>
 
       <section className="space-y-4">
@@ -115,7 +115,7 @@ function Select({ label, id, name, defaultValue, options, required, error }: {
     <div className="space-y-2">
       <label htmlFor={id} className="text-sm font-bold text-slate-800">{label}{required && <span className="text-uiussc-orange"> *</span>}</label>
       <select id={id} name={name} defaultValue={defaultValue} required={required} className="w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-uiussc-orange focus:ring-4 focus:ring-uiussc-orange/15">
-        <option value="">Select one</option>
+        {required && <option value="">Select one</option>}
         {options.map((option) => (
           <option key={option.value} value={option.value}>{option.label}</option>
         ))}

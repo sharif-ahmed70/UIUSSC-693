@@ -22,6 +22,7 @@ Department heads do not receive platform-role authority, cross-department author
 - `/admin/volunteers/[id]`
 - `/admin/department-memberships`
 - `/admin/departments`
+- `/admin/club-positions`
 - `/admin/platform-roles`
 - `/admin/audit-logs`
 
@@ -38,6 +39,8 @@ Department memberships can be approved, rejected, suspended, removed, role-chang
 Departments can be created, updated, deactivated, and archived. Archived departments are not physically deleted.
 
 Platform roles can be assigned or revoked only by `super_admin`. The database prevents self-escalation, self-revocation, duplicate active roles, and revocation of the final active `super_admin`.
+
+Club positions are managed separately at `/admin/club-positions`. Core Panel titles such as General Secretary and President can be assigned, completed, revoked, and marked primary without changing platform roles.
 
 ## RPC And RLS Approach
 
@@ -69,7 +72,7 @@ No administrator was seeded. The first `super_admin` must be bootstrapped manual
 
 The bootstrap must not be exposed through public routes, normal Server Actions, login, or onboarding.
 
-CM-3.1 updates the draft so the trusted operator transaction can approve a submitted or under-review profile during the one-time first-admin bootstrap.
+CM-3.1 updates the draft so the trusted operator transaction can approve a submitted or under-review profile during the one-time first-admin bootstrap. The leadership update extends the draft so the selected real account can be assigned General Secretary as a primary club position and `super_admin` while keeping department selection optional.
 
 ## Invitation Limitation
 

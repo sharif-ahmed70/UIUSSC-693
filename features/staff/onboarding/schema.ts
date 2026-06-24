@@ -8,7 +8,10 @@ export const onboardingSchema = z.object({
   academicDepartment: z.string().trim().min(2, 'Select your academic department.').max(80),
   trimester: z.string().trim().min(2, 'Select your trimester.').max(40),
   bloodGroup: z.string().trim().max(4).optional(),
-  preferredDepartmentId: z.uuid('Select a preferred UIUSSC department.'),
+  preferredDepartmentId: z
+    .string()
+    .trim()
+    .refine((value) => value === '' || z.uuid().safeParse(value).success, 'Select a valid UIUSSC department.'),
   consent: z.literal('on', { error: 'Confirm that the information is accurate.' }),
 })
 

@@ -28,6 +28,7 @@ export default async function AdminDashboardPage(){
         {context.permissions.canReviewMembershipApplications && <QuickLink href="/admin/membership-applications" label="Review membership applications" />}
         {context.permissions.canManageVolunteers && <QuickLink href="/admin/volunteers" label="Review volunteer profiles" />}
         {context.permissions.canManageVolunteers && <QuickLink href="/admin/department-memberships" label="Manage department requests" />}
+        {context.permissions.canManageVolunteers && <QuickLink href="/admin/club-positions" label="Manage club positions" />}
         {context.permissions.canManageDepartments && <QuickLink href="/admin/departments" label="Manage departments" />}
       </section>
 

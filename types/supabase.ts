@@ -101,6 +101,45 @@ export type Database = {
         }
         Relationships: []
       }
+      club_positions: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_core_panel: boolean
+          name: string
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_core_panel?: boolean
+          name: string
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_core_panel?: boolean
+          name?: string
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -495,6 +534,99 @@ export type Database = {
         }
         Relationships: []
       }
+      volunteer_club_positions: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          club_position_id: string
+          created_at: string
+          ended_at: string | null
+          ended_by: string | null
+          id: string
+          is_primary: boolean
+          reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          term_end: string | null
+          term_start: string
+          updated_at: string
+          volunteer_profile_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          club_position_id: string
+          created_at?: string
+          ended_at?: string | null
+          ended_by?: string | null
+          id?: string
+          is_primary?: boolean
+          reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          term_end?: string | null
+          term_start?: string
+          updated_at?: string
+          volunteer_profile_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          club_position_id?: string
+          created_at?: string
+          ended_at?: string | null
+          ended_by?: string | null
+          id?: string
+          is_primary?: boolean
+          reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          term_end?: string | null
+          term_start?: string
+          updated_at?: string
+          volunteer_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_club_positions_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_club_positions_club_position_id_fkey"
+            columns: ["club_position_id"]
+            isOneToOne: false
+            referencedRelation: "club_positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_club_positions_ended_by_fkey"
+            columns: ["ended_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_club_positions_revoked_by_fkey"
+            columns: ["revoked_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_club_positions_volunteer_profile_id_fkey"
+            columns: ["volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       volunteer_department_memberships: {
         Row: {
           approved_at: string | null
@@ -865,11 +997,31 @@ export type Database = {
           status: string
         }[]
       }
+      archive_club_position: {
+        Args: { p_position_id: string; p_reason: string }
+        Returns: {
+          position_id: string
+          status: string
+        }[]
+      }
       assign_platform_role: {
         Args: { p_profile_id: string; p_reason: string; p_role: string }
         Returns: {
           profile_id: string
           role: string
+          status: string
+        }[]
+      }
+      assign_volunteer_club_position: {
+        Args: {
+          p_is_primary?: boolean
+          p_position_id: string
+          p_profile_id: string
+          p_reason?: string
+          p_term_start?: string
+        }
+        Returns: {
+          assignment_id: string
           status: string
         }[]
       }
@@ -889,6 +1041,24 @@ export type Database = {
           membership_id: string
         }[]
       }
+      change_primary_club_position: {
+        Args: { p_assignment_id: string; p_reason?: string }
+        Returns: {
+          assignment_id: string
+          is_primary: boolean
+        }[]
+      }
+      complete_volunteer_club_position: {
+        Args: {
+          p_assignment_id: string
+          p_reason?: string
+          p_term_end?: string
+        }
+        Returns: {
+          assignment_id: string
+          status: string
+        }[]
+      }
       create_club_department: {
         Args: {
           p_display_order?: number
@@ -898,6 +1068,19 @@ export type Database = {
         }
         Returns: {
           department_id: string
+          slug: string
+        }[]
+      }
+      create_club_position: {
+        Args: {
+          p_description?: string
+          p_display_order?: number
+          p_is_core_panel?: boolean
+          p_name: string
+          p_slug: string
+        }
+        Returns: {
+          position_id: string
           slug: string
         }[]
       }
@@ -970,6 +1153,13 @@ export type Database = {
           status: string
         }[]
       }
+      revoke_volunteer_club_position: {
+        Args: { p_assignment_id: string; p_reason: string }
+        Returns: {
+          assignment_id: string
+          status: string
+        }[]
+      }
       set_primary_department: {
         Args: { p_membership_id: string; p_reason?: string }
         Returns: {
@@ -984,7 +1174,7 @@ export type Database = {
           p_email: string
           p_full_name: string
           p_phone: string
-          p_preferred_department_id: string
+          p_preferred_department_id: string | null
           p_student_id: string
           p_trimester: string
         }
@@ -1021,6 +1211,23 @@ export type Database = {
         }
         Returns: {
           department_id: string
+          slug: string
+          status: string
+        }[]
+      }
+      update_club_position: {
+        Args: {
+          p_description: string
+          p_display_order: number
+          p_is_core_panel: boolean
+          p_name: string
+          p_position_id: string
+          p_reason?: string
+          p_slug: string
+          p_status: string
+        }
+        Returns: {
+          position_id: string
           slug: string
           status: string
         }[]

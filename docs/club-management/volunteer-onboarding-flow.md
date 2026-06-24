@@ -12,16 +12,17 @@ Onboarding submission remains volunteer-facing and pending by default. CM-3 adds
 4. Approved applicant receives a secure account invitation.
 5. User activates or creates a Supabase Auth account.
 6. User completes volunteer profile.
-7. User selects preferred department.
-8. User may request additional departments.
+7. User optionally selects a preferred department, or chooses a club-wide executive path with no department.
+8. User may later request additional departments.
 9. Profile remains pending.
 10. Department requests remain pending.
 11. Authorized administration verifies the user.
 12. Admin approves profile.
-13. Admin approves department membership.
-14. Admin assigns department role.
-15. User gains access only to approved department interfaces.
-16. Suspended users immediately lose protected access.
+13. Admin approves department membership when one was requested.
+14. Admin assigns department role when department access is needed.
+15. Admin may assign club position or platform role separately when authorized.
+16. User gains access only to approved department interfaces and trusted platform areas.
+17. Suspended users immediately lose protected access.
 
 ## Do Not Do
 
@@ -39,9 +40,10 @@ Onboarding submission remains volunteer-facing and pending by default. CM-3 adds
 - Invite approved applicant.
 - Review submitted profile.
 - Approve/reject volunteer profile with reason.
-- Assign primary department.
+- Assign primary department only when department membership is needed.
 - Approve additional department requests where appropriate.
 - Assign department role.
+- Assign club position separately from department role.
 - Assign platform role only when explicitly authorized.
 - Record all decisions in history and audit logs.
 
@@ -57,6 +59,7 @@ Suspension or archival must invalidate protected staff access at the next server
 
 ## Dashboard Access
 
+- Platform admin or club admin: show `/staff` even when no department is assigned.
 - One approved department: redirect to that department dashboard.
 - Multiple approved departments: show `/staff` and department switcher.
 - No approved department: show `/staff/no-access`.
