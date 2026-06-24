@@ -102,3 +102,5 @@ Supabase Auth redirect URLs should allow:
 ## Testing Limitations
 
 No disposable authenticated development user was created in this phase. Live authenticated onboarding/login flows should be tested later with a pre-approved disposable development account. Structural build checks, migration verification, public-route checks, and unauthenticated staff redirects are covered.
+
+CM-3.1 note: the linked development project still requires one real UIUSSC administrator account to sign in and complete `/staff/onboarding` before first-super-admin bootstrap can be executed.

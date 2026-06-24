@@ -8,6 +8,10 @@ The Blood Department now has a protected placeholder workspace at `/staff/blood`
 
 Secure administration, volunteer verification, department membership review, department role management, platform-role management, and audit-log viewing are now implemented structurally. No Blood Support tables, donor workflows, matching logic, or donation history were added in CM-3.
 
+## CM-3.1 Gate
+
+Before BB-1 begins, bootstrap one real UIUSSC super administrator in the linked development project and complete live authenticated admin verification. CM-3.1 did not add Blood tables or Blood workflows.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1

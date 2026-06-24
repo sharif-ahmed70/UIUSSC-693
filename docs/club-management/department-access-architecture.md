@@ -8,6 +8,10 @@ Phase CM-2 adds the first protected staff shell, server-side access-context quer
 
 Phase CM-3 adds controlled administration for department membership approval, role changes, primary department selection, department management, and platform-role management. Admin pages do not grant authority by hiding or showing navigation; every Server Action reloads trusted admin context and calls a database RPC that enforces permissions, transitions, history, and audit logging.
 
+## CM-3.1 Status
+
+The first-admin bootstrap remains operator-only and draft-only. The draft can now approve an eligible submitted/under-review profile and optional selected department request during the first-super-admin transaction, avoiding an impossible pre-approved-profile requirement.
+
 ## Departments
 
 Initial departments:

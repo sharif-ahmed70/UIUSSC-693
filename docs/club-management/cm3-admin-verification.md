@@ -63,11 +63,13 @@ Audit metadata must not contain tokens, passwords, service keys, session cookies
 
 ## Bootstrap Requirement
 
-No administrator was seeded. The first `super_admin` must be bootstrapped manually by a trusted database operator using a real existing Supabase Auth user and an existing approved volunteer profile. The draft remains at:
+No administrator was seeded. The first `super_admin` must be bootstrapped manually by a trusted database operator using a real existing Supabase Auth user and an eligible volunteer profile that has completed onboarding. The draft remains at:
 
 `supabase/drafts/202606240001_bootstrap_super_admin.sql`
 
 The bootstrap must not be exposed through public routes, normal Server Actions, login, or onboarding.
+
+CM-3.1 updates the draft so the trusted operator transaction can approve a submitted or under-review profile during the one-time first-admin bootstrap.
 
 ## Invitation Limitation
 
