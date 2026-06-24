@@ -6,10 +6,12 @@ Do not deploy the entire large schema in one risky operation if phased migration
 
 Migration draft: `202606240001a_club_management_foundation.sql` or the club-management section of `202606240001_club_management_blood_support.sql`.
 
-- Apply department/profile/membership/platform-role/history/audit foundation.
-- Seed only non-personal department records.
+Status: implemented in `supabase/migrations/202606240002_club_management_foundation.sql`.
+
+- Applied department/profile/membership/platform-role/history/audit foundation.
+- Seeded only non-personal department records.
 - No staff UI yet.
-- No broad admin RLS policies until authorization helpers are reviewed.
+- No broad admin RLS policies; authorization helpers remain deferred.
 
 ## Phase CM-2
 
@@ -19,6 +21,7 @@ Migration draft: `202606240001a_club_management_foundation.sql` or the club-mana
 - Add server-only authorization helpers.
 - Add protected staff shell.
 - Add department switcher.
+- Add disposable-user authenticated RLS test coverage for own-profile and own-membership flows.
 
 ## Phase CM-3
 

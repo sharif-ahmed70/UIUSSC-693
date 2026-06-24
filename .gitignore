@@ -1,6 +1,7 @@
 .next/
 node_modules/
 .reference/
+.tmp/
 
 dev-server*.log
 

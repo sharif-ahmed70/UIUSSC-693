@@ -16,6 +16,18 @@ Departments must be database-driven, not a PostgreSQL enum, so new departments c
 
 ## Core Tables
 
+CM-1 implemented these tables in `supabase/migrations/202606240002_club_management_foundation.sql`:
+
+- `club_departments`
+- `volunteer_profiles`
+- `volunteer_department_memberships`
+- `volunteer_platform_roles`
+- `volunteer_status_history`
+- `department_membership_history`
+- `club_audit_logs`
+
+No staff UI, admin dashboard, login flow, department switcher UI, Blood tables, or Storage policy was implemented in CM-1.
+
 ### `club_departments`
 
 Fields:
@@ -190,6 +202,17 @@ The process requires an existing Supabase Auth user UUID, manual execution by th
 - Admin policies must reference trusted role/membership tables.
 - Blood records are visible only to approved Blood Department members with appropriate role.
 - Graphics/Event/Logistics/PR/HR members have no Blood access unless also approved in Blood Department.
+
+CM-1 actual RLS scope:
+
+- `club_departments`: anon/authenticated can read active department metadata only.
+- `volunteer_profiles`: authenticated users can read, insert, and update only their own safe profile fields.
+- `volunteer_department_memberships`: authenticated users can read own memberships and request membership in active departments with default `volunteer`/`requested` values.
+- `volunteer_platform_roles`: no normal client policies or grants.
+- `volunteer_status_history` and `department_membership_history`: authenticated users can read only their own related history.
+- `club_audit_logs`: no normal client access.
+
+Admin approval policies, platform-role management, suspension enforcement helpers, and cross-department authorization helpers are deferred to CM-2/CM-3.
 
 ## Department Interface Roadmap
 

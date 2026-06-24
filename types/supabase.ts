@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -12,33 +12,95 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      club_audit_logs: {
+        Row: {
+          action: string
+          actor_auth_user_id: string | null
+          actor_profile_id: string | null
+          created_at: string
+          department_id: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          action: string
+          actor_auth_user_id?: string | null
+          actor_profile_id?: string | null
+          created_at?: string
+          department_id?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json
+        }
+        Update: {
+          action?: string
+          actor_auth_user_id?: string | null
+          actor_profile_id?: string | null
+          created_at?: string
+          department_id?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_audit_logs_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_audit_logs_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "club_departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_departments: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          display_order: number
+          id: string
+          name: string
+          short_description: string | null
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          name: string
+          short_description?: string | null
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          name?: string
+          short_description?: string | null
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -71,6 +133,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      department_membership_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          department_membership_id: string
+          id: string
+          new_role: string | null
+          new_status: string
+          previous_role: string | null
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          department_membership_id: string
+          id?: string
+          new_role?: string | null
+          new_status: string
+          previous_role?: string | null
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          department_membership_id?: string
+          id?: string
+          new_role?: string | null
+          new_status?: string
+          previous_role?: string | null
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "department_membership_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "department_membership_history_department_membership_id_fkey"
+            columns: ["department_membership_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_department_memberships"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_registrations: {
         Row: {
@@ -337,6 +450,349 @@ export type Database = {
         }
         Relationships: []
       }
+      volunteer_department_memberships: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          department_id: string
+          department_role: string
+          id: string
+          is_primary: boolean
+          membership_status: string
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          removal_reason: string | null
+          removed_at: string | null
+          removed_by: string | null
+          requested_at: string
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
+          updated_at: string
+          volunteer_profile_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          department_id: string
+          department_role?: string
+          id?: string
+          is_primary?: boolean
+          membership_status?: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          requested_at?: string
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
+          updated_at?: string
+          volunteer_profile_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          department_id?: string
+          department_role?: string
+          id?: string
+          is_primary?: boolean
+          membership_status?: string
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          removal_reason?: string | null
+          removed_at?: string | null
+          removed_by?: string | null
+          requested_at?: string
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
+          updated_at?: string
+          volunteer_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_department_memberships_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_department_memberships_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "club_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_department_memberships_rejected_by_fkey"
+            columns: ["rejected_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_department_memberships_removed_by_fkey"
+            columns: ["removed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_department_memberships_suspended_by_fkey"
+            columns: ["suspended_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_department_memberships_volunteer_profile_id_fkey"
+            columns: ["volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteer_platform_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          created_at: string
+          id: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          role: string
+          status: string
+          updated_at: string
+          volunteer_profile_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role: string
+          status?: string
+          updated_at?: string
+          volunteer_profile_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          volunteer_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_platform_roles_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_platform_roles_revoked_by_fkey"
+            columns: ["revoked_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_platform_roles_volunteer_profile_id_fkey"
+            columns: ["volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteer_profiles: {
+        Row: {
+          academic_department: string | null
+          account_status: string
+          approved_at: string | null
+          approved_by: string | null
+          archived_at: string | null
+          auth_user_id: string
+          blood_group: string | null
+          created_at: string
+          email: string
+          email_normalized: string | null
+          full_name: string
+          id: string
+          joined_at: string | null
+          onboarding_status: string
+          phone: string | null
+          phone_normalized: string | null
+          primary_department_id: string | null
+          profile_photo_path: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          student_id: string | null
+          student_id_normalized: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
+          trimester: string | null
+          updated_at: string
+        }
+        Insert: {
+          academic_department?: string | null
+          account_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          auth_user_id: string
+          blood_group?: string | null
+          created_at?: string
+          email: string
+          email_normalized?: string | null
+          full_name: string
+          id?: string
+          joined_at?: string | null
+          onboarding_status?: string
+          phone?: string | null
+          phone_normalized?: string | null
+          primary_department_id?: string | null
+          profile_photo_path?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          student_id?: string | null
+          student_id_normalized?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
+          trimester?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academic_department?: string | null
+          account_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          archived_at?: string | null
+          auth_user_id?: string
+          blood_group?: string | null
+          created_at?: string
+          email?: string
+          email_normalized?: string | null
+          full_name?: string
+          id?: string
+          joined_at?: string | null
+          onboarding_status?: string
+          phone?: string | null
+          phone_normalized?: string | null
+          primary_department_id?: string | null
+          profile_photo_path?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          student_id?: string | null
+          student_id_normalized?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
+          trimester?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_profiles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_profiles_primary_department_id_fkey"
+            columns: ["primary_department_id"]
+            isOneToOne: false
+            referencedRelation: "club_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_profiles_rejected_by_fkey"
+            columns: ["rejected_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_profiles_suspended_by_fkey"
+            columns: ["suspended_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteer_status_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: string
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+          volunteer_profile_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+          volunteer_profile_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+          volunteer_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_status_history_volunteer_profile_id_fkey"
+            columns: ["volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -471,9 +927,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
