@@ -53,9 +53,9 @@ Blood access is derived from trusted database state:
 
 - `super_admin`: full Blood Support administration.
 - `club_admin`: Blood operational oversight through controlled workflows.
-- Blood Department `coordinator`: donor/request/match operations and contact authorization.
-- Blood Department `department_head`: coordinator operations, donation verification, and Blood settings.
-- Blood Department `volunteer`: no broad sensitive read access in BB-1.
+- Blood Department `deputy_head`: donor/request/match operations and contact authorization.
+- Blood Department `department_head`: Deputy Head operations, donation verification, and Blood settings.
+- Blood Department `executive`: no broad sensitive read access in BB-1.
 
 Core Panel position alone does not grant Blood permissions.
 

@@ -64,7 +64,7 @@ Routing is based on trusted profile, membership, department, and platform-role r
 - preferred UIUSSC department
 - accuracy/coordination consent
 
-Submission uses the controlled `submit_volunteer_onboarding` RPC. The RPC requires `auth.uid()`, matches the submitted email to the authenticated email claim, updates or creates only the caller's own profile, creates or updates a primary department request as `volunteer/requested`, and prevents self-approval or role escalation.
+Submission uses the controlled `submit_volunteer_onboarding` RPC. The RPC requires `auth.uid()`, matches the submitted email to the authenticated email claim, updates or creates only the caller's own profile, creates or updates a primary department request as `executive/requested`, and prevents self-approval or role escalation.
 
 ## Department Switcher And Workspaces
 

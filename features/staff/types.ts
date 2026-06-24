@@ -1,7 +1,7 @@
 export type AccountStatus = 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived'
 export type OnboardingStatus = 'profile_incomplete' | 'submitted' | 'under_review' | 'approved' | 'rejected'
 export type MembershipStatus = 'requested' | 'under_review' | 'approved' | 'rejected' | 'suspended' | 'removed'
-export type DepartmentRole = 'volunteer' | 'coordinator' | 'department_head'
+export type DepartmentRole = 'executive' | 'deputy_head' | 'department_head'
 export type PlatformRole = 'super_admin' | 'club_admin' | 'membership_admin' | 'content_admin' | 'department_admin'
 
 export type StaffDepartment = {

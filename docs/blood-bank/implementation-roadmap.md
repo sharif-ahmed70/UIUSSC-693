@@ -75,6 +75,10 @@ Status: implemented in `supabase/migrations/202606240008_blood_support_foundatio
 - Public intake remains disabled.
 - No Storage bucket, public Blood UI, donor seed, request seed, or legacy import was added.
 
+## CM-4 Dependency Note
+
+CM-4 renames Blood Department operational roles to the real UIUSSC department structure: Executive, Deputy Head, and Department Head. BB-1 authorization helpers were updated to use `executive`, `deputy_head`, and `department_head`; public Blood intake remains disabled and BB-2 remains paused.
+
 ## Phase BB-2
 
 - Add public Blood landing page.

@@ -13,6 +13,9 @@ export function adminNavigation(permissions: AdminPermissions){
     { href: '/admin/club-positions', label: 'Club Positions', enabled: permissions.canManageVolunteers },
     { href: '/admin/departments', label: 'Departments', enabled: permissions.canManageDepartments },
     { href: '/admin/platform-roles', label: 'Platform Roles', enabled: permissions.canManagePlatformRoles },
+    { href: '/admin/access-control', label: 'Access Control', enabled: permissions.canViewAccessControl },
+    { href: '/admin/approval-requests', label: 'Approval Requests', enabled: permissions.canReviewApprovalRequests },
+    { href: '/admin/staff-invitations', label: 'Staff Invitations', enabled: permissions.canCreateStaffInvitations },
     { href: '/admin/audit-logs', label: 'Audit Logs', enabled: permissions.canViewAuditLogs },
   ].filter((item) => item.enabled)
 }

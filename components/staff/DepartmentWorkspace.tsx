@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { departmentFutureCapabilities } from '@/features/departments/routeMap'
 import type { KnownDepartmentSlug } from '@/features/departments/types'
 import type { StaffMembership } from '@/features/staff/types'
+import { formatDepartmentRole } from '@/lib/formatters'
 
 type DepartmentWorkspaceProps = {
   slug: KnownDepartmentSlug
@@ -16,10 +17,10 @@ export default function DepartmentWorkspace({ slug, departmentName, membership }
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-uiussc-orange">Department Workspace</p>
         <h1 className="mt-3 text-3xl font-extrabold">{departmentName}</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-          Module setup in progress. This protected placeholder confirms the staff routing and authorization foundation without adding operational tools yet.
+          {departmentName} workspace access is active. Event-task management and operational tools will be added in CM-5.
         </p>
         <p className="mt-4 inline-flex rounded-md bg-white/10 px-3 py-2 text-sm font-bold text-white">
-          Current role: {membership?.role.replace('_', ' ') ?? 'platform administrator'}
+          Current role: {membership ? formatDepartmentRole(membership.role) : 'Platform Administrator'}
         </p>
       </div>
 

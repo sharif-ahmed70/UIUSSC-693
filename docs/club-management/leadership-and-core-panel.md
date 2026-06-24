@@ -35,6 +35,15 @@ The permanent technical administrator can keep `super_admin` while holding any c
 
 This supports real UIUSSC leadership transitions without tying database ownership or emergency access to yearly club-office changes.
 
+## CM-4 Position-Aware Governance
+
+CM-4 adds position-aware permission policies without making titles equal to platform roles:
+
+- President is the highest operational authority when paired with approved platform access policy.
+- Vice President and General Secretary receive broad operational capability, but sensitive actions are routed through approval requests.
+- Other Core Panel positions remain conservative and receive only explicit policy, temporary access, or module-scoped permissions.
+- No club position grants `super_admin`.
+
 ## Department Independence
 
 Department membership remains optional. A club-wide executive can complete onboarding with no preferred department by selecting `No department / Club-wide executive role`.

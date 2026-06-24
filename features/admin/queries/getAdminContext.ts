@@ -16,6 +16,10 @@ export async function getAdminContext(): Promise<AdminContext>{
         canManageDepartments: false,
         canManagePlatformRoles: false,
         canViewAuditLogs: false,
+        canViewAccessControl: false,
+        canManageAccessGrants: false,
+        canReviewApprovalRequests: false,
+        canCreateStaffInvitations: false,
       },
       isAdmin: false,
     }
@@ -28,12 +32,20 @@ export async function getAdminContext(): Promise<AdminContext>{
     manageDepartments,
     managePlatformRoles,
     viewAuditLogs,
+    viewAccessControl,
+    manageAccessGrants,
+    reviewApprovalRequests,
+    createStaffInvitations,
   ] = await Promise.all([
     supabase.rpc('can_review_membership_applications'),
     supabase.rpc('can_manage_volunteers'),
     supabase.rpc('can_manage_departments'),
     supabase.rpc('can_manage_platform_roles'),
     supabase.rpc('can_view_audit_logs'),
+    supabase.rpc('has_effective_permission', { permission_key: 'access_grants.view', scope_type: 'global' }),
+    supabase.rpc('has_effective_permission', { permission_key: 'access_grants.manage', scope_type: 'global' }),
+    supabase.rpc('has_effective_permission', { permission_key: 'approval_requests.review', scope_type: 'global' }),
+    supabase.rpc('has_effective_permission', { permission_key: 'staff_invitations.create', scope_type: 'global' }),
   ])
 
   const permissions = {
@@ -42,6 +54,10 @@ export async function getAdminContext(): Promise<AdminContext>{
     canManageDepartments: Boolean(manageDepartments.data),
     canManagePlatformRoles: Boolean(managePlatformRoles.data),
     canViewAuditLogs: Boolean(viewAuditLogs.data),
+    canViewAccessControl: Boolean(viewAccessControl.data),
+    canManageAccessGrants: Boolean(manageAccessGrants.data),
+    canReviewApprovalRequests: Boolean(reviewApprovalRequests.data),
+    canCreateStaffInvitations: Boolean(createStaffInvitations.data),
   }
 
   return {

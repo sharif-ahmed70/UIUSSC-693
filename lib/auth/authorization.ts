@@ -26,8 +26,16 @@ export function hasPlatformRole(access: StaffAccessContext, roles: PlatformRole[
   return access.platformRoles.some((role) => roles.includes(role))
 }
 
+export function hasClubPosition(access: StaffAccessContext, slugs: string[]){
+  return access.clubPositions.some((position) => slugs.includes(position.position.slug))
+}
+
+export function hasOperationalOversight(access: StaffAccessContext){
+  return hasPlatformRole(access, ['club_admin', 'super_admin']) || hasClubPosition(access, ['president', 'vice-president', 'general-secretary'])
+}
+
 export function canAccessDepartment(access: StaffAccessContext, departmentSlug: string){
-  if (hasPlatformRole(access, ['club_admin', 'super_admin'])) {
+  if (hasOperationalOversight(access)) {
     return true
   }
 
@@ -39,7 +47,7 @@ export function requireDepartmentMembership(access: StaffAccessContext, departme
 
   const membership = access.approvedMemberships.find((item) => item.department.slug === departmentSlug)
 
-  if (!membership && !hasPlatformRole(access, ['club_admin', 'super_admin'])) {
+  if (!membership && !hasOperationalOversight(access)) {
     notFound()
   }
 

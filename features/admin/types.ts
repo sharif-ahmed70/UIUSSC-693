@@ -6,6 +6,10 @@ export type AdminPermissions = {
   canManageDepartments: boolean
   canManagePlatformRoles: boolean
   canViewAuditLogs: boolean
+  canViewAccessControl: boolean
+  canManageAccessGrants: boolean
+  canReviewApprovalRequests: boolean
+  canCreateStaffInvitations: boolean
 }
 
 export type AdminContext = {

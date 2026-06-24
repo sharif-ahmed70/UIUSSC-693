@@ -55,9 +55,9 @@ function RoleFields(){
   return (
     <>
       <select name="role" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" required>
-        <option value="volunteer">Volunteer</option>
-        <option value="coordinator">Coordinator</option>
-        <option value="department_head">Department head</option>
+        <option value="executive">Executive</option>
+        <option value="deputy_head">Deputy Head</option>
+        <option value="department_head">Department Head</option>
       </select>
       <ReasonField />
     </>

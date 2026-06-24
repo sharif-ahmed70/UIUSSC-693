@@ -9,7 +9,7 @@ Phase CM-3 adds the secure administration foundation for UIUSSC volunteer verifi
 - `membership_admin`: membership application review, onboarding profile review, ordinary volunteer approval, ordinary department request approval.
 - `content_admin`: reserved for future public content administration.
 - `department_admin`: restricted department configuration role.
-- Department roles remain operational roles: `volunteer`, `coordinator`, `department_head`.
+- Department roles were later normalized in CM-4 to `executive`, `deputy_head`, and `department_head`.
 
 Department heads do not receive platform-role authority, cross-department authority, self-approval, or club-wide suspension authority.
 

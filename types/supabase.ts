@@ -14,6 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
+      approval_request_actions: {
+        Row: {
+          action_type: string
+          actor_profile_id: string | null
+          approval_request_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          reason: string | null
+        }
+        Insert: {
+          action_type: string
+          actor_profile_id?: string | null
+          approval_request_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          reason?: string | null
+        }
+        Update: {
+          action_type?: string
+          actor_profile_id?: string | null
+          approval_request_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_request_actions_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_request_actions_approval_request_id_fkey"
+            columns: ["approval_request_id"]
+            isOneToOne: false
+            referencedRelation: "approval_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_requests: {
+        Row: {
+          action_key: string
+          created_at: string
+          department_id: string | null
+          event_id: string | null
+          executed_at: string | null
+          executed_by: string | null
+          execution_error_code: string | null
+          execution_status: string | null
+          expires_at: string | null
+          id: string
+          reason: string
+          request_payload: Json
+          request_status: string
+          requester_profile_id: string
+          required_approver_policy: string
+          review_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scope_type: string
+          target_id: string | null
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          action_key: string
+          created_at?: string
+          department_id?: string | null
+          event_id?: string | null
+          executed_at?: string | null
+          executed_by?: string | null
+          execution_error_code?: string | null
+          execution_status?: string | null
+          expires_at?: string | null
+          id?: string
+          reason: string
+          request_payload?: Json
+          request_status?: string
+          requester_profile_id: string
+          required_approver_policy?: string
+          review_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scope_type?: string
+          target_id?: string | null
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          action_key?: string
+          created_at?: string
+          department_id?: string | null
+          event_id?: string | null
+          executed_at?: string | null
+          executed_by?: string | null
+          execution_error_code?: string | null
+          execution_status?: string | null
+          expires_at?: string | null
+          id?: string
+          reason?: string
+          request_payload?: Json
+          request_status?: string
+          requester_profile_id?: string
+          required_approver_policy?: string
+          review_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scope_type?: string
+          target_id?: string | null
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_requests_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "club_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_requests_executed_by_fkey"
+            columns: ["executed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_requests_requester_profile_id_fkey"
+            columns: ["requester_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blood_donation_status_history: {
         Row: {
           blood_donation_id: string
@@ -855,6 +1011,53 @@ export type Database = {
         }
         Relationships: []
       }
+      club_position_permission_policies: {
+        Row: {
+          approval_policy_key: string | null
+          club_position_slug: string
+          created_at: string
+          effect: string
+          id: string
+          is_active: boolean
+          permission_id: string
+          requires_approval: boolean
+          scope_rule: string
+          updated_at: string
+        }
+        Insert: {
+          approval_policy_key?: string | null
+          club_position_slug: string
+          created_at?: string
+          effect: string
+          id?: string
+          is_active?: boolean
+          permission_id: string
+          requires_approval?: boolean
+          scope_rule?: string
+          updated_at?: string
+        }
+        Update: {
+          approval_policy_key?: string | null
+          club_position_slug?: string
+          created_at?: string
+          effect?: string
+          id?: string
+          is_active?: boolean
+          permission_id?: string
+          requires_approval?: boolean
+          scope_rule?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_position_permission_policies_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "system_permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_positions: {
         Row: {
           archived_at: string | null
@@ -974,6 +1177,53 @@ export type Database = {
             columns: ["department_membership_id"]
             isOneToOne: false
             referencedRelation: "volunteer_department_memberships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      department_role_permission_policies: {
+        Row: {
+          approval_policy_key: string | null
+          created_at: string
+          department_role: string
+          effect: string
+          id: string
+          is_active: boolean
+          permission_id: string
+          requires_approval: boolean
+          scope_rule: string
+          updated_at: string
+        }
+        Insert: {
+          approval_policy_key?: string | null
+          created_at?: string
+          department_role: string
+          effect: string
+          id?: string
+          is_active?: boolean
+          permission_id: string
+          requires_approval?: boolean
+          scope_rule?: string
+          updated_at?: string
+        }
+        Update: {
+          approval_policy_key?: string | null
+          created_at?: string
+          department_role?: string
+          effect?: string
+          id?: string
+          is_active?: boolean
+          permission_id?: string
+          requires_approval?: boolean
+          scope_rule?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "department_role_permission_policies_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "system_permissions"
             referencedColumns: ["id"]
           },
         ]
@@ -1287,6 +1537,376 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      platform_role_permission_policies: {
+        Row: {
+          approval_policy_key: string | null
+          created_at: string
+          effect: string
+          id: string
+          is_active: boolean
+          permission_id: string
+          platform_role: string
+          requires_approval: boolean
+          scope_rule: string
+          updated_at: string
+        }
+        Insert: {
+          approval_policy_key?: string | null
+          created_at?: string
+          effect: string
+          id?: string
+          is_active?: boolean
+          permission_id: string
+          platform_role: string
+          requires_approval?: boolean
+          scope_rule?: string
+          updated_at?: string
+        }
+        Update: {
+          approval_policy_key?: string | null
+          created_at?: string
+          effect?: string
+          id?: string
+          is_active?: boolean
+          permission_id?: string
+          platform_role?: string
+          requires_approval?: boolean
+          scope_rule?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_role_permission_policies_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "system_permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_invitation_department_scopes: {
+        Row: {
+          created_at: string
+          department_id: string
+          id: string
+          intended_department_role: string
+          staff_invitation_id: string
+        }
+        Insert: {
+          created_at?: string
+          department_id: string
+          id?: string
+          intended_department_role: string
+          staff_invitation_id: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string
+          id?: string
+          intended_department_role?: string
+          staff_invitation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_invitation_department_scopes_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "club_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_invitation_department_scopes_staff_invitation_id_fkey"
+            columns: ["staff_invitation_id"]
+            isOneToOne: false
+            referencedRelation: "staff_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_auth_user_id: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          intended_club_position_id: string | null
+          intended_platform_role: string | null
+          invitation_status: string
+          invited_by: string
+          invited_email: string
+          invited_name: string | null
+          normalized_email: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_auth_user_id?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          intended_club_position_id?: string | null
+          intended_platform_role?: string | null
+          invitation_status?: string
+          invited_by: string
+          invited_email: string
+          invited_name?: string | null
+          normalized_email: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_auth_user_id?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          intended_club_position_id?: string | null
+          intended_platform_role?: string | null
+          invitation_status?: string
+          invited_by?: string
+          invited_email?: string
+          invited_name?: string | null
+          normalized_email?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_invitations_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_invitations_intended_club_position_id_fkey"
+            columns: ["intended_club_position_id"]
+            isOneToOne: false
+            referencedRelation: "club_positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_permissions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          module_key: string
+          name: string
+          permission_key: string
+          risk_level: string
+          supports_department_scope: boolean
+          supports_event_scope: boolean
+          supports_global_scope: boolean
+          supports_record_scope: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          module_key: string
+          name: string
+          permission_key: string
+          risk_level?: string
+          supports_department_scope?: boolean
+          supports_event_scope?: boolean
+          supports_global_scope?: boolean
+          supports_record_scope?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          module_key?: string
+          name?: string
+          permission_key?: string
+          risk_level?: string
+          supports_department_scope?: boolean
+          supports_event_scope?: boolean
+          supports_global_scope?: boolean
+          supports_record_scope?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_permission_override_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: string
+          new_status: string
+          override_id: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_status: string
+          override_id: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_status?: string
+          override_id?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permission_override_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permission_override_history_override_id_fkey"
+            columns: ["override_id"]
+            isOneToOne: false
+            referencedRelation: "user_permission_overrides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_permission_overrides: {
+        Row: {
+          created_at: string
+          department_id: string | null
+          effect: string
+          event_id: string | null
+          expires_at: string | null
+          granted_at: string
+          granted_by: string
+          id: string
+          permission_id: string
+          reason: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          scope_type: string
+          starts_at: string
+          status: string
+          target_record_id: string | null
+          target_record_type: string | null
+          updated_at: string
+          volunteer_profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          department_id?: string | null
+          effect: string
+          event_id?: string | null
+          expires_at?: string | null
+          granted_at?: string
+          granted_by: string
+          id?: string
+          permission_id: string
+          reason: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope_type: string
+          starts_at?: string
+          status?: string
+          target_record_id?: string | null
+          target_record_type?: string | null
+          updated_at?: string
+          volunteer_profile_id: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string | null
+          effect?: string
+          event_id?: string | null
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string
+          id?: string
+          permission_id?: string
+          reason?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          scope_type?: string
+          starts_at?: string
+          status?: string
+          target_record_id?: string | null
+          target_record_type?: string | null
+          updated_at?: string
+          volunteer_profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permission_overrides_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "club_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permission_overrides_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permission_overrides_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permission_overrides_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "system_permissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permission_overrides_revoked_by_fkey"
+            columns: ["revoked_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permission_overrides_volunteer_profile_id_fkey"
+            columns: ["volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       volunteer_club_positions: {
         Row: {
@@ -1807,11 +2427,30 @@ export type Database = {
       can_manage_blood_settings: { Args: never; Returns: boolean }
       can_manage_departments: { Args: never; Returns: boolean }
       can_manage_platform_roles: { Args: never; Returns: boolean }
+      can_manage_temporary_access: { Args: never; Returns: boolean }
       can_manage_volunteers: { Args: never; Returns: boolean }
+      can_review_approval_request: {
+        Args: { p_request_id: string }
+        Returns: boolean
+      }
       can_review_membership_applications: { Args: never; Returns: boolean }
       can_verify_blood_donations: { Args: never; Returns: boolean }
       can_view_audit_logs: { Args: never; Returns: boolean }
       can_view_blood_operations: { Args: never; Returns: boolean }
+      cancel_approval_request: {
+        Args: { p_reason: string; p_request_id: string }
+        Returns: {
+          approval_request_id: string
+          request_status: string
+        }[]
+      }
+      cancel_staff_invitation: {
+        Args: { p_invitation_id: string; p_reason: string }
+        Returns: {
+          invitation_status: string
+          staff_invitation_id: string
+        }[]
+      }
       change_blood_donor_availability: {
         Args: { p_donor_id: string; p_new_status: string; p_reason?: string }
         Returns: {
@@ -1851,6 +2490,10 @@ export type Database = {
           is_primary: boolean
         }[]
       }
+      cm4_is_supported_approval_action: {
+        Args: { p_action_key: string }
+        Returns: boolean
+      }
       complete_volunteer_club_position: {
         Args: {
           p_assignment_id: string
@@ -1860,6 +2503,22 @@ export type Database = {
         Returns: {
           assignment_id: string
           status: string
+        }[]
+      }
+      create_approval_request: {
+        Args: {
+          p_action_key: string
+          p_department_id: string
+          p_event_id: string
+          p_reason: string
+          p_request_payload: Json
+          p_scope_type: string
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: {
+          approval_request_id: string
+          request_status: string
         }[]
       }
       create_blood_match: {
@@ -1894,8 +2553,35 @@ export type Database = {
           slug: string
         }[]
       }
+      create_staff_invitation: {
+        Args: {
+          p_department_scopes: Json
+          p_expires_at: string
+          p_intended_club_position_id: string
+          p_intended_platform_role: string
+          p_invited_email: string
+          p_invited_name: string
+          p_reason: string
+        }
+        Returns: {
+          invitation_status: string
+          staff_invitation_id: string
+        }[]
+      }
       current_volunteer_profile_id: { Args: never; Returns: string }
+      execute_approved_request: {
+        Args: { p_reason: string; p_request_id: string }
+        Returns: {
+          approval_request_id: string
+          execution_status: string
+        }[]
+      }
+      expire_approval_requests: { Args: never; Returns: number }
       generate_blood_request_reference: { Args: never; Returns: string }
+      get_action_authorization: {
+        Args: { permission_key: string; scope_id?: string; scope_type?: string }
+        Returns: string
+      }
       get_authorized_blood_match_contacts: {
         Args: { p_match_id: string }
         Returns: {
@@ -1911,6 +2597,25 @@ export type Database = {
           requester_preferred_contact_method: string
         }[]
       }
+      grant_temporary_access: {
+        Args: {
+          p_department_id: string
+          p_effect: string
+          p_event_id: string
+          p_expires_at: string
+          p_permission_key: string
+          p_profile_id: string
+          p_reason: string
+          p_scope_type: string
+          p_starts_at: string
+          p_target_record_id: string
+          p_target_record_type: string
+        }
+        Returns: {
+          override_id: string
+          status: string
+        }[]
+      }
       has_active_department_role: {
         Args: { allowed_roles: string[]; target_department_id: string }
         Returns: boolean
@@ -1919,6 +2624,7 @@ export type Database = {
         Args: { role_name: string }
         Returns: boolean
       }
+      has_active_position: { Args: { position_slug: string }; Returns: boolean }
       has_any_active_platform_role: {
         Args: { role_names: string[] }
         Returns: boolean
@@ -1927,8 +2633,20 @@ export type Database = {
         Args: { allowed_roles: string[] }
         Returns: boolean
       }
+      has_effective_permission: {
+        Args: { permission_key: string; scope_id?: string; scope_type?: string }
+        Returns: boolean
+      }
       is_active_approved_volunteer: { Args: never; Returns: boolean }
       is_blood_department_member: { Args: never; Returns: boolean }
+      is_current_operational_president: { Args: never; Returns: boolean }
+      mark_staff_invitation_accepted: {
+        Args: { p_auth_user_id: string; p_invitation_id: string }
+        Returns: {
+          invitation_status: string
+          staff_invitation_id: string
+        }[]
+      }
       recalculate_blood_request_fulfilment: {
         Args: { p_request_id: string }
         Returns: {
@@ -1980,6 +2698,13 @@ export type Database = {
           profile_id: string
         }[]
       }
+      review_approval_request: {
+        Args: { p_decision: string; p_reason: string; p_request_id: string }
+        Returns: {
+          approval_request_id: string
+          request_status: string
+        }[]
+      }
       review_blood_donor: {
         Args: { p_donor_id: string; p_new_status: string; p_reason?: string }
         Returns: {
@@ -2017,6 +2742,13 @@ export type Database = {
         Args: { p_platform_role_id: string; p_reason: string }
         Returns: {
           platform_role_id: string
+          status: string
+        }[]
+      }
+      revoke_temporary_access: {
+        Args: { p_override_id: string; p_reason: string }
+        Returns: {
+          override_id: string
           status: string
         }[]
       }

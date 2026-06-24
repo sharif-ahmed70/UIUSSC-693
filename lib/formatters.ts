@@ -1,4 +1,4 @@
-import type { PlatformRole } from '@/features/staff/types'
+import type { DepartmentRole, PlatformRole } from '@/features/staff/types'
 
 const platformRoleLabels: Record<PlatformRole, string> = {
   super_admin: 'Super Admin',
@@ -10,6 +10,16 @@ const platformRoleLabels: Record<PlatformRole, string> = {
 
 export function formatPlatformRole(role: PlatformRole | string){
   return platformRoleLabels[role as PlatformRole] ?? role.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+const departmentRoleLabels: Record<DepartmentRole, string> = {
+  department_head: 'Department Head',
+  deputy_head: 'Deputy Head',
+  executive: 'Executive',
+}
+
+export function formatDepartmentRole(role: DepartmentRole | string){
+  return departmentRoleLabels[role as DepartmentRole] ?? role.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
 export function maskEmail(email: string | null | undefined){

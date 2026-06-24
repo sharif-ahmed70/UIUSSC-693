@@ -20,6 +20,12 @@ Onboarding can now submit without a preferred department. In that case no depart
 
 The first administrator bootstrap confirmed this path in the linked development project: a club-wide executive can hold General Secretary and `super_admin` with no operational department membership.
 
+## CM-4 Access Governance Status
+
+CM-4 normalizes department roles to `department_head`, `deputy_head`, and `executive`. Existing legacy `coordinator` values are migrated to `deputy_head`, and `volunteer` values are migrated to `executive`.
+
+The access-governance foundation adds `system_permissions`, role/position/department policy tables, temporary permission overrides, approval requests, and operator-assisted staff invitation intent. Department workspace guards now allow Super Admin, Club Admin, President, Vice President, and General Secretary oversight while ordinary department members remain limited to their own approved department.
+
 ## Departments
 
 Initial departments:
@@ -96,7 +102,7 @@ Fields:
 - `id`
 - `volunteer_profile_id`
 - `department_id`
-- `department_role`: `volunteer`, `coordinator`, `department_head`
+- `department_role`: `executive`, `deputy_head`, `department_head`
 - `membership_status`: `requested`, `under_review`, `approved`, `rejected`, `suspended`, `removed`
 - `is_primary`
 - `requested_at`
@@ -145,8 +151,8 @@ Rules:
 
 Blood operational permissions are mapped from approved Blood Department membership:
 
-- Blood volunteer: approved Blood membership with `department_role = volunteer`; limited operational read and assistance actions.
-- Blood coordinator: approved Blood membership with `department_role = coordinator`; contact attempts, assignments, and workflow coordination.
+- Blood Executive: approved Blood membership with `department_role = executive`; limited operational read and assistance actions in future phases.
+- Blood Deputy Head: approved Blood membership with `department_role = deputy_head`; contact attempts, assignments, and workflow coordination.
 - Blood admin: approved Blood membership with `department_role = department_head` or a platform admin role; Blood settings and operational management.
 
 Do not create a second contradictory Blood role table unless a later permission model proves it is necessary.
@@ -240,7 +246,7 @@ CM-1 actual RLS scope:
 
 - `club_departments`: anon/authenticated can read active department metadata only.
 - `volunteer_profiles`: authenticated users can read, insert, and update only their own safe profile fields.
-- `volunteer_department_memberships`: authenticated users can read own memberships and request membership in active departments with default `volunteer`/`requested` values.
+- `volunteer_department_memberships`: authenticated users can read own memberships and request membership in active departments with default `executive`/`requested` values.
 - `volunteer_platform_roles`: no normal client policies or grants.
 - `volunteer_status_history` and `department_membership_history`: authenticated users can read only their own related history.
 - `club_audit_logs`: no normal client access.
@@ -259,7 +265,7 @@ Admin approval policies, platform-role management, suspension enforcement helper
 
 ## Permission Matrix
 
-| Capability | Pending volunteer | Approved volunteer | Dept volunteer | Dept coordinator | Dept head | Membership admin | Content admin | Club admin | Super admin | Blood volunteer | Blood coordinator | Blood admin |
+| Capability | Pending volunteer | Approved volunteer | Dept Executive | Dept Deputy Head | Dept Head | Membership admin | Content admin | Club admin | Super admin | Blood Executive | Blood Deputy Head | Blood admin |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | View own profile | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Update safe own profile | Limited | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |

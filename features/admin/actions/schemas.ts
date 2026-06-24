@@ -22,7 +22,7 @@ export const requiredReasonActionSchema = z.object({
 
 export const departmentRoleSchema = z.object({
   id: idSchema,
-  role: z.enum(['volunteer', 'coordinator', 'department_head']),
+  role: z.enum(['executive', 'deputy_head', 'department_head']),
   reason: z.string().trim().max(500).optional(),
 })
 
