@@ -42,18 +42,21 @@ Do not create a public donor directory.
 
 Access depends on approved volunteer profile, active account, active Blood Department, approved Blood membership, and department role.
 
-## Tables
+## BB-1 Implemented Tables
 
-- `blood_donors`: private donor records; auth account optional.
+- `blood_donor_profiles`: Potential Donor screening/profile records; Auth account is optional through `volunteer_profile_id`.
+- `blood_donor_contacts`: private donor contact records separated from profile records.
 - `blood_requests`: private request records with public reference and workflow fields.
+- `blood_request_contacts`: private requester contact records separated from request workflow records.
+- `blood_matches`: human-reviewed Potential Donor match workflow.
+- `blood_donations`: reported and verified donation records.
+- `blood_support_settings`: non-secret operational settings.
+- `blood_donor_duplicate_reviews`: manual duplicate-review foundation.
 - `blood_request_status_history`: immutable request status changes.
-- `blood_donor_assignments`: request-to-potential-donor assignments.
-- `blood_assignment_status_history`: immutable assignment status changes.
-- `blood_contact_attempts`: contact result history.
-- `blood_donation_history`: verified donation records.
-- `blood_module_settings`: operational settings and policy references.
-- `notification_outbox`: provider-independent notification queue.
+- `blood_donor_status_history`, `blood_match_status_history`, `blood_donation_status_history`: immutable workflow history.
 - Shared `club_audit_logs` for sensitive access/actions.
+
+Notification outbox, proof Storage, public request intake, and public donor-interest intake are deferred.
 
 ## Request State Machine
 
@@ -139,7 +142,7 @@ Ranking factors:
 
 Return explainable ranking reasons such as `Same area`, `Verified`, `Available`, `No recent contact`, `Longer time since last donation`.
 
-Do not expose scores publicly. Do not automatically assign donors. Do not auto-apply alternative compatibility groups without medically reviewed policy.
+Do not expose scores publicly. Do not automatically assign donors. Do not auto-apply alternative compatibility groups without medically reviewed policy. Use the term Potential Donor, not medically eligible donor.
 
 Recommended implementation: server-side query composition or a reviewed parameterized SQL function that returns only authorized staff results. Do not expose the score publicly; return human-readable reasons only.
 

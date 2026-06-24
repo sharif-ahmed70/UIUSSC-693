@@ -249,7 +249,7 @@ Admin approval policies, platform-role management, suspension enforcement helper
 
 ## Department Interface Roadmap
 
-- Blood Department: request queue, verification, secure donor database, potential-donor matching, contact attempts, assignments, donation history, notifications, audit.
+- Blood Department: BB-1 database foundation now provides secure Potential Donor profiles, separated contacts, request workflow, human-reviewed matching, contact authorization, donation verification, fulfilment recalculation, histories, duplicate review, settings, RLS, and controlled RPCs. Public intake and operational UI are deferred to later Blood phases.
 - Event Management: event planning, task assignment, timeline, event registration review, venue coordination.
 - Volunteer Management: volunteer pool, event volunteer assignment, attendance, coordination.
 - Logistics: inventory, transportation, resource allocation, event logistics tasks.

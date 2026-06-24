@@ -14,6 +14,760 @@ export type Database = {
   }
   public: {
     Tables: {
+      blood_donation_status_history: {
+        Row: {
+          blood_donation_id: string
+          changed_at: string
+          changed_by: string | null
+          id: string
+          metadata: Json
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          blood_donation_id: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          metadata?: Json
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          blood_donation_id?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          metadata?: Json
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_donation_status_history_blood_donation_id_fkey"
+            columns: ["blood_donation_id"]
+            isOneToOne: false
+            referencedRelation: "blood_donations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donation_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_donations: {
+        Row: {
+          blood_match_id: string | null
+          blood_request_id: string
+          created_at: string
+          donation_date: string | null
+          donation_status: string
+          donor_profile_id: string
+          hospital_reference: string | null
+          id: string
+          rejection_reason: string | null
+          reported_by: string | null
+          reported_units: number
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+          verified_units: number
+        }
+        Insert: {
+          blood_match_id?: string | null
+          blood_request_id: string
+          created_at?: string
+          donation_date?: string | null
+          donation_status?: string
+          donor_profile_id: string
+          hospital_reference?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reported_by?: string | null
+          reported_units: number
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          verified_units?: number
+        }
+        Update: {
+          blood_match_id?: string | null
+          blood_request_id?: string
+          created_at?: string
+          donation_date?: string | null
+          donation_status?: string
+          donor_profile_id?: string
+          hospital_reference?: string | null
+          id?: string
+          rejection_reason?: string | null
+          reported_by?: string | null
+          reported_units?: number
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          verified_units?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_donations_blood_match_id_fkey"
+            columns: ["blood_match_id"]
+            isOneToOne: false
+            referencedRelation: "blood_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donations_blood_request_id_fkey"
+            columns: ["blood_request_id"]
+            isOneToOne: false
+            referencedRelation: "blood_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donations_donor_profile_id_fkey"
+            columns: ["donor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "blood_donor_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donations_reported_by_fkey"
+            columns: ["reported_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donations_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_donor_contacts: {
+        Row: {
+          alternate_phone: string | null
+          contact_notes: string | null
+          created_at: string
+          donor_profile_id: string
+          email: string | null
+          id: string
+          normalized_email: string | null
+          normalized_phone: string | null
+          phone: string | null
+          preferred_contact_method: string
+          updated_at: string
+        }
+        Insert: {
+          alternate_phone?: string | null
+          contact_notes?: string | null
+          created_at?: string
+          donor_profile_id: string
+          email?: string | null
+          id?: string
+          normalized_email?: string | null
+          normalized_phone?: string | null
+          phone?: string | null
+          preferred_contact_method?: string
+          updated_at?: string
+        }
+        Update: {
+          alternate_phone?: string | null
+          contact_notes?: string | null
+          created_at?: string
+          donor_profile_id?: string
+          email?: string | null
+          id?: string
+          normalized_email?: string | null
+          normalized_phone?: string | null
+          phone?: string | null
+          preferred_contact_method?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_donor_contacts_donor_profile_id_fkey"
+            columns: ["donor_profile_id"]
+            isOneToOne: true
+            referencedRelation: "blood_donor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_donor_duplicate_reviews: {
+        Row: {
+          created_at: string
+          donor_profile_id: string
+          id: string
+          match_reason: string
+          possible_duplicate_donor_id: string
+          resolution_notes: string | null
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          donor_profile_id: string
+          id?: string
+          match_reason: string
+          possible_duplicate_donor_id: string
+          resolution_notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          donor_profile_id?: string
+          id?: string
+          match_reason?: string
+          possible_duplicate_donor_id?: string
+          resolution_notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_donor_duplicate_reviews_donor_profile_id_fkey"
+            columns: ["donor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "blood_donor_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donor_duplicate_reviews_possible_duplicate_donor_id_fkey"
+            columns: ["possible_duplicate_donor_id"]
+            isOneToOne: false
+            referencedRelation: "blood_donor_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donor_duplicate_reviews_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_donor_profiles: {
+        Row: {
+          archived_at: string | null
+          area: string | null
+          availability_status: string
+          blood_group: string
+          consent_recorded_at: string | null
+          consent_to_contact: boolean
+          created_at: string
+          display_name: string
+          district: string | null
+          duplicate_review_required: boolean
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          self_reported_available_from: string | null
+          self_reported_last_donation_date: string | null
+          source: string
+          updated_at: string
+          verification_status: string
+          volunteer_profile_id: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          area?: string | null
+          availability_status?: string
+          blood_group: string
+          consent_recorded_at?: string | null
+          consent_to_contact?: boolean
+          created_at?: string
+          display_name: string
+          district?: string | null
+          duplicate_review_required?: boolean
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          self_reported_available_from?: string | null
+          self_reported_last_donation_date?: string | null
+          source?: string
+          updated_at?: string
+          verification_status?: string
+          volunteer_profile_id?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          area?: string | null
+          availability_status?: string
+          blood_group?: string
+          consent_recorded_at?: string | null
+          consent_to_contact?: boolean
+          created_at?: string
+          display_name?: string
+          district?: string | null
+          duplicate_review_required?: boolean
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          self_reported_available_from?: string | null
+          self_reported_last_donation_date?: string | null
+          source?: string
+          updated_at?: string
+          verification_status?: string
+          volunteer_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_donor_profiles_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donor_profiles_volunteer_profile_id_fkey"
+            columns: ["volunteer_profile_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_donor_status_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          donor_profile_id: string
+          id: string
+          metadata: Json
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          donor_profile_id: string
+          id?: string
+          metadata?: Json
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          donor_profile_id?: string
+          id?: string
+          metadata?: Json
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_donor_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_donor_status_history_donor_profile_id_fkey"
+            columns: ["donor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "blood_donor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_match_status_history: {
+        Row: {
+          blood_match_id: string
+          changed_at: string
+          changed_by: string | null
+          id: string
+          metadata: Json
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          blood_match_id: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          metadata?: Json
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          blood_match_id?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          metadata?: Json
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_match_status_history_blood_match_id_fkey"
+            columns: ["blood_match_id"]
+            isOneToOne: false
+            referencedRelation: "blood_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_match_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_matches: {
+        Row: {
+          blood_request_id: string
+          cancellation_reason: string | null
+          completed_at: string | null
+          confirmation_at: string | null
+          contact_authorized_at: string | null
+          contact_authorized_by: string | null
+          contacted_at: string | null
+          contacted_by: string | null
+          created_at: string
+          donor_profile_id: string
+          donor_response_at: string | null
+          id: string
+          match_status: string
+          notes: string | null
+          reviewed_by: string | null
+          suggested_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          blood_request_id: string
+          cancellation_reason?: string | null
+          completed_at?: string | null
+          confirmation_at?: string | null
+          contact_authorized_at?: string | null
+          contact_authorized_by?: string | null
+          contacted_at?: string | null
+          contacted_by?: string | null
+          created_at?: string
+          donor_profile_id: string
+          donor_response_at?: string | null
+          id?: string
+          match_status?: string
+          notes?: string | null
+          reviewed_by?: string | null
+          suggested_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          blood_request_id?: string
+          cancellation_reason?: string | null
+          completed_at?: string | null
+          confirmation_at?: string | null
+          contact_authorized_at?: string | null
+          contact_authorized_by?: string | null
+          contacted_at?: string | null
+          contacted_by?: string | null
+          created_at?: string
+          donor_profile_id?: string
+          donor_response_at?: string | null
+          id?: string
+          match_status?: string
+          notes?: string | null
+          reviewed_by?: string | null
+          suggested_by?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_matches_blood_request_id_fkey"
+            columns: ["blood_request_id"]
+            isOneToOne: false
+            referencedRelation: "blood_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_matches_contact_authorized_by_fkey"
+            columns: ["contact_authorized_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_matches_contacted_by_fkey"
+            columns: ["contacted_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_matches_donor_profile_id_fkey"
+            columns: ["donor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "blood_donor_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_matches_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_matches_suggested_by_fkey"
+            columns: ["suggested_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_request_contacts: {
+        Row: {
+          alternate_phone: string | null
+          blood_request_id: string
+          created_at: string
+          email: string | null
+          id: string
+          normalized_email: string | null
+          normalized_phone: string
+          phone: string
+          preferred_contact_method: string
+          requester_name: string
+          updated_at: string
+        }
+        Insert: {
+          alternate_phone?: string | null
+          blood_request_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          normalized_email?: string | null
+          normalized_phone: string
+          phone: string
+          preferred_contact_method?: string
+          requester_name: string
+          updated_at?: string
+        }
+        Update: {
+          alternate_phone?: string | null
+          blood_request_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          normalized_email?: string | null
+          normalized_phone?: string
+          phone?: string
+          preferred_contact_method?: string
+          requester_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_request_contacts_blood_request_id_fkey"
+            columns: ["blood_request_id"]
+            isOneToOne: true
+            referencedRelation: "blood_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_request_status_history: {
+        Row: {
+          blood_request_id: string
+          changed_at: string
+          changed_by: string | null
+          id: string
+          metadata: Json
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          blood_request_id: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          metadata?: Json
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          blood_request_id?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          metadata?: Json
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_request_status_history_blood_request_id_fkey"
+            columns: ["blood_request_id"]
+            isOneToOne: false
+            referencedRelation: "blood_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blood_request_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_requests: {
+        Row: {
+          archived_at: string | null
+          blood_group: string
+          cancellation_reason: string | null
+          component_type: string
+          created_at: string
+          district: string | null
+          expires_at: string | null
+          hospital_area: string | null
+          hospital_name: string
+          id: string
+          needed_at: string
+          patient_reference: string | null
+          public_reference_code: string
+          rejection_reason: string | null
+          request_status: string
+          requester_relationship: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source: string
+          units_fulfilled: number
+          units_requested: number
+          updated_at: string
+          urgency: string
+        }
+        Insert: {
+          archived_at?: string | null
+          blood_group: string
+          cancellation_reason?: string | null
+          component_type?: string
+          created_at?: string
+          district?: string | null
+          expires_at?: string | null
+          hospital_area?: string | null
+          hospital_name: string
+          id?: string
+          needed_at: string
+          patient_reference?: string | null
+          public_reference_code?: string
+          rejection_reason?: string | null
+          request_status?: string
+          requester_relationship?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: string
+          units_fulfilled?: number
+          units_requested: number
+          updated_at?: string
+          urgency?: string
+        }
+        Update: {
+          archived_at?: string | null
+          blood_group?: string
+          cancellation_reason?: string | null
+          component_type?: string
+          created_at?: string
+          district?: string | null
+          expires_at?: string | null
+          hospital_area?: string | null
+          hospital_name?: string
+          id?: string
+          needed_at?: string
+          patient_reference?: string | null
+          public_reference_code?: string
+          rejection_reason?: string | null
+          request_status?: string
+          requester_relationship?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: string
+          units_fulfilled?: number
+          units_requested?: number
+          updated_at?: string
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blood_support_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          setting_key: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blood_support_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_audit_logs: {
         Row: {
           action: string
@@ -990,6 +1744,20 @@ export type Database = {
           profile_id: string
         }[]
       }
+      archive_blood_donor: {
+        Args: { p_donor_id: string; p_reason: string }
+        Returns: {
+          donor_profile_id: string
+          verification_status: string
+        }[]
+      }
+      archive_blood_request: {
+        Args: { p_reason: string; p_request_id: string }
+        Returns: {
+          blood_request_id: string
+          request_status: string
+        }[]
+      }
       archive_club_department: {
         Args: { p_department_id: string; p_reason: string }
         Returns: {
@@ -1025,11 +1793,46 @@ export type Database = {
           status: string
         }[]
       }
+      authorize_blood_match_contact: {
+        Args: { p_match_id: string; p_reason?: string }
+        Returns: {
+          match_id: string
+          match_status: string
+        }[]
+      }
+      blood_department_id: { Args: never; Returns: string }
+      can_manage_blood_donors: { Args: never; Returns: boolean }
+      can_manage_blood_matches: { Args: never; Returns: boolean }
+      can_manage_blood_requests: { Args: never; Returns: boolean }
+      can_manage_blood_settings: { Args: never; Returns: boolean }
       can_manage_departments: { Args: never; Returns: boolean }
       can_manage_platform_roles: { Args: never; Returns: boolean }
       can_manage_volunteers: { Args: never; Returns: boolean }
       can_review_membership_applications: { Args: never; Returns: boolean }
+      can_verify_blood_donations: { Args: never; Returns: boolean }
       can_view_audit_logs: { Args: never; Returns: boolean }
+      can_view_blood_operations: { Args: never; Returns: boolean }
+      change_blood_donor_availability: {
+        Args: { p_donor_id: string; p_new_status: string; p_reason?: string }
+        Returns: {
+          availability_status: string
+          donor_profile_id: string
+        }[]
+      }
+      change_blood_match_status: {
+        Args: { p_match_id: string; p_new_status: string; p_reason?: string }
+        Returns: {
+          match_id: string
+          match_status: string
+        }[]
+      }
+      change_blood_request_status: {
+        Args: { p_new_status: string; p_reason?: string; p_request_id: string }
+        Returns: {
+          blood_request_id: string
+          request_status: string
+        }[]
+      }
       change_department_role: {
         Args: {
           p_department_role: string
@@ -1059,6 +1862,13 @@ export type Database = {
           status: string
         }[]
       }
+      create_blood_match: {
+        Args: { p_donor_id: string; p_notes?: string; p_request_id: string }
+        Returns: {
+          match_id: string
+          match_status: string
+        }[]
+      }
       create_club_department: {
         Args: {
           p_display_order?: number
@@ -1085,6 +1895,22 @@ export type Database = {
         }[]
       }
       current_volunteer_profile_id: { Args: never; Returns: string }
+      generate_blood_request_reference: { Args: never; Returns: string }
+      get_authorized_blood_match_contacts: {
+        Args: { p_match_id: string }
+        Returns: {
+          blood_request_id: string
+          donor_email: string
+          donor_phone: string
+          donor_preferred_contact_method: string
+          donor_profile_id: string
+          match_id: string
+          requester_email: string
+          requester_name: string
+          requester_phone: string
+          requester_preferred_contact_method: string
+        }[]
+      }
       has_active_department_role: {
         Args: { allowed_roles: string[]; target_department_id: string }
         Returns: boolean
@@ -1097,7 +1923,34 @@ export type Database = {
         Args: { role_names: string[] }
         Returns: boolean
       }
+      has_blood_department_role: {
+        Args: { allowed_roles: string[] }
+        Returns: boolean
+      }
       is_active_approved_volunteer: { Args: never; Returns: boolean }
+      is_blood_department_member: { Args: never; Returns: boolean }
+      recalculate_blood_request_fulfilment: {
+        Args: { p_request_id: string }
+        Returns: {
+          blood_request_id: string
+          request_status: string
+          units_fulfilled: number
+        }[]
+      }
+      record_blood_donation: {
+        Args: {
+          p_donation_date?: string
+          p_donor_id: string
+          p_hospital_reference?: string
+          p_match_id: string
+          p_reported_units: number
+          p_request_id: string
+        }
+        Returns: {
+          donation_id: string
+          donation_status: string
+        }[]
+      }
       reject_department_membership: {
         Args: { p_membership_id: string; p_reason: string }
         Returns: {
@@ -1125,6 +1978,20 @@ export type Database = {
         Returns: {
           account_status: string
           profile_id: string
+        }[]
+      }
+      review_blood_donor: {
+        Args: { p_donor_id: string; p_new_status: string; p_reason?: string }
+        Returns: {
+          donor_profile_id: string
+          verification_status: string
+        }[]
+      }
+      review_blood_request: {
+        Args: { p_new_status: string; p_reason?: string; p_request_id: string }
+        Returns: {
+          blood_request_id: string
+          request_status: string
         }[]
       }
       review_department_membership: {
@@ -1174,7 +2041,7 @@ export type Database = {
           p_email: string
           p_full_name: string
           p_phone: string
-          p_preferred_department_id: string | null
+          p_preferred_department_id: string
           p_student_id: string
           p_trimester: string
         }
@@ -1230,6 +2097,19 @@ export type Database = {
           position_id: string
           slug: string
           status: string
+        }[]
+      }
+      verify_blood_donation: {
+        Args: {
+          p_donation_id: string
+          p_new_status?: string
+          p_reason?: string
+          p_verified_units: number
+        }
+        Returns: {
+          donation_id: string
+          donation_status: string
+          verified_units: number
         }[]
       }
       write_club_audit_log: {

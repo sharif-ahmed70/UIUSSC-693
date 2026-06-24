@@ -5,6 +5,7 @@ import type { ActionState } from '@/features/auth/types'
 import { normalizeBangladeshPhone, normalizeStudentId } from '@/features/staff/onboarding/normalize'
 import { onboardingSchema } from '@/features/staff/onboarding/schema'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import type { Database } from '@/types/supabase'
 
 export async function submitOnboardingAction(_previousState: ActionState, formData: FormData): Promise<ActionState>{
   const parsed = onboardingSchema.safeParse({
@@ -29,7 +30,7 @@ export async function submitOnboardingAction(_previousState: ActionState, formDa
 
   const supabase = await createServerSupabaseClient()
   const preferredDepartmentId = parsed.data.preferredDepartmentId || null
-  const { error } = await supabase.rpc('submit_volunteer_onboarding', {
+  const onboardingArgs = {
     p_full_name: parsed.data.fullName,
     p_student_id: normalizeStudentId(parsed.data.studentId),
     p_email: parsed.data.email,
@@ -38,7 +39,9 @@ export async function submitOnboardingAction(_previousState: ActionState, formDa
     p_trimester: parsed.data.trimester,
     p_blood_group: parsed.data.bloodGroup || '',
     p_preferred_department_id: preferredDepartmentId,
-  })
+  } as unknown as Database['public']['Functions']['submit_volunteer_onboarding']['Args']
+
+  const { error } = await supabase.rpc('submit_volunteer_onboarding', onboardingArgs)
 
   if (error) {
     console.warn('Volunteer onboarding failed', { code: error.code, message: error.message })

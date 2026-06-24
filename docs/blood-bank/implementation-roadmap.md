@@ -66,13 +66,14 @@ Status: implemented in `supabase/migrations/202606240003_club_auth_onboarding.sq
 
 ## Phase BB-1
 
-Migration draft: `202606240001b_blood_support_foundation.sql` or the Blood Support section of `202606240001_club_management_blood_support.sql`.
+Status: implemented in `supabase/migrations/202606240008_blood_support_foundation.sql` with follow-up `supabase/migrations/202606240009_blood_fulfilment_function_fix.sql`.
 
 - Add Blood database foundation.
-- Add private proof bucket draft.
 - Add RLS.
 - Add indexes.
 - Generate Supabase database types after migration review and application.
+- Public intake remains disabled.
+- No Storage bucket, public Blood UI, donor seed, request seed, or legacy import was added.
 
 ## Phase BB-2
 
