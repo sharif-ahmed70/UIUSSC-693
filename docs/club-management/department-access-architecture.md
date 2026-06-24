@@ -18,6 +18,8 @@ Leadership is now modeled outside department membership. `club_positions` stores
 
 Onboarding can now submit without a preferred department. In that case no department membership is created, `primary_department_id` stays null, and platform administrators can still use the staff dashboard.
 
+The first administrator bootstrap confirmed this path in the linked development project: a club-wide executive can hold General Secretary and `super_admin` with no operational department membership.
+
 ## Departments
 
 Initial departments:

@@ -76,6 +76,17 @@ The transaction can approve the selected profile, assign General Secretary as th
 
 The draft must remain operator-only. It is not a migration, not a public route, and not a browser feature.
 
+## First Bootstrap Verification
+
+The development bootstrap verified the intended separation:
+
+- General Secretary is an active primary club position.
+- General Secretary is a Core Panel position.
+- `super_admin` is an independent platform role.
+- no operational department membership was created.
+- `primary_department_id` remains null.
+- platform role and club position changes are audited separately.
+
 ## Security Rules
 
 - Do not expose service-role keys in frontend code.

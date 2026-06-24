@@ -73,6 +73,15 @@ begin
   if exists (
     select 1
     from public.volunteer_platform_roles
+    where role = 'super_admin'
+      and status = 'active'
+  ) then
+    raise exception 'An active super_admin already exists. This first-admin bootstrap is no longer valid.';
+  end if;
+
+  if exists (
+    select 1
+    from public.volunteer_platform_roles
     where volunteer_profile_id = selected_profile.id
       and role = 'super_admin'
       and status = 'active'

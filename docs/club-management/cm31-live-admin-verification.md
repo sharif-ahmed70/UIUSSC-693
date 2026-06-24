@@ -26,13 +26,7 @@ The committed draft contains placeholders only. No real email, UUID, password, t
 
 ## Human Checkpoint
 
-Bootstrap was not executed because the linked development project currently has no Auth users and no volunteer profiles.
-
-Required step:
-
-Create or invite one real UIUSSC administrator account in the linked Supabase Development project, sign in, and complete `/staff/onboarding`. Do not share the password or tokens.
-
-After that, create the ignored local file:
+The real selected administrator account has completed `/staff/onboarding` as a club-wide executive with no operational department. The ignored local selection file was created during verification:
 
 `.reference/bootstrap-super-admin.local.json`
 
@@ -54,13 +48,17 @@ The default bootstrap path assigns the selected real account to the General Secr
 
 ## Live Admin Verification
 
-Live authenticated admin verification is deferred until a real selected account exists. Structural checks completed:
+The operator-only bootstrap was executed against the linked development project. Database verification confirmed one active `super_admin`, approved profile/onboarding state, primary General Secretary assignment, no department membership, null primary department, history entries, and audit entries.
+
+Normal password login, cookie-session checks, authenticated dashboard screenshots, logout behavior, and browser-back-after-logout checks still require a human password entry in an interactive browser session. Passwords, tokens, and cookies must not be shared.
+
+Structural checks completed:
 
 - initial build passed
 - public route regression passed
 - clean-browser Membership hydration check passed
 - database counts inspected
-- no active super admin exists
+- exactly one active super admin exists after bootstrap
 - no Blood tables exist
 
 ## Security QA

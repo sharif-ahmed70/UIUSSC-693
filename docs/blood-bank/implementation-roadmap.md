@@ -16,6 +16,8 @@ Before BB-1 begins, bootstrap one real UIUSSC super administrator in the linked 
 
 The leadership/Core Panel foundation adds club-position tables, Core Panel assignment workflows, optional no-department onboarding, and first-admin bootstrap support for a General Secretary plus technical `super_admin`. It does not add Blood Support tables, donor workflows, matching logic, or donation history.
 
+Database bootstrap has been completed in the linked development project with no Blood tables created. BB-1 should still wait for human authenticated browser verification of login, Staff Dashboard, Admin Dashboard, and logout behavior.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1

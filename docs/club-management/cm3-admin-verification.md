@@ -74,6 +74,8 @@ The bootstrap must not be exposed through public routes, normal Server Actions, 
 
 CM-3.1 updates the draft so the trusted operator transaction can approve a submitted or under-review profile during the one-time first-admin bootstrap. The leadership update extends the draft so the selected real account can be assigned General Secretary as a primary club position and `super_admin` while keeping department selection optional.
 
+The linked development project now has one bootstrapped `super_admin` assigned independently from the General Secretary club position. No operational department was assigned during bootstrap.
+
 ## Invitation Limitation
 
 CM-3 intentionally does not implement invitation sending. Safe future options include:
