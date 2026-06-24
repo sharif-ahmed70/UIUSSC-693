@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { adminNavigation } from '@/features/admin/permissions/adminPermissions'
+import { signOutAction } from '@/features/auth/actions/signOut'
+import AdminNavigationLinks from '@/components/admin/AdminNavigationLinks'
 import type { AdminContext } from '@/features/admin/types'
 
 type AdminMobileNavigationProps = {
@@ -20,11 +21,14 @@ export default function AdminMobileNavigation({ context }: AdminMobileNavigation
       </button>
       {open && (
         <nav id={menuId} className="mb-5 grid gap-2 rounded-md border border-slate-200 bg-white p-3 shadow-lg shadow-slate-900/5" aria-label="Mobile admin navigation">
-          {adminNavigation(context.permissions).map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="rounded-md px-3 py-3 text-sm font-bold text-slate-700 hover:bg-uiussc-ivory">
-              {item.label}
-            </Link>
-          ))}
+          <AdminNavigationLinks permissions={context.permissions} onNavigate={() => setOpen(false)} />
+          <Link href="/staff" onClick={() => setOpen(false)} className="rounded-md border border-slate-200 px-3 py-3 text-sm font-bold text-uiussc-charcoal">Staff Dashboard</Link>
+          <Link href="/" onClick={() => setOpen(false)} className="rounded-md border border-slate-200 px-3 py-3 text-sm font-bold text-uiussc-charcoal">Public Site</Link>
+          <form action={signOutAction}>
+            <button type="submit" className="min-h-11 w-full rounded-md bg-uiussc-orange px-3 py-2 text-sm font-extrabold text-white">
+              Log out
+            </button>
+          </form>
         </nav>
       )}
     </div>

@@ -61,6 +61,14 @@ Structural checks completed:
 - exactly one active super admin exists after bootstrap
 - no Blood tables exist
 
+## Club Positions Follow-up
+
+The authenticated Club Positions page initially displayed an empty catalogue because the query selected ungranted columns with `select('*')`. The page now queries explicit safe columns, shows active positions by default, supports inactive/archived/all filters, and surfaces safe errors instead of false empty states.
+
+Human-readable platform-role labels are used in Staff/Admin surfaces, and the persistent Admin sidebar masks the email address.
+
+Assignment actions were separated into confirmation dialogs for Make Primary, Complete Term, and Revoke Position. The current active primary General Secretary assignment was not completed, revoked, or changed during QA.
+
 ## Security QA
 
 CM-3.1 security-test drafts cover:

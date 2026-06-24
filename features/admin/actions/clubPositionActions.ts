@@ -32,6 +32,16 @@ const assignmentActionSchema = z.object({
   reason: z.string().trim().max(500).optional(),
 })
 
+const completeAssignmentSchema = z.object({
+  id: idSchema,
+  termStart: z.string().trim().min(1),
+  termEnd: z.string().trim().min(1, 'Term end date is required.'),
+  reason: z.string().trim().max(500).optional(),
+}).refine((value) => value.termEnd >= value.termStart, {
+  message: 'Term end cannot be before the term start.',
+  path: ['termEnd'],
+})
+
 export async function createClubPositionAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
   const parsed = positionCreateSchema.safeParse({
     name: formData.get('name'),
@@ -50,6 +60,7 @@ export async function createClubPositionAction(_state: AdminActionState, formDat
     p_is_core_panel: parsed.data.isCorePanel ?? false,
     p_display_order: parsed.data.displayOrder,
   })
+  if (error?.code === '23505') return { status: 'error', message: 'A position with this slug already exists.', fieldErrors: { slug: ['Use a unique slug.'] } }
   if (error) return safeActionError()
   return successAction(['/admin/club-positions'])
 }
@@ -78,6 +89,7 @@ export async function updateClubPositionAction(_state: AdminActionState, formDat
     p_display_order: parsed.data.displayOrder,
     p_reason: parsed.data.reason,
   })
+  if (error?.code === '23505') return { status: 'error', message: 'A position with this slug already exists.', fieldErrors: { slug: ['Use a unique slug.'] } }
   if (error) return safeActionError()
   return successAction(['/admin/club-positions'])
 }
@@ -115,11 +127,16 @@ export async function assignVolunteerClubPositionAction(_state: AdminActionState
 }
 
 export async function completeVolunteerClubPositionAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
-  const parsed = assignmentActionSchema.safeParse({ id: formData.get('id'), reason: formData.get('reason') || undefined })
+  const parsed = completeAssignmentSchema.safeParse({
+    id: formData.get('id'),
+    termStart: formData.get('termStart'),
+    termEnd: formData.get('termEnd'),
+    reason: formData.get('reason') || undefined,
+  })
   if (!parsed.success) return { status: 'error', message: 'Please review the highlighted fields.', fieldErrors: parsed.error.flatten().fieldErrors }
   const admin = await requireAdminAction('canManageVolunteers')
   if ('error' in admin) return admin.error
-  const { error } = await admin.supabase.rpc('complete_volunteer_club_position', { p_assignment_id: parsed.data.id, p_reason: parsed.data.reason })
+  const { error } = await admin.supabase.rpc('complete_volunteer_club_position', { p_assignment_id: parsed.data.id, p_term_end: parsed.data.termEnd, p_reason: parsed.data.reason })
   if (error) return safeActionError()
   return successAction(['/admin/club-positions'])
 }

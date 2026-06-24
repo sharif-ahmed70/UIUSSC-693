@@ -87,6 +87,26 @@ The development bootstrap verified the intended separation:
 - `primary_department_id` remains null.
 - platform role and club position changes are audited separately.
 
+## Club Positions Admin UX
+
+The `/admin/club-positions` page now reads the position catalogue from `club_positions` using an explicit granted-column query. The earlier empty catalogue was caused by querying `select('*')` against a table that intentionally grants only selected columns to authenticated clients; the Supabase error was then converted to an empty result.
+
+The page now separates:
+
+- official position definitions
+- create/edit/archive forms
+- active Core Panel assignments
+- assignment actions
+- historical assignments
+
+Assignment actions use dedicated confirmation dialogs:
+
+- Make Primary is hidden when the assignment is already primary.
+- Complete Term requires a term-end date and preserves history.
+- Revoke Position requires a reason and is reserved for invalid or unauthorized appointments.
+
+None of these actions automatically changes `super_admin` or any other platform role.
+
 ## Security Rules
 
 - Do not expose service-role keys in frontend code.

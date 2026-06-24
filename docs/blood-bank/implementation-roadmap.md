@@ -18,6 +18,8 @@ The leadership/Core Panel foundation adds club-position tables, Core Panel assig
 
 Database bootstrap has been completed in the linked development project with no Blood tables created. BB-1 should still wait for human authenticated browser verification of login, Staff Dashboard, Admin Dashboard, and logout behavior.
 
+The Club Positions admin catalogue and assignment-action UX have been corrected without creating Blood tables. BB-1 should still wait until the human operator confirms logout/re-login behavior and captures any required sanitized authenticated UI screenshots from their own browser session.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1

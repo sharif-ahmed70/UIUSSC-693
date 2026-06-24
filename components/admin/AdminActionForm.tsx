@@ -8,7 +8,7 @@ type AdminActionFormProps = {
   action: (state: AdminActionState, formData: FormData) => Promise<AdminActionState>
   id?: string
   submitLabel: string
-  fields?: React.ReactNode
+  fields?: React.ReactNode | ((state: AdminActionState) => React.ReactNode)
   danger?: boolean
 }
 
@@ -18,9 +18,9 @@ export default function AdminActionForm({ action, id, submitLabel, fields, dange
   return (
     <form action={formAction} className="grid gap-3">
       {id && <input type="hidden" name="id" value={id} />}
-      {fields}
+      {typeof fields === 'function' ? fields(state) : fields}
       {state.message && (
-        <p className={`text-sm font-bold ${state.status === 'error' ? 'text-red-700' : 'text-emerald-700'}`} role={state.status === 'error' ? 'alert' : 'status'}>
+        <p className={`text-sm font-bold ${state.status === 'error' ? 'text-red-700' : 'text-emerald-700'}`} role={state.status === 'error' ? 'alert' : 'status'} aria-live="polite">
           {state.message}
         </p>
       )}

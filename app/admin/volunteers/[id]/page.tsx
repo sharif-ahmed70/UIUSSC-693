@@ -4,6 +4,7 @@ import AdminHeader from '@/components/admin/AdminHeader'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { approveVolunteerAction, rejectVolunteerAction, restoreVolunteerAction, suspendVolunteerAction } from '@/features/admin/actions/volunteerActions'
 import { getVolunteer } from '@/features/admin/queries/getVolunteer'
+import { formatPlatformRole } from '@/lib/formatters'
 
 type PageProps = { params: Promise<{ id: string }> }
 
@@ -31,10 +32,10 @@ export default async function VolunteerDetailPage({ params }: PageProps){
               <Info label="Blood group" value={data.profile.blood_group ?? 'Not provided'} />
             </dl>
           </div>
-          <Panel title="Department memberships" items={data.memberships.map((item) => `${item.club_departments?.name ?? 'Department'} · ${item.department_role} · ${item.membership_status}${item.is_primary ? ' · primary' : ''}`)} />
-          <Panel title="Platform roles" items={data.roles.map((item) => `${item.role} · ${item.status}`)} />
-          <Panel title="Volunteer status history" items={data.statusHistory.map((item) => `${item.previous_status ?? 'new'} → ${item.new_status}${item.reason ? ` · ${item.reason}` : ''}`)} />
-          <Panel title="Membership history" items={data.membershipHistory.map((item) => `${item.previous_status ?? 'new'} → ${item.new_status}`)} />
+          <Panel title="Department memberships" items={data.memberships.map((item) => `${item.club_departments?.name ?? 'Department'} - ${item.department_role.replaceAll('_', ' ')} - ${item.membership_status.replaceAll('_', ' ')}${item.is_primary ? ' - primary' : ''}`)} />
+          <Panel title="Platform roles" items={data.roles.map((item) => `${formatPlatformRole(item.role)} - ${item.status.replaceAll('_', ' ')}`)} />
+          <Panel title="Volunteer status history" items={data.statusHistory.map((item) => `${item.previous_status ?? 'new'} -> ${item.new_status}${item.reason ? ` - ${item.reason}` : ''}`)} />
+          <Panel title="Membership history" items={data.membershipHistory.map((item) => `${item.previous_status ?? 'new'} -> ${item.new_status}`)} />
         </div>
         <div className="space-y-4">
           <AdminActionForm action={approveVolunteerAction} id={data.profile.id} submitLabel="Approve volunteer" fields={<ReasonField optional />} />

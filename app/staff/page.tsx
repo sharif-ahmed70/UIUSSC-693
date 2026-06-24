@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getDepartmentDestination } from '@/features/departments/getDepartmentDestination'
 import { getStaffAccessContext } from '@/features/staff/queries/getStaffAccessContext'
 import { resolveStaffDestination } from '@/features/staff/routing/resolveStaffDestination'
+import { formatPlatformRole } from '@/lib/formatters'
 
 export default async function StaffDashboardPage(){
   const access = await getStaffAccessContext()
@@ -25,7 +26,10 @@ export default async function StaffDashboardPage(){
       {(access.platformRoles.includes('club_admin') || access.platformRoles.includes('super_admin')) && (
         <section className="rounded-md border border-emerald-200 bg-emerald-50 p-5 text-emerald-900">
           <h2 className="font-extrabold">Administration access available</h2>
-          <p className="mt-2 text-sm leading-6">The admin approval system is intentionally deferred. This panel only confirms platform role detection.</p>
+          <p className="mt-2 text-sm leading-6">Your {access.platformRoles.map(formatPlatformRole).join(', ')} role gives you access to volunteer verification, Core Panel management, department administration, platform roles, and audit review.</p>
+          <Link href="/admin" className="mt-4 inline-flex min-h-10 items-center justify-center rounded-md bg-uiussc-charcoal px-4 py-2 text-sm font-extrabold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20">
+            Open Admin Dashboard
+          </Link>
         </section>
       )}
 
@@ -45,7 +49,7 @@ export default async function StaffDashboardPage(){
         <div className="rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-uiussc-orange">Platform Access</p>
           <h2 className="mt-2 text-xl font-extrabold text-uiussc-charcoal">
-            {access.platformRoles.length > 0 ? access.platformRoles.map((role) => role.replace('_', ' ')).join(', ') : 'No platform role'}
+            {access.platformRoles.length > 0 ? access.platformRoles.map(formatPlatformRole).join(', ') : 'No platform role'}
           </h2>
           <p className="mt-2 text-sm text-slate-600">Website permissions are managed separately from club positions.</p>
         </div>

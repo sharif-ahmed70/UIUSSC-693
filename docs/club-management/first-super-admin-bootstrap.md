@@ -79,7 +79,9 @@ Core Panel titles do not silently grant `super_admin`. Core Panel members must r
 
 ## Login And UI Verification
 
-Database bootstrap and public route verification are complete. Normal password login, cookie-session checks, authenticated Staff Dashboard screenshots, authenticated Admin Dashboard screenshots, logout behavior, and browser-back-after-logout checks require a human password entry in a browser session. Passwords, tokens, refresh tokens, and cookies must not be shared with Codex or committed.
+Database bootstrap and public route verification are complete. The human operator confirmed normal login, `/staff`, and `/admin/club-positions` access. Codex did not inspect, log, store, or capture the password, tokens, refresh tokens, or cookies.
+
+Authenticated logout, browser-back-after-logout, and sanitized authenticated screenshot capture still require a human-operated browser session because Codex must not receive the account password or session material.
 
 Expected authenticated UI result after normal login:
 
@@ -90,6 +92,25 @@ Expected authenticated UI result after normal login:
 - Staff Dashboard shows no operational department assigned
 - `/admin` and admin child routes load for the super admin
 - `/admin/club-positions` shows the General Secretary assignment
+
+## Club Positions Catalogue Fix
+
+The first authenticated review showed an empty position catalogue even though the database had seven seeded positions. Root cause: the application query selected `*` from `club_positions`, but the table intentionally grants authenticated clients only the public/admin-safe position columns. The query error was swallowed and displayed as an empty state.
+
+The fix uses an explicit column list, safe status filters, stable ordering, pagination, and safe error messaging. No RLS migration was required.
+
+Post-fix database verification confirmed:
+
+- seven seeded position definitions
+- seven active positions
+- seven Core Panel positions
+- one active primary General Secretary assignment
+- unchanged active `super_admin`
+- no department membership
+- null primary department
+- no Blood tables
+
+The Create Position and assignment actions now use visible labels, pending states, safe duplicate-slug messaging, and confirmation dialogs for primary/completion/revocation workflows.
 
 ## Future Position Transition
 
