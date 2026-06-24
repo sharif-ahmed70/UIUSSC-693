@@ -20,6 +20,8 @@ Database bootstrap has been completed in the linked development project with no 
 
 The Club Positions admin catalogue and assignment-action UX have been corrected without creating Blood tables. BB-1 should still wait until the human operator confirms logout/re-login behavior and captures any required sanitized authenticated UI screenshots from their own browser session.
 
+The later RSC boundary fix changed only Club Positions form composition. It did not create Blood tables or Blood workflows.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1

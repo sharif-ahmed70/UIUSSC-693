@@ -112,6 +112,23 @@ Post-fix database verification confirmed:
 
 The Create Position and assignment actions now use visible labels, pending states, safe duplicate-slug messaging, and confirmation dialogs for primary/completion/revocation workflows.
 
+## RSC Boundary Fix
+
+The first Club Positions UX fix introduced a runtime React Server Component boundary error by passing `fields={(state) => ...}` render functions from the Server Component page into the client `AdminActionForm`.
+
+Root cause:
+
+- `AdminActionForm` is a Client Component.
+- ordinary render functions are not serializable across the Server Component payload.
+- production build still passed because the error appears at browser runtime serialization.
+
+The correction moved stateful create/edit position forms into focused Client Components:
+
+- `CreateClubPositionForm`
+- `EditClubPositionForm`
+
+The server page now passes only serializable position values, rendered React elements where safe, and valid Server Action references. Server Actions still re-authenticate, reload trusted admin context, validate with Zod, call controlled RPCs, and return safe messages.
+
 ## Future Position Transition
 
 When the official transition happens, complete the General Secretary assignment, store the term end, assign President, mark President primary, preserve the General Secretary history, and leave `super_admin` active unless a separate explicit platform-access decision is made.

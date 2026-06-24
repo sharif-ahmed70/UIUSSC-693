@@ -69,6 +69,12 @@ Human-readable platform-role labels are used in Staff/Admin surfaces, and the pe
 
 Assignment actions were separated into confirmation dialogs for Make Primary, Complete Term, and Revoke Position. The current active primary General Secretary assignment was not completed, revoked, or changed during QA.
 
+## RSC Runtime Follow-up
+
+After the Club Positions UX update, `/admin/club-positions` showed a runtime RSC serialization error because a render-function prop was passed from the Server Component page to the client `AdminActionForm`.
+
+The page was refactored so create/edit forms own their client-side action state internally. The Server Component page no longer sends ordinary functions across the server/client boundary. A fresh webpack dev server restart showed `/admin/club-positions` returning `200` for the authenticated session without the previous component-payload error.
+
 ## Security QA
 
 CM-3.1 security-test drafts cover:

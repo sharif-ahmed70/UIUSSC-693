@@ -107,6 +107,8 @@ Assignment actions use dedicated confirmation dialogs:
 
 None of these actions automatically changes `super_admin` or any other platform role.
 
+The RSC follow-up keeps this architecture intact while moving client-side form state into focused form components. The page remains a Server Component and authorization stays inside Server Actions/RPCs.
+
 ## Security Rules
 
 - Do not expose service-role keys in frontend code.

@@ -3,14 +3,12 @@ import type { ReactNode } from 'react'
 import AdminActionForm from '@/components/admin/AdminActionForm'
 import AdminHeader from '@/components/admin/AdminHeader'
 import ClubPositionAssignmentActions from '@/components/admin/ClubPositionAssignmentActions'
-import ClubPositionFields from '@/components/admin/ClubPositionFields'
+import { CreateClubPositionForm, EditClubPositionForm } from '@/components/admin/ClubPositionForms'
 import EmptyAdminState from '@/components/admin/EmptyAdminState'
 import StatusBadge from '@/components/admin/StatusBadge'
 import {
   archiveClubPositionAction,
   assignVolunteerClubPositionAction,
-  createClubPositionAction,
-  updateClubPositionAction,
 } from '@/features/admin/actions/clubPositionActions'
 import { getClubPositions, parseClubPositionSearchParams } from '@/features/admin/queries/getClubPositions'
 
@@ -85,7 +83,7 @@ export default async function ClubPositionsPage({ searchParams }: PageProps){
               <div className="mt-4 grid gap-4 lg:grid-cols-2">
                 <div className="rounded-md border border-slate-200 p-4">
                   <h4 className="mb-3 font-extrabold text-uiussc-charcoal">Edit position</h4>
-                  <AdminActionForm action={updateClubPositionAction} id={position.id} submitLabel="Update position" fields={(state) => <ClubPositionFields position={position} includeStatus state={state} />} />
+                  <EditClubPositionForm position={position} />
                 </div>
                 {position.status !== 'archived' && (
                   <div className="rounded-md border border-red-100 bg-red-50 p-4">
@@ -114,7 +112,7 @@ export default async function ClubPositionsPage({ searchParams }: PageProps){
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Create Position</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Add a new official club position definition. Slugs are normalized server-side and must remain unique.</p>
         <div className="mt-4">
-          <AdminActionForm action={createClubPositionAction} submitLabel="Create position" fields={(state) => <ClubPositionFields state={state} />} />
+          <CreateClubPositionForm />
         </div>
       </section>
 
