@@ -75,6 +75,14 @@ After the Club Positions UX update, `/admin/club-positions` showed a runtime RSC
 
 The page was refactored so create/edit forms own their client-side action state internally. The Server Component page no longer sends ordinary functions across the server/client boundary. A fresh webpack dev server restart showed `/admin/club-positions` returning `200` for the authenticated session without the previous component-payload error.
 
+## Final Human Acceptance
+
+The human operator confirmed the full login/logout/re-login flow using the real account without sharing credentials. Staff Dashboard, Admin access, Club Positions, protected-route redirects after logout, and re-login all passed.
+
+Final database checks confirmed the current General Secretary assignment, Super Admin platform role, null primary department, and no-department state were unchanged. No Blood tables were created.
+
+Clean Chromium confirmed the login and membership hydration warnings seen in the normal browser are extension-induced only.
+
 ## Security QA
 
 CM-3.1 security-test drafts cover:

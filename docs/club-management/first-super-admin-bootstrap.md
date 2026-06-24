@@ -81,7 +81,21 @@ Core Panel titles do not silently grant `super_admin`. Core Panel members must r
 
 Database bootstrap and public route verification are complete. The human operator confirmed normal login, `/staff`, and `/admin/club-positions` access. Codex did not inspect, log, store, or capture the password, tokens, refresh tokens, or cookies.
 
-Authenticated logout, browser-back-after-logout, and sanitized authenticated screenshot capture still require a human-operated browser session because Codex must not receive the account password or session material.
+The human operator later completed final authenticated acceptance:
+
+- normal login succeeded with the real Supabase Auth account
+- `/staff` opened after login
+- Staff Dashboard showed General Secretary, Core Panel: Yes, Super Admin, no operational department, and Open Admin Dashboard
+- the outdated deferred-administration message was absent
+- normal logout succeeded
+- `/staff`, `/admin`, and `/admin/club-positions` redirected to login after logout
+- re-login succeeded
+- `/staff` and `/admin/club-positions` opened after re-login
+- `/admin/club-positions` showed seven active positions, seven Core Panel positions, one active assignment, the President catalogue item, masked sidebar email, human-readable Super Admin label, and active navigation state
+- no RSC runtime overlay appeared
+- the real General Secretary assignment was not altered
+
+Credential entry was performed only by the human operator. Codex did not observe or store the password or session material.
 
 Expected authenticated UI result after normal login:
 
@@ -128,6 +142,31 @@ The correction moved stateful create/edit position forms into focused Client Com
 - `EditClubPositionForm`
 
 The server page now passes only serializable position values, rendered React elements where safe, and valid Server Action references. Server Actions still re-authenticate, reload trusted admin context, validate with Zod, call controlled RPCs, and return safe messages.
+
+## Final Acceptance Checks
+
+Machine-verifiable checks confirmed:
+
+- public routes return the expected status codes
+- published content counts remain events: 4, notices: 3, gallery items: 4
+- Auth users: 1
+- approved volunteer profiles: 1
+- active Super Admin roles: 1
+- active primary General Secretary assignments: 1
+- department memberships for the selected profile: 0
+- primary department remains null
+- active position definitions: 7
+- duplicate active platform roles: 0
+- Blood tables: 0
+- clean Chromium `/login` and `/membership` hydration warnings: 0
+- no `data-temp-mail-org` or injected data-URL style appears in clean Chromium
+- safe internal `next` values are accepted and unsafe external/protocol/javascript values fall back to `/staff`
+
+Authenticated responsive screenshots and browser-storage inspection require the human-operated authenticated browser session. The required screenshot directory is:
+
+`.tmp/ui-qa/final-authenticated-acceptance/`
+
+Clean Chromium screenshots captured by Codex in that directory are limited to public login/membership hydration checks and do not contain private data.
 
 ## Future Position Transition
 

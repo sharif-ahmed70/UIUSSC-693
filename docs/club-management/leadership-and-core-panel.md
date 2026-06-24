@@ -109,6 +109,12 @@ None of these actions automatically changes `super_admin` or any other platform 
 
 The RSC follow-up keeps this architecture intact while moving client-side form state into focused form components. The page remains a Server Component and authorization stays inside Server Actions/RPCs.
 
+## Final Acceptance Status
+
+Human-authenticated acceptance confirmed that the first administrator sees General Secretary, Core Panel: Yes, Super Admin, and no operational department on `/staff`, and can open `/admin/club-positions` after re-login.
+
+Post-test database checks confirmed one active primary General Secretary assignment and one active Super Admin role remain. The assignment was not completed, revoked, converted to President, or given a department.
+
 ## Security Rules
 
 - Do not expose service-role keys in frontend code.

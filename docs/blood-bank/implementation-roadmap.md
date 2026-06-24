@@ -22,6 +22,12 @@ The Club Positions admin catalogue and assignment-action UX have been corrected 
 
 The later RSC boundary fix changed only Club Positions form composition. It did not create Blood tables or Blood workflows.
 
+## Club Management Acceptance Gate
+
+Human-authenticated Club Management acceptance has passed for login, Staff Dashboard, Admin access, Club Positions, logout redirects, and re-login. Machine checks confirm no Blood tables exist and the public site still builds and serves the expected content.
+
+BB-1 may begin after the team accepts that authenticated responsive screenshots/storage inspection remain human-session-only QA tasks and must not expose password, tokens, cookies, full email, UUID, student ID, or private records.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1
