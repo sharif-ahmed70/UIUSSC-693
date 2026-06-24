@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import AdminActionForm from '@/components/admin/AdminActionForm'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { changeAssignmentStatusAction } from '@/features/event-operations/actions'
@@ -35,6 +36,8 @@ export default async function StaffAssignedEventsPage(){
             <p className="mt-3 text-sm font-bold text-slate-700">{assignment.assignmentTitle}</p>
             <p className="mt-2 text-sm leading-6 text-slate-600">{assignment.responsibilityBrief}</p>
             <p className="mt-2 text-xs font-bold text-slate-500">Due: {assignment.dueAt ? formatDisplayDate(assignment.dueAt) : 'Not set'}</p>
+            <p className="mt-2 text-xs font-bold text-slate-500">Tasks: {assignment.completedTaskCount}/{assignment.taskCount} complete · {assignment.blockedTaskCount} blocked</p>
+            <Link href="/staff/tasks" className="mt-3 inline-flex text-sm font-bold text-uiussc-orange hover:text-[#e85d00]">Open related tasks</Link>
             {canUpdateAssignments && (
               <div className="mt-4 max-w-md">
                 <AdminActionForm

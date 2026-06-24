@@ -17,6 +17,9 @@ export default async function AdminEventDetailPage({ params }: { params: Promise
     <div>
       <Link href="/admin/events" className="mb-4 inline-flex text-sm font-bold text-uiussc-orange hover:text-[#e85d00]">Back to event operations</Link>
       <AdminHeader title={event.title} description={`${formatEventDate(event.eventDate)} · ${event.location}`} />
+      <Link href={`/admin/events/${event.id}/tasks`} className="mb-5 inline-flex min-h-10 items-center rounded-md bg-uiussc-charcoal px-4 py-2 text-sm font-extrabold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20">
+        Manage event tasks
+      </Link>
 
       <section className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
         <div className="rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
@@ -93,6 +96,8 @@ export default async function AdminEventDetailPage({ params }: { params: Promise
                 <p className="mt-2 text-sm font-bold text-slate-700">{assignment.assignmentTitle}{assignment.isLeadDepartment ? ' · Lead' : ''}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{assignment.responsibilityBrief}</p>
                 <p className="mt-2 text-xs font-bold text-slate-500">Due: {assignment.dueAt ? formatDisplayDate(assignment.dueAt) : 'Not set'}</p>
+                <p className="mt-2 text-xs font-bold text-slate-500">Tasks: {assignment.completedTaskCount}/{assignment.taskCount} complete · {assignment.blockedTaskCount} blocked</p>
+                <Link href={`/admin/events/${event.id}/tasks`} className="mt-3 inline-flex text-sm font-bold text-uiussc-orange hover:text-[#e85d00]">Open tasks</Link>
                 <AdminActionForm action={changeAssignmentStatusAction} id={assignment.id} submitLabel="Update assignment status" fields={<><select name="status" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm"><option value="acknowledged">Acknowledged</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select><textarea name="reason" placeholder="Reason for blocked or cancelled status" className="min-h-16 rounded-md border border-slate-200 p-3 text-sm" /></>} />
               </div>
             ))}

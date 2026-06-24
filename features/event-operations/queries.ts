@@ -53,7 +53,7 @@ function progressLabel(assignments: Pick<EventDepartmentAssignment, 'assignmentS
   return `${completed}/${assignments.length} assignments complete`
 }
 
-function mapAssignment(row: AssignmentRow): EventDepartmentAssignment{
+function mapAssignment(row: AssignmentRow, taskCounts?: { total: number; completed: number; blocked: number }): EventDepartmentAssignment{
   return {
     id: row.id,
     departmentId: row.department_id,
@@ -65,7 +65,31 @@ function mapAssignment(row: AssignmentRow): EventDepartmentAssignment{
     assignmentStatus: row.assignment_status,
     dueAt: row.due_at,
     leadProfileName: row.volunteer_profiles?.full_name ?? null,
+    taskCount: taskCounts?.total ?? 0,
+    completedTaskCount: taskCounts?.completed ?? 0,
+    blockedTaskCount: taskCounts?.blocked ?? 0,
   }
+}
+
+async function getTaskCountsByAssignment(assignmentIds: string[]){
+  const supabase = await createServerSupabaseClient()
+  const { data } = assignmentIds.length
+    ? await supabase
+        .from('event_department_tasks')
+        .select('event_department_assignment_id, task_status')
+        .in('event_department_assignment_id', assignmentIds)
+    : { data: [] }
+
+  const counts = new Map<string, { total: number; completed: number; blocked: number }>()
+  ;((data ?? []) as Array<{ event_department_assignment_id: string; task_status: string }>).forEach((task) => {
+    const current = counts.get(task.event_department_assignment_id) ?? { total: 0, completed: 0, blocked: 0 }
+    counts.set(task.event_department_assignment_id, {
+      total: current.total + 1,
+      completed: current.completed + (task.task_status === 'completed' ? 1 : 0),
+      blocked: current.blocked + (task.task_status === 'blocked' ? 1 : 0),
+    })
+  })
+  return counts
 }
 
 function mapSummary(row: OperationRow, assignments: EventDepartmentAssignment[]): AdminEventOperationSummary | null{
@@ -105,9 +129,11 @@ export async function getAdminEventOperations(): Promise<AdminEventOperationSumm
         .in('operation_id', operationIds)
     : { data: [] }
 
+  const assignmentRows = (assignments ?? []) as unknown as AssignmentRow[]
+  const taskCounts = await getTaskCountsByAssignment(assignmentRows.map((assignment) => assignment.id))
   const assignmentsByEvent = new Map<string, EventDepartmentAssignment[]>()
-  ;((assignments ?? []) as unknown as AssignmentRow[]).forEach((row) => {
-    assignmentsByEvent.set(row.event_id, [...(assignmentsByEvent.get(row.event_id) ?? []), mapAssignment(row)])
+  assignmentRows.forEach((row) => {
+    assignmentsByEvent.set(row.event_id, [...(assignmentsByEvent.get(row.event_id) ?? []), mapAssignment(row, taskCounts.get(row.id))])
   })
 
   return operationRows
@@ -137,7 +163,9 @@ export async function getAdminEventOperation(operationId: string): Promise<Admin
   ])
 
   if (!operation) return null
-  const assignmentList = ((assignments ?? []) as unknown as AssignmentRow[]).map(mapAssignment)
+  const assignmentRows = (assignments ?? []) as unknown as AssignmentRow[]
+  const taskCounts = await getTaskCountsByAssignment(assignmentRows.map((assignment) => assignment.id))
+  const assignmentList = assignmentRows.map((assignment) => mapAssignment(assignment, taskCounts.get(assignment.id)))
   const summary = mapSummary(operation as unknown as OperationRow, assignmentList)
   const event = (operation as unknown as OperationRow).events
   if (!summary || !event) return null
@@ -182,8 +210,10 @@ export async function getStaffAssignedEvents(): Promise<StaffAssignedEvent[]>{
     .neq('assignment_status', 'cancelled')
     .order('due_at', { ascending: true, nullsFirst: false })
 
-  return ((data ?? []) as unknown as Array<AssignmentRow & { club_event_operations: { operational_status: StaffAssignedEvent['operationalStatus']; events: { title: string; event_date: string; location: string } | null } | null }>).map((row) => {
-    const assignment = mapAssignment(row)
+  const rows = (data ?? []) as unknown as Array<AssignmentRow & { club_event_operations: { operational_status: StaffAssignedEvent['operationalStatus']; events: { title: string; event_date: string; location: string } | null } | null }>
+  const taskCounts = await getTaskCountsByAssignment(rows.map((assignment) => assignment.id))
+  return rows.map((row) => {
+    const assignment = mapAssignment(row, taskCounts.get(row.id))
     return {
       ...assignment,
       eventTitle: row.club_event_operations?.events?.title ?? 'Untitled event',

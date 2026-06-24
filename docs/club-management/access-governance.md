@@ -59,3 +59,5 @@ CM-4 seeds permissions for events and tasks, but does not implement event/task m
 ## CM-5A Event Scope
 
 Temporary access now supports Event scope for permissions that declare `supports_event_scope = true`. The admin form submits the event UUID internally from an event selector showing public and operational status. Record scope remains disabled until an allowlisted resource picker exists.
+
+CM-5B task RPCs still require an approved profile, matching department membership, and valid task state. Temporary access does not bypass department consistency, suspended/archived account protection, history, or audit logging.

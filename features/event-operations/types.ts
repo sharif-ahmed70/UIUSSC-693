@@ -56,6 +56,9 @@ export type EventDepartmentAssignment = {
   assignmentStatus: EventAssignmentStatus
   dueAt: string | null
   leadProfileName: string | null
+  taskCount: number
+  completedTaskCount: number
+  blockedTaskCount: number
 }
 
 export type EventOperationHistory = {

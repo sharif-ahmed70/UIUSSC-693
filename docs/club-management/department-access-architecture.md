@@ -294,3 +294,5 @@ Admin approval policies, platform-role management, suspension enforcement helper
 ## CM-5A Assigned Event Access
 
 Department event access is assignment based. Department Head, Deputy, and Executive roles can read matching active department assignments and their event operation context. Only Department Head and Deputy can update assignment status; Executives remain view-only.
+
+CM-5B task access is stricter for Executives: they can see only active task assignments unless they also hold broader official permissions. Department Head and Deputy task management remains limited to their own approved department memberships.

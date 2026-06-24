@@ -53,3 +53,7 @@ Staff route:
 - `/staff/assigned-events`
 
 The staff route relies on RLS and shows only assigned event records visible to the signed-in user.
+
+## CM-5B Integration
+
+CM-5B adds task counts to department assignments and links event operations to task management. Counts are derived from `event_department_tasks`; no summary totals are stored on CM-5A assignment rows.
