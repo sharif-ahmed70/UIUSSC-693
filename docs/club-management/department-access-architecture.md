@@ -1,5 +1,9 @@
 # UIUSSC Department Access Architecture
 
+## CM-2 Status
+
+Phase CM-2 adds the first protected staff shell, server-side access-context query, centralized department route mapping, and placeholder workspaces for the seven current departments. Department access is resolved from approved active memberships plus narrowly scoped platform-role checks. Client state, query parameters, and submitted form values are not trusted for authorization.
+
 ## Departments
 
 Initial departments:

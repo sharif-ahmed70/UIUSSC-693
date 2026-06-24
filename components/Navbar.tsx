@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import StaffAccessLink from './StaffAccessLink'
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -57,6 +58,7 @@ export default function Navbar(){
           <Link href="/membership" className="ml-2 rounded-md bg-uiussc-orange px-4 py-2 text-sm font-bold text-white shadow-lg shadow-uiussc-orange/20 transition hover:bg-[#e85d00]">
             Join UIUSSC
           </Link>
+          <StaffAccessLink className="rounded-md border border-white/20 px-4 py-2 text-sm font-bold text-white/85 transition hover:border-uiussc-orange hover:text-white" />
         </nav>
 
         <div className="md:hidden">
@@ -96,6 +98,10 @@ export default function Navbar(){
             >
               Join UIUSSC
             </Link>
+            <StaffAccessLink
+              onClick={() => setOpen(false)}
+              className="rounded-md border border-white/20 px-4 py-3 text-center text-sm font-bold text-white"
+            />
           </div>
         </div>
       )}

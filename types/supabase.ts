@@ -798,7 +798,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      submit_volunteer_onboarding: {
+        Args: {
+          p_academic_department: string
+          p_blood_group: string
+          p_email: string
+          p_full_name: string
+          p_phone: string
+          p_preferred_department_id: string
+          p_student_id: string
+          p_trimester: string
+        }
+        Returns: {
+          department_membership_id: string
+          membership_status: string
+          onboarding_status: string
+          volunteer_profile_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

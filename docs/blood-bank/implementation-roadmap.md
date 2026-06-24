@@ -1,5 +1,9 @@
 # Blood Support and Club Management Implementation Roadmap
 
+## CM-2 Dependency Update
+
+The Blood Department now has a protected placeholder workspace at `/staff/blood` through the club-management auth/onboarding foundation. The final Blood Support schema, donor/request workflows, matching, contact attempts, and donation history remain deferred and were not implemented in CM-2.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1
@@ -15,13 +19,18 @@ Status: implemented in `supabase/migrations/202606240002_club_management_foundat
 
 ## Phase CM-2
 
-- Add Supabase Auth login/logout.
-- Add account invitation.
-- Add pending/no-access pages.
-- Add server-only authorization helpers.
-- Add protected staff shell.
-- Add department switcher.
-- Add disposable-user authenticated RLS test coverage for own-profile and own-membership flows.
+Status: implemented in `supabase/migrations/202606240003_club_auth_onboarding.sql` and the protected staff routes.
+
+- Added Supabase Auth login/logout.
+- Added password recovery and callback handling.
+- Added volunteer onboarding with controlled department request RPC.
+- Added pending/no-access/access-status pages.
+- Added server-only authorization helpers.
+- Added protected staff shell.
+- Added department switcher.
+- Added protected placeholder department workspaces.
+- Deferred account invitation sender to the admin phase.
+- Deferred disposable-user authenticated RLS flow tests until a pre-approved development Auth user exists.
 
 ## Phase CM-3
 

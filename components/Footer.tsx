@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import StaffAccessLink from './StaffAccessLink'
 
 const quickLinks = [
   { href: '/', label: 'Home' },
@@ -54,6 +55,7 @@ export default function Footer(){
                     {link.label}
                   </Link>
                 ))}
+                <StaffAccessLink className="text-sm text-slate-300 transition hover:text-uiussc-orange" />
               </div>
             </div>
 
