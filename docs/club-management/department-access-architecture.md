@@ -1,0 +1,231 @@
+# UIUSSC Department Access Architecture
+
+## Departments
+
+Initial departments:
+
+- Blood Department (`blood`)
+- Event Management (`event-management`)
+- Volunteer Management (`volunteer-management`)
+- Logistics (`logistics`)
+- Graphics Design (`graphics-design`)
+- Public Relations (`public-relations`)
+- Human Resources (`human-resources`)
+
+Departments must be database-driven, not a PostgreSQL enum, so new departments can be added without a database migration and archived departments retain historical references.
+
+## Core Tables
+
+### `club_departments`
+
+Fields:
+
+- `id`
+- `name`
+- `slug`
+- `short_description`
+- `status`: `active`, `inactive`, `archived`
+- `display_order`
+- `created_at`
+- `updated_at`
+
+### `volunteer_profiles`
+
+Fields:
+
+- `id`
+- `auth_user_id` references Supabase Auth
+- `full_name`
+- `student_id`
+- `email`
+- `phone`
+- `academic_department`
+- `trimester`
+- `blood_group`
+- `profile_photo_path`
+- `account_status`: `pending`, `approved`, `rejected`, `suspended`, `archived`
+- `onboarding_status`: `profile_incomplete`, `submitted`, `under_review`, `approved`, `rejected`
+- `primary_department_id`
+- `joined_at`
+- `approved_at`, `approved_by`
+- `rejected_at`
+- `suspended_at`
+- `archived_at`
+- timestamps
+
+Supabase Auth stores credentials. Profile tables never store passwords, password hashes, generated passwords, or JWT secrets.
+
+### `volunteer_department_memberships`
+
+Fields:
+
+- `id`
+- `volunteer_profile_id`
+- `department_id`
+- `department_role`: `volunteer`, `coordinator`, `department_head`
+- `membership_status`: `requested`, `under_review`, `approved`, `rejected`, `suspended`, `removed`
+- `is_primary`
+- `requested_at`
+- `approved_at`, `approved_by`
+- `rejected_at`, `rejection_reason`
+- `suspended_at`
+- `removed_at`
+- timestamps
+
+Rules:
+
+- Users cannot approve themselves.
+- Users cannot assign their own role.
+- Browser-submitted role/status values are never trusted.
+- Administration approves department and role.
+- Historical membership references remain.
+
+### `volunteer_platform_roles`
+
+Preferred for trusted platform-wide roles:
+
+- `super_admin`
+- `club_admin`
+- `membership_admin`
+- `content_admin`
+- `department_admin`
+
+Trade-offs:
+
+- Normalized table: best auditability and least frontend trust.
+- Auth custom claims: useful as cached hints but must not be the only source of truth.
+- Profile column: simpler, but weak for multiple roles and history.
+
+Principle: database tables are the trusted authorization source. Auth claims may only cache hints.
+
+Blood operational permissions are mapped from approved Blood Department membership:
+
+- Blood volunteer: approved Blood membership with `department_role = volunteer`; limited operational read and assistance actions.
+- Blood coordinator: approved Blood membership with `department_role = coordinator`; contact attempts, assignments, and workflow coordination.
+- Blood admin: approved Blood membership with `department_role = department_head` or a platform admin role; Blood settings and operational management.
+
+Do not create a second contradictory Blood role table unless a later permission model proves it is necessary.
+
+## Histories and Audit
+
+- `volunteer_status_history`
+- `department_membership_history`
+- `platform_role_history`
+- `club_audit_logs`
+
+Role/status changes must include actor, previous value, new value, reason, and timestamp.
+
+## Post-Login Routing
+
+- One approved department: route to that department dashboard.
+- Multiple approved departments: route to `/staff` with approved department switcher.
+- Club admin: show administration dashboard and permitted shortcuts.
+- Pending profile: `/staff/pending`.
+- No approved department: `/staff/no-access`.
+- Suspended account: deny protected access and show safe status message.
+
+Do not rely only on client-side redirection. Every protected page and Server Action authorizes independently.
+
+## Department Switcher
+
+Show only:
+
+- approved departments
+- active departments
+- non-suspended memberships
+
+Display:
+
+- department name
+- department role
+- primary department marker
+
+Do not show requested, rejected, suspended, removed, inactive, or archived department access. Switching visible dashboard must not change database permissions.
+
+## Authorization Helpers
+
+Server-only helpers:
+
+- `requireAuthenticatedUser()`
+- `requireApprovedVolunteer()`
+- `requirePlatformRole()`
+- `requireDepartmentMembership()`
+- `requireDepartmentRole()`
+- `canAccessDepartment()`
+- `canPerformBloodAction()`
+- `requireBloodVolunteer()`
+- `requireBloodCoordinator()`
+- `requireBloodAdmin()`
+
+Requirements:
+
+- Use trusted database state.
+- Use `auth.uid()` as the authenticated user anchor.
+- Reject pending or rejected accounts.
+- Reject suspended/archived accounts.
+- Reject inactive departments.
+- Reject suspended/removed department memberships.
+- Never trust client-supplied roles.
+- Never trust URL parameters as authorization proof.
+- Return minimal safe authorization context.
+- Avoid duplicated authorization logic.
+
+RLS recursion risk must be handled deliberately. If policies need helper functions, use minimal boolean `SECURITY DEFINER` functions only after review, set `search_path`, schema-qualify references, revoke default `execute` from `public`, and grant only to intended roles. Do not create broad data-returning security-definer functions.
+
+## First Super Admin Bootstrap
+
+The first trusted super admin is assigned by an operator-only SQL draft:
+
+`supabase/drafts/202606240001_bootstrap_super_admin.sql`
+
+The process requires an existing Supabase Auth user UUID, manual execution by the database owner or trusted operator, an audit log entry, and a placeholder replacement. It is never exposed through a browser form, never run as a migration or seed, and does not leave a permanent public bootstrap function.
+
+## RLS Model
+
+- Public users may insert only approved public form columns.
+- Public users may not read private blood/volunteer data.
+- Volunteers may read own profile and own memberships.
+- Volunteers may update limited safe own fields.
+- Volunteers may not approve own profile, own department, or own role.
+- Admin policies must reference trusted role/membership tables.
+- Blood records are visible only to approved Blood Department members with appropriate role.
+- Graphics/Event/Logistics/PR/HR members have no Blood access unless also approved in Blood Department.
+
+## Department Interface Roadmap
+
+- Blood Department: request queue, verification, secure donor database, potential-donor matching, contact attempts, assignments, donation history, notifications, audit.
+- Event Management: event planning, task assignment, timeline, event registration review, venue coordination.
+- Volunteer Management: volunteer pool, event volunteer assignment, attendance, coordination.
+- Logistics: inventory, transportation, resource allocation, event logistics tasks.
+- Graphics Design: design-request queue, asset assignment, file submission, approval workflow.
+- Public Relations: communication tasks, campaign content, collaboration records, publicity workflow.
+- Human Resources: membership review, volunteer approval, department assignment, attendance, status, performance records.
+
+## Permission Matrix
+
+| Capability | Pending volunteer | Approved volunteer | Dept volunteer | Dept coordinator | Dept head | Membership admin | Content admin | Club admin | Super admin | Blood volunteer | Blood coordinator | Blood admin |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| View own profile | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Update safe own profile | Limited | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| View own memberships | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Request department membership | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Review applications | No | No | No | No | No | Yes | No | Yes | Yes | No | No | No |
+| Approve volunteer | No | No | No | No | No | Yes | No | Yes | Yes | No | No | No |
+| Assign department | No | No | No | No | No | Yes | No | Yes | Yes | No | No | No |
+| Assign department role | No | No | No | No | Department-scoped | Yes | No | Yes | Yes | No | Blood-scoped | Blood-scoped |
+| Assign platform role | No | No | No | No | No | No | No | Club-level | Yes | No | No | No |
+| Suspend volunteer | No | No | No | No | No | Yes | No | Yes | Yes | No | No | No |
+| View blood request | No | No | No | No | No | No | No | Yes | Yes | Limited | Yes | Yes |
+| Verify blood request | No | No | No | No | No | No | No | Yes | Yes | No | Yes | Yes |
+| View donor contact | No | No | No | No | No | No | No | Yes | Yes | Limited | Yes | Yes |
+| Match donors | No | No | No | No | No | No | No | Yes | Yes | Limited | Yes | Yes |
+| Contact donor | No | No | No | No | No | No | No | Yes | Yes | No | Yes | Yes |
+| Assign donor | No | No | No | No | No | No | No | Yes | Yes | No | Yes | Yes |
+| Confirm donation | No | No | No | No | No | No | No | Yes | Yes | No | Yes | Yes |
+| Manage events | No | No | Event-scoped | Event-scoped | Event-scoped | No | Content-scoped | Yes | Yes | No | No | No |
+| Manage logistics | No | No | Logistics-scoped | Logistics-scoped | Logistics-scoped | No | No | Yes | Yes | No | No | No |
+| Submit graphics | No | No | Graphics-scoped | Graphics-scoped | Graphics-scoped | No | No | Yes | Yes | No | No | No |
+| Manage public relations | No | No | PR-scoped | PR-scoped | PR-scoped | No | Content-scoped | Yes | Yes | No | No | No |
+| Manage HR | No | No | No | No | HR-scoped | Yes | No | Yes | Yes | No | No | No |
+| Manage club settings | No | No | No | No | No | No | No | Limited | Yes | No | No | No |
+| View audit logs | No | No | No | No | Department-scoped | HR-scoped | Content-scoped | Yes | Yes | Blood-scoped minimal | Blood-scoped | Blood-scoped |
