@@ -348,6 +348,51 @@ export type Database = {
           },
         ]
       }
+      membership_application_status_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: string
+          membership_application_id: string
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          membership_application_id: string
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          membership_application_id?: string
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_application_status_hi_membership_application_id_fkey"
+            columns: ["membership_application_id"]
+            isOneToOne: false
+            referencedRelation: "membership_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membership_application_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "volunteer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membership_applications: {
         Row: {
           admin_notes: string | null
@@ -798,6 +843,140 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_department_membership: {
+        Args: { p_membership_id: string; p_reason?: string }
+        Returns: {
+          membership_id: string
+          membership_status: string
+        }[]
+      }
+      approve_volunteer_profile: {
+        Args: { p_profile_id: string; p_reason?: string }
+        Returns: {
+          account_status: string
+          onboarding_status: string
+          profile_id: string
+        }[]
+      }
+      archive_club_department: {
+        Args: { p_department_id: string; p_reason: string }
+        Returns: {
+          department_id: string
+          status: string
+        }[]
+      }
+      assign_platform_role: {
+        Args: { p_profile_id: string; p_reason: string; p_role: string }
+        Returns: {
+          profile_id: string
+          role: string
+          status: string
+        }[]
+      }
+      can_manage_departments: { Args: never; Returns: boolean }
+      can_manage_platform_roles: { Args: never; Returns: boolean }
+      can_manage_volunteers: { Args: never; Returns: boolean }
+      can_review_membership_applications: { Args: never; Returns: boolean }
+      can_view_audit_logs: { Args: never; Returns: boolean }
+      change_department_role: {
+        Args: {
+          p_department_role: string
+          p_membership_id: string
+          p_reason: string
+        }
+        Returns: {
+          department_role: string
+          membership_id: string
+        }[]
+      }
+      create_club_department: {
+        Args: {
+          p_display_order?: number
+          p_name: string
+          p_short_description?: string
+          p_slug: string
+        }
+        Returns: {
+          department_id: string
+          slug: string
+        }[]
+      }
+      current_volunteer_profile_id: { Args: never; Returns: string }
+      has_active_department_role: {
+        Args: { allowed_roles: string[]; target_department_id: string }
+        Returns: boolean
+      }
+      has_active_platform_role: {
+        Args: { role_name: string }
+        Returns: boolean
+      }
+      has_any_active_platform_role: {
+        Args: { role_names: string[] }
+        Returns: boolean
+      }
+      is_active_approved_volunteer: { Args: never; Returns: boolean }
+      reject_department_membership: {
+        Args: { p_membership_id: string; p_reason: string }
+        Returns: {
+          membership_id: string
+          membership_status: string
+        }[]
+      }
+      reject_volunteer_profile: {
+        Args: { p_profile_id: string; p_reason: string }
+        Returns: {
+          account_status: string
+          onboarding_status: string
+          profile_id: string
+        }[]
+      }
+      remove_department_membership: {
+        Args: { p_membership_id: string; p_reason: string }
+        Returns: {
+          membership_id: string
+          membership_status: string
+        }[]
+      }
+      restore_volunteer_profile: {
+        Args: { p_profile_id: string; p_reason: string }
+        Returns: {
+          account_status: string
+          profile_id: string
+        }[]
+      }
+      review_department_membership: {
+        Args: { p_membership_id: string; p_reason?: string; p_status: string }
+        Returns: {
+          membership_id: string
+          membership_status: string
+        }[]
+      }
+      review_membership_application: {
+        Args: {
+          p_admin_notes?: string
+          p_application_id: string
+          p_reason?: string
+          p_status: string
+        }
+        Returns: {
+          application_id: string
+          status: string
+        }[]
+      }
+      revoke_platform_role: {
+        Args: { p_platform_role_id: string; p_reason: string }
+        Returns: {
+          platform_role_id: string
+          status: string
+        }[]
+      }
+      set_primary_department: {
+        Args: { p_membership_id: string; p_reason?: string }
+        Returns: {
+          primary_department_id: string
+          profile_id: string
+        }[]
+      }
       submit_volunteer_onboarding: {
         Args: {
           p_academic_department: string
@@ -815,6 +994,46 @@ export type Database = {
           onboarding_status: string
           volunteer_profile_id: string
         }[]
+      }
+      suspend_department_membership: {
+        Args: { p_membership_id: string; p_reason: string }
+        Returns: {
+          membership_id: string
+          membership_status: string
+        }[]
+      }
+      suspend_volunteer_profile: {
+        Args: { p_profile_id: string; p_reason: string }
+        Returns: {
+          account_status: string
+          profile_id: string
+        }[]
+      }
+      update_club_department: {
+        Args: {
+          p_department_id: string
+          p_display_order: number
+          p_name: string
+          p_reason?: string
+          p_short_description: string
+          p_slug: string
+          p_status: string
+        }
+        Returns: {
+          department_id: string
+          slug: string
+          status: string
+        }[]
+      }
+      write_club_audit_log: {
+        Args: {
+          p_action: string
+          p_department_id: string
+          p_entity_id: string
+          p_entity_type: string
+          p_metadata?: Json
+        }
+        Returns: string
       }
     }
     Enums: {

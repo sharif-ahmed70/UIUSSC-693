@@ -4,6 +4,10 @@
 
 The Blood Department now has a protected placeholder workspace at `/staff/blood` through the club-management auth/onboarding foundation. The final Blood Support schema, donor/request workflows, matching, contact attempts, and donation history remain deferred and were not implemented in CM-2.
 
+## CM-3 Dependency Update
+
+Secure administration, volunteer verification, department membership review, department role management, platform-role management, and audit-log viewing are now implemented structurally. No Blood Support tables, donor workflows, matching logic, or donation history were added in CM-3.
+
 Do not deploy the entire large schema in one risky operation if phased migrations are safer. The current SQL lives in `supabase/drafts/` for review only.
 
 ## Phase CM-1

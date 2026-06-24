@@ -4,6 +4,10 @@
 
 Phase CM-2 adds the first protected staff shell, server-side access-context query, centralized department route mapping, and placeholder workspaces for the seven current departments. Department access is resolved from approved active memberships plus narrowly scoped platform-role checks. Client state, query parameters, and submitted form values are not trusted for authorization.
 
+## CM-3 Status
+
+Phase CM-3 adds controlled administration for department membership approval, role changes, primary department selection, department management, and platform-role management. Admin pages do not grant authority by hiding or showing navigation; every Server Action reloads trusted admin context and calls a database RPC that enforces permissions, transitions, history, and audit logging.
+
 ## Departments
 
 Initial departments:

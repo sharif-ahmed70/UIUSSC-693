@@ -1,5 +1,9 @@
 # UIUSSC Volunteer Onboarding Flow
 
+## CM-3 Review Update
+
+Onboarding submission remains volunteer-facing and pending by default. CM-3 adds administrator review routes and controlled database RPCs for profile approval, rejection, suspension, and restoration. Profile approval does not automatically approve department membership or assign platform roles; department requests are reviewed through separate department-membership actions.
+
 ## End-to-End Flow
 
 1. User submits public UIUSSC membership application.
