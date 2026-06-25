@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import AdminStatCard from '@/components/admin/AdminStatCard'
 import EmptyAdminState from '@/components/admin/EmptyAdminState'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { getStaffTasks } from '@/features/event-tasks/queries'
@@ -6,6 +7,12 @@ import { formatDisplayDate, formatEventDate } from '@/lib/date'
 
 export default async function StaffTasksPage(){
   const tasks = await getStaffTasks()
+  const active = tasks.filter((task) => !['completed', 'cancelled'].includes(task.status)).length
+  const overdue = tasks.filter((task) => task.dueAt && new Date(task.dueAt).getTime() < Date.now() && !['completed', 'cancelled'].includes(task.status)).length
+  const ready = tasks.filter((task) => task.progressPercent === 100 && !task.latestSubmissionStatus && !['completed', 'cancelled'].includes(task.status)).length
+  const underReview = tasks.filter((task) => task.latestSubmissionStatus === 'submitted' || task.latestSubmissionStatus === 'under_review').length
+  const revision = tasks.filter((task) => task.latestSubmissionStatus === 'revision_requested').length
+  const completed = tasks.filter((task) => task.status === 'completed').length
 
   return (
     <div className="space-y-6">
@@ -20,6 +27,15 @@ export default async function StaffTasksPage(){
           <span key={filter} className="rounded-md border border-slate-200 bg-white px-3 py-1.5">{filter}</span>
         ))}
       </div>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        <AdminStatCard label="Active" value={active} />
+        <AdminStatCard label="Overdue" value={overdue} />
+        <AdminStatCard label="Ready to submit" value={ready} />
+        <AdminStatCard label="Under review" value={underReview} />
+        <AdminStatCard label="Revision requested" value={revision} />
+        <AdminStatCard label="Completed" value={completed} />
+      </section>
 
       <section className="grid gap-4">
         {tasks.length === 0 ? <EmptyAdminState message="No event tasks are visible for your current role." /> : tasks.map((task) => (

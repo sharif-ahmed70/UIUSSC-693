@@ -12,6 +12,7 @@ export function adminNavigation(permissions: AdminPermissions){
     { href: '/admin/department-memberships', label: 'Department Requests', enabled: permissions.canManageVolunteers },
     { href: '/admin/club-positions', label: 'Club Positions', enabled: permissions.canManageVolunteers },
     { href: '/admin/events', label: 'Event Operations', enabled: permissions.canManageEvents },
+    { href: '/admin/event-progress', label: 'Event Progress', enabled: permissions.canManageEvents },
     { href: '/admin/departments', label: 'Departments', enabled: permissions.canManageDepartments },
     { href: '/admin/platform-roles', label: 'Platform Roles', enabled: permissions.canManagePlatformRoles },
     { href: '/admin/access-control', label: 'Access Control', enabled: permissions.canViewAccessControl },

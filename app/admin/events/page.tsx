@@ -1,12 +1,15 @@
 import Link from 'next/link'
 import AdminHeader from '@/components/admin/AdminHeader'
 import EmptyAdminState from '@/components/admin/EmptyAdminState'
+import ProgressBar from '@/components/admin/ProgressBar'
 import StatusBadge from '@/components/admin/StatusBadge'
+import { getEventProgressSummaries } from '@/features/event-progress/queries'
 import { getAdminEventOperations } from '@/features/event-operations/queries'
 import { formatEventDate } from '@/lib/date'
 
 export default async function AdminEventsPage(){
-  const events = await getAdminEventOperations()
+  const [events, progressRows] = await Promise.all([getAdminEventOperations(), getEventProgressSummaries()])
+  const progressByOperation = new Map(progressRows.map((row) => [row.operation_id, row]))
 
   return (
     <div>
@@ -39,6 +42,14 @@ export default async function AdminEventsPage(){
               <p className="mt-1">Lead: {event.leadDepartmentName ?? 'Not assigned'}</p>
               <p className="mt-1">{event.registrationOpen ? 'Registration open' : 'Registration closed'}</p>
             </div>
+            {progressByOperation.has(event.id) && (
+              <div className="lg:col-span-2">
+                <ProgressBar value={progressByOperation.get(event.id)?.average_progress ?? 0} label="Average task progress" />
+                <p className="mt-2 text-xs font-bold text-slate-500">
+                  {progressByOperation.get(event.id)?.completed_tasks ?? 0}/{progressByOperation.get(event.id)?.total_tasks ?? 0} tasks complete · {progressByOperation.get(event.id)?.overdue_count ?? 0} overdue · {progressByOperation.get(event.id)?.blocked_count ?? 0} blocked
+                </p>
+              </div>
+            )}
           </Link>
         ))}
       </section>

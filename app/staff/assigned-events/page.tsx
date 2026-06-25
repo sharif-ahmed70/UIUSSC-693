@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import AdminActionForm from '@/components/admin/AdminActionForm'
+import ProgressBar from '@/components/admin/ProgressBar'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { changeAssignmentStatusAction } from '@/features/event-operations/actions'
 import { getStaffAssignedEvents } from '@/features/event-operations/queries'
@@ -37,6 +38,9 @@ export default async function StaffAssignedEventsPage(){
             <p className="mt-2 text-sm leading-6 text-slate-600">{assignment.responsibilityBrief}</p>
             <p className="mt-2 text-xs font-bold text-slate-500">Due: {assignment.dueAt ? formatDisplayDate(assignment.dueAt) : 'Not set'}</p>
             <p className="mt-2 text-xs font-bold text-slate-500">Tasks: {assignment.completedTaskCount}/{assignment.taskCount} complete · {assignment.blockedTaskCount} blocked</p>
+            <div className="mt-3">
+              <ProgressBar value={assignment.taskCount === 0 ? 0 : (assignment.completedTaskCount / assignment.taskCount) * 100} label={`${assignment.departmentName} task completion`} />
+            </div>
             <Link href="/staff/tasks" className="mt-3 inline-flex text-sm font-bold text-uiussc-orange hover:text-[#e85d00]">Open related tasks</Link>
             {canUpdateAssignments && (
               <div className="mt-4 max-w-md">

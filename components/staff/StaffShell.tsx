@@ -35,6 +35,11 @@ export default function StaffShell({ access, children }: StaffShellProps){
                 Tasks
               </Link>
             )}
+            {(access.platformRoles.includes('super_admin') || access.platformRoles.includes('club_admin') || access.clubPositions.length > 0 || access.approvedMemberships.length > 0) && (
+              <Link className="rounded-md px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-uiussc-ivory hover:text-uiussc-orange focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20" href="/staff/progress">
+                Progress
+              </Link>
+            )}
             {access.approvedMemberships.map((membership) => (
               <Link key={membership.id} className="rounded-md px-3 py-2 text-sm font-bold text-slate-700 transition hover:bg-uiussc-ivory hover:text-uiussc-orange focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20" href={getDepartmentDestination(membership.department.slug)}>
                 {membership.department.name}

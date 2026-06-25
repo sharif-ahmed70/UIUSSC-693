@@ -29,3 +29,5 @@ The original submitter or an authorized reviewer can withdraw an actionable subm
 All workflow mutations use `submit_event_task_work`, `review_event_task_submission`, and `withdraw_event_task_submission`. Direct table writes are not granted. RLS follows parent task visibility.
 
 CM-5C2 may add broader review dashboards and analytics. Human role-session testing remains a release gate.
+
+CM-5C2 adds progress dashboards and CSV reporting based on submission status, but does not expose evidence URLs or private submission text in report rows.

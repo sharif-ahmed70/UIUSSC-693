@@ -298,3 +298,5 @@ Department event access is assignment based. Department Head, Deputy, and Execut
 CM-5B task access is stricter for Executives: they can see only active task assignments unless they also hold broader official permissions. Department Head and Deputy task management remains limited to their own approved department memberships.
 
 CM-5C1 submission review follows the same boundary. Executives submit only their assigned tasks. Head and Deputy reviewers can review submissions for their own department only unless separate operational permissions apply.
+
+CM-5C2 progress dashboards follow the same boundary: Executive views are personal, Department Head/Deputy views are own-department scoped, and broader event views require effective operational permissions.

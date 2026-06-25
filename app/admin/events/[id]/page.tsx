@@ -2,16 +2,19 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import AdminActionForm from '@/components/admin/AdminActionForm'
 import AdminHeader from '@/components/admin/AdminHeader'
+import ProgressBar from '@/components/admin/ProgressBar'
 import StatusBadge from '@/components/admin/StatusBadge'
+import { getEventProgressSummaries } from '@/features/event-progress/queries'
 import { assignDepartmentAction, changeAssignmentStatusAction, changeEventStatusAction, updateEventOperationAction } from '@/features/event-operations/actions'
 import { getActiveDepartmentsForEventAssignments, getAdminEventOperation } from '@/features/event-operations/queries'
 import { formatDisplayDate, formatEventDate } from '@/lib/date'
 
 export default async function AdminEventDetailPage({ params }: { params: Promise<{ id: string }> }){
   const { id } = await params
-  const [event, departments] = await Promise.all([getAdminEventOperation(id), getActiveDepartmentsForEventAssignments()])
+  const [event, departments, progressRows] = await Promise.all([getAdminEventOperation(id), getActiveDepartmentsForEventAssignments(), getEventProgressSummaries()])
 
   if (!event) notFound()
+  const eventProgress = progressRows.find((row) => row.operation_id === event.id)
 
   return (
     <div>
@@ -20,6 +23,17 @@ export default async function AdminEventDetailPage({ params }: { params: Promise
       <Link href={`/admin/events/${event.id}/tasks`} className="mb-5 inline-flex min-h-10 items-center rounded-md bg-uiussc-charcoal px-4 py-2 text-sm font-extrabold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20">
         Manage event tasks
       </Link>
+      {eventProgress && (
+        <section className="mb-5 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-extrabold text-uiussc-charcoal">Event progress</h2>
+            <Link href={`/admin/events/${event.id}/progress`} className="text-sm font-bold text-uiussc-orange hover:text-[#e85d00]">Open progress report</Link>
+          </div>
+          <div className="mt-4">
+            <ProgressBar value={eventProgress.average_progress} label="Average task progress" />
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
         <div className="rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">

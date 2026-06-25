@@ -31,3 +31,5 @@ All task mutations use controlled RPCs. Direct authenticated inserts, updates, a
 ## CM-5C Deferred
 
 CM-5C1 adds summary submission, external evidence links, review, revision, approval, and withdrawal. Private file upload, Storage buckets, analytics dashboards, notifications, and broader review reporting remain deferred.
+
+CM-5C2 adds derived dashboard/reporting metrics for tasks, deadlines, blocked work, pending reviews, and revision requests. Task totals remain derived, not cached.
