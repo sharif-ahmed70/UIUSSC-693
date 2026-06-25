@@ -4,7 +4,7 @@ import type { AdminActionState } from '@/features/admin/types'
 import { requireAdminAction, safeActionError, successAction } from '@/features/admin/actions/actionUtils'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
-import { assignTaskMemberSchema, cancelTaskSchema, changeTaskStatusSchema, closeTaskSchema, createEventTaskSchema, revokeTaskMemberSchema, updateEventTaskSchema, updateTaskProgressSchema } from './schemas'
+import { assignTaskMemberSchema, cancelTaskSchema, changeTaskStatusSchema, closeTaskSchema, createEventTaskSchema, reviewTaskSubmissionSchema, revokeTaskMemberSchema, submitTaskWorkSchema, updateEventTaskSchema, updateTaskProgressSchema, withdrawTaskSubmissionSchema } from './schemas'
 
 function emptyToNull(value: string | null | undefined){
   return value && value.length > 0 ? value : null
@@ -130,4 +130,71 @@ export async function cancelTaskAction(_state: AdminActionState, formData: FormD
 
   if (error) return safeActionError()
   return successAction(['/admin/events', '/staff/tasks'])
+}
+
+export async function submitTaskWorkAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
+  const evidenceTypes = formData.getAll('evidenceType').map(String).filter(Boolean)
+  const evidenceLabels = formData.getAll('evidenceLabel').map(String).filter(Boolean)
+  const evidenceUrls = formData.getAll('evidenceUrl').map(String).filter(Boolean)
+  const parsed = submitTaskWorkSchema.safeParse({
+    id: formData.get('id'),
+    summary: formData.get('summary'),
+    completionNote: formData.get('completionNote') || undefined,
+    evidenceTypes,
+    evidenceLabels,
+    evidenceUrls,
+  })
+  if (!parsed.success) return { status: 'error', message: 'Please review the submission fields.', fieldErrors: parsed.error.flatten().fieldErrors }
+
+  const evidenceLinks = parsed.data.evidenceUrls.map((url, index) => ({
+    evidenceType: parsed.data.evidenceTypes[index],
+    label: parsed.data.evidenceLabels[index],
+    url,
+  }))
+
+  const supabase = await createServerSupabaseClient()
+  const { error } = await supabase.rpc('submit_event_task_work', {
+    p_task_id: parsed.data.id,
+    p_summary: parsed.data.summary,
+    p_completion_note: emptyToNull(parsed.data.completionNote),
+    p_evidence_links: evidenceLinks,
+  } as unknown as Database['public']['Functions']['submit_event_task_work']['Args'])
+
+  if (error) {
+    const message = error.message.includes('Progress must be 100') ? 'Progress must be 100% before submission.' : error.message.includes('active assignee') ? 'You are not an active assignee.' : error.message.includes('under review') ? 'This submission is already under review.' : 'Task is not ready for submission.'
+    return { status: 'error', message }
+  }
+  return successAction(['/staff/tasks', `/staff/tasks/${parsed.data.id}`, '/admin/events'])
+}
+
+export async function reviewTaskSubmissionAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
+  const parsed = reviewTaskSubmissionSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { status: 'error', message: 'Please review the decision fields.', fieldErrors: parsed.error.flatten().fieldErrors }
+
+  const supabase = await createServerSupabaseClient()
+  const { error } = await supabase.rpc('review_event_task_submission', {
+    p_submission_id: parsed.data.id,
+    p_decision: parsed.data.decision,
+    p_review_note: emptyToNull(parsed.data.reviewNote),
+  } as unknown as Database['public']['Functions']['review_event_task_submission']['Args'])
+
+  if (error) {
+    const message = error.message.includes('own submission') ? 'You cannot review your own submission.' : error.message.includes('Revision feedback') ? 'Revision feedback is required.' : error.message.includes('already been reviewed') ? 'This submission has already been reviewed.' : 'Submission review could not be completed.'
+    return { status: 'error', message }
+  }
+  return successAction(['/admin/events', '/staff/tasks'])
+}
+
+export async function withdrawTaskSubmissionAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
+  const parsed = withdrawTaskSubmissionSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { status: 'error', message: 'Please provide a withdrawal reason.', fieldErrors: parsed.error.flatten().fieldErrors }
+
+  const supabase = await createServerSupabaseClient()
+  const { error } = await supabase.rpc('withdraw_event_task_submission', {
+    p_submission_id: parsed.data.id,
+    p_reason: parsed.data.reason,
+  } as unknown as Database['public']['Functions']['withdraw_event_task_submission']['Args'])
+
+  if (error) return { status: 'error', message: 'Submission could not be withdrawn.' }
+  return successAction(['/staff/tasks', '/admin/events'])
 }

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import AdminActionForm from '@/components/admin/AdminActionForm'
 import AdminHeader from '@/components/admin/AdminHeader'
 import StatusBadge from '@/components/admin/StatusBadge'
-import { assignTaskMemberAction, cancelTaskAction, changeTaskStatusAction, completeTaskAction, revokeTaskMemberAction, updateEventTaskAction } from '@/features/event-tasks/actions'
+import { assignTaskMemberAction, cancelTaskAction, changeTaskStatusAction, completeTaskAction, reviewTaskSubmissionAction, revokeTaskMemberAction, updateEventTaskAction, withdrawTaskSubmissionAction } from '@/features/event-tasks/actions'
 import { getEligibleTaskMembers, getEventTaskDetail } from '@/features/event-tasks/queries'
 import { formatDisplayDate, formatEventDate } from '@/lib/date'
 import { maskEmail } from '@/lib/formatters'
@@ -12,6 +12,7 @@ export default async function AdminEventTaskDetailPage({ params }: { params: Pro
   const { id, taskId } = await params
   const task = await getEventTaskDetail(taskId)
   if (!task) notFound()
+  if (task.operationId !== id) notFound()
   const members = await getEligibleTaskMembers(task.departmentId)
 
   return (
@@ -83,6 +84,37 @@ export default async function AdminEventTaskDetailPage({ params }: { params: Pro
       </section>
 
       <section className="mt-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
+        <h2 className="text-xl font-extrabold text-uiussc-charcoal">Submission timeline</h2>
+        <div className="mt-4 grid gap-4">
+          {task.submissions.length === 0 ? <p className="text-sm font-bold text-slate-600">No submissions yet.</p> : task.submissions.map((submission) => (
+            <article key={submission.id} className="rounded-md border border-slate-200 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-extrabold text-uiussc-charcoal">Version {submission.submissionNumber}</h3>
+                <StatusBadge status={submission.status} />
+              </div>
+              <p className="mt-2 text-sm text-slate-600">Submitted by {submission.submitterName ?? 'Staff member'} · {formatDisplayDate(submission.submittedAt)}</p>
+              <p className="mt-3 text-sm leading-6 text-slate-700">{submission.summary}</p>
+              {submission.completionNote && <p className="mt-2 text-sm leading-6 text-slate-600">Note: {submission.completionNote}</p>}
+              {submission.evidenceLinks.length > 0 && (
+                <div className="mt-3 grid gap-2">
+                  {submission.evidenceLinks.map((link) => <EvidenceLink key={link.id} label={link.label} url={link.url} type={link.evidenceType} />)}
+                </div>
+              )}
+              {submission.reviewedAt && <p className="mt-3 text-sm text-slate-600">Reviewed by {submission.reviewerName ?? 'Reviewer'} · {formatDisplayDate(submission.reviewedAt)}</p>}
+              {submission.reviewNote && <p className="mt-2 text-sm leading-6 text-slate-600">Feedback: {submission.reviewNote}</p>}
+              {(submission.status === 'submitted' || submission.status === 'under_review') && (
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  <AdminActionForm action={reviewTaskSubmissionAction} id={submission.id} submitLabel="Approve" fields={<><input type="hidden" name="decision" value="approve" /><textarea name="reviewNote" placeholder="Optional approval note" className="min-h-16 rounded-md border border-slate-200 p-3 text-sm" /></>} />
+                  <AdminActionForm action={reviewTaskSubmissionAction} id={submission.id} submitLabel="Request revision" fields={<><input type="hidden" name="decision" value="request_revision" /><textarea name="reviewNote" required placeholder="Revision feedback" className="min-h-16 rounded-md border border-slate-200 p-3 text-sm" /></>} />
+                  <AdminActionForm action={withdrawTaskSubmissionAction} id={submission.id} submitLabel="Withdraw" danger fields={<textarea name="reason" required placeholder="Withdrawal reason" className="min-h-16 rounded-md border border-slate-200 p-3 text-sm" />} />
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Status history</h2>
         <div className="mt-4 grid gap-3">
           {task.history.map((item) => (
@@ -94,6 +126,15 @@ export default async function AdminEventTaskDetailPage({ params }: { params: Pro
         </div>
       </section>
     </div>
+  )
+}
+
+function EvidenceLink({ label, url, type }: { label: string; url: string; type: string }){
+  const safeUrl = new URL(url)
+  return (
+    <a href={url} target="_blank" rel="noreferrer noopener" className="rounded-md border border-slate-200 px-3 py-2 text-sm font-bold text-uiussc-orange transition hover:border-uiussc-orange">
+      {label} <span className="text-xs font-normal text-slate-500">({type}, {safeUrl.hostname})</span>
+    </a>
   )
 }
 

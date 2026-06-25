@@ -30,4 +30,4 @@ All task mutations use controlled RPCs. Direct authenticated inserts, updates, a
 
 ## CM-5C Deferred
 
-Final submission, evidence upload, formal review dashboard, and file storage are intentionally deferred to CM-5C. Real human role-session testing remains a release gate before operational rollout.
+CM-5C1 adds summary submission, external evidence links, review, revision, approval, and withdrawal. Private file upload, Storage buckets, analytics dashboards, notifications, and broader review reporting remain deferred.
