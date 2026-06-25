@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import StaffAccessLink from './StaffAccessLink'
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -27,15 +28,15 @@ export default function Navbar(){
   }
 
   return (
-    <header className="sticky top-0 z-40 overflow-x-clip border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 overflow-x-clip border-b border-white/10 bg-uiussc-charcoal/95 text-white shadow-lg shadow-black/10 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="group flex items-center gap-3" onClick={() => setOpen(false)}>
-          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-uiussc-navy text-sm font-bold text-white shadow-lg shadow-uiussc-navy/20">
+        <Link href="/" className="group flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/30" onClick={() => setOpen(false)}>
+          <span className="flex h-11 w-11 items-center justify-center rounded-md bg-uiussc-orange text-sm font-bold text-white shadow-lg shadow-uiussc-orange/20">
             US
           </span>
           <span>
-            <span className="block text-lg font-extrabold tracking-wide text-uiussc-navy">UIUSSC</span>
-            <span className="hidden text-xs font-medium text-slate-500 sm:block">Serving Humanity, Building Community</span>
+            <span className="block text-lg font-extrabold tracking-wide text-white">UIUSSC</span>
+            <span className="hidden text-xs font-medium text-white/65 sm:block">Serving Humanity, Building Community</span>
           </span>
         </Link>
 
@@ -45,24 +46,25 @@ export default function Navbar(){
               key={item.href}
               href={item.href}
               aria-current={isActive(item.href) ? 'page' : undefined}
-              className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+              className={`relative rounded-md px-3 py-2 text-sm font-semibold transition after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:origin-left after:rounded-full after:bg-uiussc-orange after:transition ${
                 isActive(item.href)
-                  ? 'bg-uiussc-light text-uiussc-navy'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-uiussc-navy'
+                  ? 'text-white after:scale-x-100'
+                  : 'text-white/72 after:scale-x-0 hover:text-white hover:after:scale-x-100'
               }`}
             >
               {item.label}
             </Link>
           ))}
-          <Link href="/membership" className="ml-2 rounded-md bg-uiussc-green px-4 py-2 text-sm font-bold text-white shadow-lg shadow-uiussc-green/20 transition hover:bg-[#238b40]">
-            Join Us
+          <Link href="/membership" className="ml-2 rounded-md bg-uiussc-orange px-4 py-2 text-sm font-bold text-white shadow-lg shadow-uiussc-orange/20 transition hover:bg-[#e85d00]">
+            Join UIUSSC
           </Link>
+          <StaffAccessLink className="rounded-md border border-white/20 px-4 py-2 text-sm font-bold text-white/85 transition hover:border-uiussc-orange hover:text-white" />
         </nav>
 
         <div className="md:hidden">
           <button
             onClick={() => setOpen(!open)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-uiussc-navy transition hover:bg-uiussc-light"
+            className="rounded-md border border-white/20 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
             aria-expanded={open}
             aria-controls={menuId}
             aria-label="Toggle navigation menu"
@@ -72,7 +74,7 @@ export default function Navbar(){
         </div>
       </div>
       {open && (
-        <div id={menuId} className="border-t border-slate-200 bg-white md:hidden">
+        <div id={menuId} className="border-t border-white/10 bg-uiussc-charcoal md:hidden">
           <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4">
             {navItems.map((item) => (
               <Link
@@ -82,8 +84,8 @@ export default function Navbar(){
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 className={`rounded-md px-3 py-3 text-sm font-semibold ${
                   isActive(item.href)
-                    ? 'bg-uiussc-light text-uiussc-navy'
-                    : 'text-slate-700 hover:bg-slate-50'
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/75 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -92,10 +94,14 @@ export default function Navbar(){
             <Link
               href="/membership"
               onClick={() => setOpen(false)}
-              className="mt-2 rounded-md bg-uiussc-green px-4 py-3 text-center text-sm font-bold text-white"
+              className="mt-2 rounded-md bg-uiussc-orange px-4 py-3 text-center text-sm font-bold text-white"
             >
-              Join Us
+              Join UIUSSC
             </Link>
+            <StaffAccessLink
+              onClick={() => setOpen(false)}
+              className="rounded-md border border-white/20 px-4 py-3 text-center text-sm font-bold text-white"
+            />
           </div>
         </div>
       )}

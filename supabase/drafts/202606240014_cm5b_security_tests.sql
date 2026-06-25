@@ -1,0 +1,25 @@
+-- CM-5B security test draft.
+-- Execute with representative anon, ordinary member, Executive, Deputy, Head, VP/GS, President, and Super Admin sessions.
+-- Do not run as database owner and claim anon/RLS behavior.
+
+-- Expected checks:
+-- 1. Anonymous cannot select event_department_tasks, event_task_assignees, or history.
+-- 2. Ordinary authenticated user has no broad task visibility.
+-- 3. Executive sees only actively assigned tasks.
+-- 4. Executive can update own progress and permitted statuses only.
+-- 5. Executive cannot assign people, revoke assignments, complete tasks, or see unrelated department tasks.
+-- 6. Deputy cannot manage another department.
+-- 7. Department Head cannot manage another department.
+-- 8. Task cannot be created for cancelled department assignment.
+-- 9. Task cannot be created for cancelled/archived event operation.
+-- 10. event_id and department_id consistency is enforced.
+-- 11. Duplicate active task/profile assignment is blocked.
+-- 12. Duplicate active primary assignee is blocked.
+-- 13. Revoked assignee loses update capability.
+-- 14. Cancelled task cannot reopen in CM-5B.
+-- 15. Completed task requires 100 percent progress.
+-- 16. Blocked status requires reason.
+-- 17. History and club_audit_logs are written for create, assign, revoke, progress, status, complete, and cancel.
+-- 18. Event-scoped temporary access obeys scope and expiry but does not bypass profile or department checks.
+-- 19. CM-5A event counts and relationships remain unchanged.
+-- 20. BB-1 Blood RLS remains unchanged and Blood public intake remains disabled.

@@ -1,0 +1,19 @@
+-- CM-5C2 security test draft.
+-- Execute with representative authenticated sessions, not database owner.
+
+-- Expected checks:
+-- 1. Anonymous cannot access operational report routes or RPC output.
+-- 2. Ordinary authenticated member receives no broad operational report data.
+-- 3. Executive sees own task progress only.
+-- 4. Department Head/Deputy sees own department only.
+-- 5. Unrelated department data is denied.
+-- 6. Super Admin sees authorized global totals.
+-- 7. Temporary Event/Department access obeys expiry and deny override.
+-- 8. PUBLIC execute is revoked from helper aggregation function.
+-- 9. CSV scope follows the same report rows as the authenticated actor.
+-- 10. CSV formula injection is escaped.
+-- 11. Exports exclude sensitive fields and do not log CSV content.
+-- 12. CM-5C1 submission workflow remains unchanged.
+-- 13. CM-5B task workflow remains unchanged.
+-- 14. CM-5A Event count remains 4.
+-- 15. Blood RLS remains unchanged and Blood public intake remains disabled.
