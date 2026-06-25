@@ -47,9 +47,27 @@ export async function submitOnboardingAction(_previousState: ActionState, formDa
     console.warn('Volunteer onboarding failed', { code: error.code, message: error.message })
     return {
       status: 'error',
-      message: 'We could not submit your onboarding request right now. Please review the information and try again.',
+      message: getSafeOnboardingErrorMessage(error),
     }
   }
 
   redirect('/staff/pending')
+}
+
+function getSafeOnboardingErrorMessage(error: { code?: string; message?: string }): string{
+  const message = error.message?.toLowerCase() ?? ''
+
+  if (error.code === '23505' || message.includes('duplicate key')) {
+    return 'This Student ID or email is already linked to another profile. Please review your information or contact the club team.'
+  }
+
+  if (error.code === '42501' && message.includes('email must match')) {
+    return 'The email must match your signed-in account email.'
+  }
+
+  if (error.code === '22023' || message.includes('invalid department')) {
+    return 'Please select a valid department or submit without a department preference.'
+  }
+
+  return 'We could not submit your onboarding request right now. Please review the information and try again.'
 }
