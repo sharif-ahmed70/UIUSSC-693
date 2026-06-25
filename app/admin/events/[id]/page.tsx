@@ -4,17 +4,16 @@ import AdminActionForm from '@/components/admin/AdminActionForm'
 import AdminHeader from '@/components/admin/AdminHeader'
 import ProgressBar from '@/components/admin/ProgressBar'
 import StatusBadge from '@/components/admin/StatusBadge'
-import { getEventProgressSummaries } from '@/features/event-progress/queries'
+import { getSingleEventProgressSummary } from '@/features/event-progress/queries'
 import { assignDepartmentAction, changeAssignmentStatusAction, changeEventStatusAction, updateEventOperationAction } from '@/features/event-operations/actions'
 import { getActiveDepartmentsForEventAssignments, getAdminEventOperation } from '@/features/event-operations/queries'
 import { formatDisplayDate, formatEventDate } from '@/lib/date'
 
 export default async function AdminEventDetailPage({ params }: { params: Promise<{ id: string }> }){
   const { id } = await params
-  const [event, departments, progressRows] = await Promise.all([getAdminEventOperation(id), getActiveDepartmentsForEventAssignments(), getEventProgressSummaries()])
+  const [event, departments, eventProgress] = await Promise.all([getAdminEventOperation(id), getActiveDepartmentsForEventAssignments(), getSingleEventProgressSummary(id)])
 
   if (!event) notFound()
-  const eventProgress = progressRows.find((row) => row.operation_id === event.id)
 
   return (
     <div>

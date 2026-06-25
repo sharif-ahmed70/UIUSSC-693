@@ -6,28 +6,49 @@ import { getMyTaskProgressSummary } from '@/features/event-progress/queries'
 import { getStaffTasks } from '@/features/event-tasks/queries'
 import { formatDisplayDate, formatEventDate } from '@/lib/date'
 
+const scopeCopy = {
+  personal: {
+    title: 'My task progress',
+    description: 'Your assigned task, deadline, submission, and review progress.',
+  },
+  department: {
+    title: 'Department progress',
+    description: 'Your approved department scope, including assigned events, team tasks, risks, and review queue.',
+  },
+  global: {
+    title: 'Operational progress',
+    description: 'Permitted cross-department operational progress according to your current access.',
+  },
+}
+
 export default async function StaffProgressPage(){
   const [summary, tasks] = await Promise.all([getMyTaskProgressSummary(), getStaffTasks()])
+  const copy = scopeCopy[summary.scope_kind] ?? scopeCopy.personal
 
   return (
     <div className="space-y-6">
       <section className="rounded-md bg-uiussc-charcoal p-6 text-white shadow-xl shadow-slate-900/10">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-uiussc-orange">Progress</p>
-        <h1 className="mt-3 text-3xl font-extrabold">Operational progress</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Role-scoped task, deadline, submission, and review progress.</p>
+        <h1 className="mt-3 text-3xl font-extrabold">{copy.title}</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">{copy.description}</p>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <AdminStatCard label="Assigned events" value={summary.assigned_events} />
+        <AdminStatCard label="Total tasks" value={summary.total_tasks} />
         <AdminStatCard label="Active tasks" value={summary.active_tasks} />
         <AdminStatCard label="Completed tasks" value={summary.completed_tasks} />
         <AdminStatCard label="Ready to submit" value={summary.ready_to_submit} />
         <AdminStatCard label="Under review" value={summary.under_review} />
         <AdminStatCard label="Revision requested" value={summary.revision_requested} />
         <AdminStatCard label="Overdue tasks" value={summary.overdue_tasks} />
+        <AdminStatCard label="Blocked tasks" value={summary.blocked_tasks} />
+        <AdminStatCard label="Unassigned tasks" value={summary.unassigned_tasks} />
       </section>
 
       <section className="rounded-md border border-slate-200 bg-white p-5 text-sm font-bold text-slate-600 shadow-lg shadow-slate-900/5">
-        Next deadline: {summary.next_deadline ? formatDisplayDate(summary.next_deadline) : 'None'}
+        <p>Average progress: {summary.average_progress}%</p>
+        <p className="mt-2">Next deadline: {summary.next_deadline ? formatDisplayDate(summary.next_deadline) : 'None'}</p>
       </section>
 
       <section className="rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
