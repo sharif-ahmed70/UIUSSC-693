@@ -42,7 +42,7 @@ export default function ClubPositionAssignmentActions({ assignmentId, isPrimary,
           <>
             <input type="hidden" name="termStart" value={termStart} />
             <DateField id="termEnd" name="termEnd" label="Term end date" min={termStart} required />
-            <ReasonField id="complete-reason" label="Reason for completing term" optional />
+            <ReasonField id="complete-reason" label="Reason for ending term" />
           </>
         }
       />

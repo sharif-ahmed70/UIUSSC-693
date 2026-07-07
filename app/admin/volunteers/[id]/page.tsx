@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import AdminActionForm from '@/components/admin/AdminActionForm'
 import AdminHeader from '@/components/admin/AdminHeader'
+import ClubPositionHistoryTimeline from '@/components/admin/ClubPositionHistoryTimeline'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { approveVolunteerAction, rejectVolunteerAction, restoreVolunteerAction, suspendVolunteerAction } from '@/features/admin/actions/volunteerActions'
+import { getClubPositionHistory } from '@/features/admin/queries/getClubPositionHistory'
 import { getVolunteer } from '@/features/admin/queries/getVolunteer'
 import { formatPlatformRole } from '@/lib/formatters'
 
@@ -11,7 +13,7 @@ type PageProps = { params: Promise<{ id: string }> }
 
 export default async function VolunteerDetailPage({ params }: PageProps){
   const { id } = await params
-  const data = await getVolunteer(id)
+  const [data, positionHistory] = await Promise.all([getVolunteer(id), getClubPositionHistory(id)])
   if (!data.profile) notFound()
   const setupLabel = data.profile.account_status === 'approved' ? 'Set up staff access' : 'Approve and set up'
 
@@ -39,6 +41,7 @@ export default async function VolunteerDetailPage({ params }: PageProps){
               </Link>
             </div>
           </div>
+          <ClubPositionHistoryTimeline profileId={data.profile.id} currentPosition={positionHistory.currentPosition} history={positionHistory.history} compact />
           <Panel title="Department memberships" items={data.memberships.map((item) => `${item.club_departments?.name ?? 'Department'} - ${item.department_role.replaceAll('_', ' ')} - ${item.membership_status.replaceAll('_', ' ')}${item.is_primary ? ' - primary' : ''}`)} />
           <Panel title="Platform roles" items={data.roles.map((item) => `${formatPlatformRole(item.role)} - ${item.status.replaceAll('_', ' ')}`)} />
           <Panel title="Volunteer status history" items={data.statusHistory.map((item) => `${item.previous_status ?? 'new'} -> ${item.new_status}${item.reason ? ` - ${item.reason}` : ''}`)} />

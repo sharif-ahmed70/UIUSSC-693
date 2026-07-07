@@ -36,7 +36,7 @@ const completeAssignmentSchema = z.object({
   id: idSchema,
   termStart: z.string().trim().min(1),
   termEnd: z.string().trim().min(1, 'Term end date is required.'),
-  reason: z.string().trim().max(500).optional(),
+  reason: reasonSchema,
 }).refine((value) => value.termEnd >= value.termStart, {
   message: 'Term end cannot be before the term start.',
   path: ['termEnd'],
@@ -142,13 +142,13 @@ export async function assignVolunteerClubPositionAction(_state: AdminActionState
   if (!parsed.success) return { status: 'error', message: 'Please review the highlighted fields.', fieldErrors: parsed.error.flatten().fieldErrors }
   const admin = await requireAdminAction('canManageVolunteers')
   if ('error' in admin) return admin.error
-  const { error } = await admin.supabase.rpc('assign_volunteer_club_position', {
+  const { error } = await admin.supabase.rpc('assign_club_position' as never, {
     p_profile_id: parsed.data.profileId,
     p_position_id: parsed.data.positionId,
     p_is_primary: parsed.data.isPrimary ?? true,
     p_term_start: parsed.data.termStart,
     p_reason: parsed.data.reason,
-  })
+  } as never)
   if (error) return safeActionError()
   return successAction(['/admin/club-positions'])
 }
@@ -163,7 +163,7 @@ export async function completeVolunteerClubPositionAction(_state: AdminActionSta
   if (!parsed.success) return { status: 'error', message: 'Please review the highlighted fields.', fieldErrors: parsed.error.flatten().fieldErrors }
   const admin = await requireAdminAction('canManageVolunteers')
   if ('error' in admin) return admin.error
-  const { error } = await admin.supabase.rpc('complete_volunteer_club_position', { p_assignment_id: parsed.data.id, p_term_end: parsed.data.termEnd, p_reason: parsed.data.reason })
+  const { error } = await admin.supabase.rpc('end_club_position' as never, { p_assignment_id: parsed.data.id, p_term_end: parsed.data.termEnd, p_reason: parsed.data.reason } as never)
   if (error) return safeActionError()
   return successAction(['/admin/club-positions'])
 }
