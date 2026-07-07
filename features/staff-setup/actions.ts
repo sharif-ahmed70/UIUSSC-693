@@ -33,8 +33,7 @@ export async function setupStaffAccessAction(_state: AdminActionState, formData:
   const admin = await requireAdminAction('canManageVolunteers')
   if ('error' in admin) return admin.error
 
-  const callRpc = admin.supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ error: { code?: string; message?: string } | null }>
-  const { error } = await callRpc('setup_staff_access', {
+  const { error } = await admin.supabase.rpc('setup_staff_access' as never, {
     p_profile_id: parsed.data.profileId,
     p_template_key: parsed.data.templateKey,
     p_department_id: parsed.data.departmentId || null,
