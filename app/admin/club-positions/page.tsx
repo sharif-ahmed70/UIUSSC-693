@@ -11,6 +11,7 @@ import {
   assignVolunteerClubPositionAction,
 } from '@/features/admin/actions/clubPositionActions'
 import { getClubPositions, parseClubPositionSearchParams } from '@/features/admin/queries/getClubPositions'
+import { getApprovedStaffSelectorOptions, maskEmail } from '@/features/staff-setup/queries'
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -18,7 +19,7 @@ type PageProps = {
 
 export default async function ClubPositionsPage({ searchParams }: PageProps){
   const params = parseClubPositionSearchParams(await searchParams)
-  const { positions, assignments, totalPositions, error } = await getClubPositions(params)
+  const [{ positions, assignments, totalPositions, error }, staffOptions] = await Promise.all([getClubPositions(params), getApprovedStaffSelectorOptions()])
   const activePositions = positions.filter((position) => position.status === 'active').length
   const corePanelPositions = positions.filter((position) => position.is_core_panel).length
   const activeAssignments = assignments.filter((assignment) => assignment.status === 'active')
@@ -118,11 +119,17 @@ export default async function ClubPositionsPage({ searchParams }: PageProps){
 
       <section className="rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Assign Official Position</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">This does not grant platform permissions. Assign Club Admin or Super Admin separately from Platform Roles.</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">Normal staff assignment should happen through Staff Setup. Use this section only when adjusting official positions without changing website access.</p>
         <div className="mt-4">
           <AdminActionForm action={assignVolunteerClubPositionAction} submitLabel="Assign position" fields={
             <div className="grid gap-4">
-              <LabeledInput id="profileId" name="profileId" label="Approved volunteer profile UUID" required />
+              <label className="grid gap-2 text-sm font-bold text-slate-700" htmlFor="profileId">
+                Approved staff member
+                <select id="profileId" name="profileId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal text-slate-900 focus:border-uiussc-orange focus:outline-none focus:ring-4 focus:ring-uiussc-orange/15" required>
+                  <option value="">Select approved staff</option>
+                  {staffOptions.map((staff) => <option key={staff.id} value={staff.id}>{staff.full_name} - {maskEmail(staff.email)} - {staff.account_status}</option>)}
+                </select>
+              </label>
               <label className="grid gap-2 text-sm font-bold text-slate-700" htmlFor="positionId">
                 Position
                 <select id="positionId" name="positionId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal text-slate-900 focus:border-uiussc-orange focus:outline-none focus:ring-4 focus:ring-uiussc-orange/15" required>

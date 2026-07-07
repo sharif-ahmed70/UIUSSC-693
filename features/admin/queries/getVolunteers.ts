@@ -22,5 +22,18 @@ export async function getVolunteers(params: AdminListParams){
   }
 
   const { data, count } = await query
-  return { items: data ?? [], count: count ?? 0 }
+  const items = data ?? []
+  const ids = items.map((item) => item.id)
+  const [roles, positions, memberships] = ids.length ? await Promise.all([
+    supabase.from('volunteer_platform_roles').select('volunteer_profile_id').in('volunteer_profile_id', ids).eq('status', 'active'),
+    supabase.from('volunteer_club_positions').select('volunteer_profile_id').in('volunteer_profile_id', ids).eq('status', 'active'),
+    supabase.from('volunteer_department_memberships').select('volunteer_profile_id').in('volunteer_profile_id', ids).eq('membership_status', 'approved'),
+  ]) : [{ data: [] }, { data: [] }, { data: [] }]
+  const configuredIds = new Set([
+    ...((roles.data ?? []) as { volunteer_profile_id: string }[]).map((item) => item.volunteer_profile_id),
+    ...((positions.data ?? []) as { volunteer_profile_id: string }[]).map((item) => item.volunteer_profile_id),
+    ...((memberships.data ?? []) as { volunteer_profile_id: string }[]).map((item) => item.volunteer_profile_id),
+  ])
+
+  return { items: items.map((item) => ({ ...item, hasAccessSetup: configuredIds.has(item.id) })), count: count ?? 0 }
 }

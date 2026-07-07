@@ -4,24 +4,31 @@ import EmptyAdminState from '@/components/admin/EmptyAdminState'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { assignPlatformRoleAction, revokePlatformRoleAction } from '@/features/admin/actions/platformRoleActions'
 import { getPlatformRoles } from '@/features/admin/queries/getPlatformRoles'
+import { getApprovedStaffSelectorOptions, maskEmail } from '@/features/staff-setup/queries'
 import { formatPlatformRole } from '@/lib/formatters'
 
 export default async function PlatformRolesPage(){
-  const roles = await getPlatformRoles()
+  const [roles, staffOptions] = await Promise.all([getPlatformRoles(), getApprovedStaffSelectorOptions()])
 
   return (
     <div>
-      <AdminHeader title="Platform roles" description="Super-admin-only role assignment and revocation. The final active super admin cannot be revoked." />
+      <AdminHeader title="Advanced website access" description="Super-admin-only role assignment and revocation. The final active super admin cannot be revoked." />
       <section className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-5 text-amber-900">
-        <h2 className="font-extrabold">Platform roles are active</h2>
-        <p className="mt-2 text-sm leading-6">Only Super Admins can assign or revoke platform roles. The final active Super Admin cannot be revoked.</p>
+        <h2 className="font-extrabold">Advanced access management</h2>
+        <p className="mt-2 text-sm leading-6">Most staff should be configured from the Staff Setup wizard. Use this page only for exceptional security changes. Only Super Admins can assign or revoke advanced website access.</p>
       </section>
       <section className="mb-6 rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Assign platform role</h2>
         <div className="mt-4">
           <AdminActionForm action={assignPlatformRoleAction} submitLabel="Assign role" fields={
             <>
-              <input name="profileId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" placeholder="Approved volunteer profile UUID" required />
+              <label className="grid gap-2 text-sm font-bold text-slate-700" htmlFor="profileId">
+                Approved staff member
+                <select id="profileId" name="profileId" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm font-normal text-slate-900 focus:border-uiussc-orange focus:outline-none focus:ring-4 focus:ring-uiussc-orange/15" required>
+                  <option value="">Select approved staff</option>
+                  {staffOptions.map((staff) => <option key={staff.id} value={staff.id}>{staff.full_name} - {maskEmail(staff.email)} - {staff.account_status}</option>)}
+                </select>
+              </label>
               <select name="role" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 text-sm" required>
                 <option value="membership_admin">Membership Admin</option>
                 <option value="club_admin">Club Admin</option>
