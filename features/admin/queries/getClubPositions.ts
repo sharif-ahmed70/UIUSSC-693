@@ -2,7 +2,7 @@ import 'server-only'
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
-const positionColumns = 'id, name, slug, description, is_core_panel, status, display_order'
+const positionColumns = 'id, name, slug, description, is_core_panel, status, display_order, archived_at'
 
 export type ClubPosition = {
   id: string
@@ -12,6 +12,7 @@ export type ClubPosition = {
   is_core_panel: boolean
   status: string
   display_order: number
+  archived_at: string | null
 }
 
 export type ClubPositionStatusFilter = 'active' | 'inactive' | 'archived' | 'all'

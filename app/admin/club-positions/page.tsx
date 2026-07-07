@@ -9,6 +9,7 @@ import StatusBadge from '@/components/admin/StatusBadge'
 import {
   archiveClubPositionAction,
   assignVolunteerClubPositionAction,
+  restoreClubPositionAction,
 } from '@/features/admin/actions/clubPositionActions'
 import { getClubPositions, parseClubPositionSearchParams } from '@/features/admin/queries/getClubPositions'
 import { getApprovedStaffSelectorOptions, maskEmail } from '@/features/staff-setup/queries'
@@ -25,6 +26,7 @@ export default async function ClubPositionsPage({ searchParams }: PageProps){
   const activeAssignments = assignments.filter((assignment) => assignment.status === 'active')
   const corePanelAssignments = activeAssignments.filter((assignment) => assignment.club_positions?.is_core_panel)
   const historicalAssignments = assignments.filter((assignment) => assignment.status !== 'active')
+  const archivedPositions = positions.filter((position) => position.status === 'archived')
   const totalPages = Math.max(1, Math.ceil(totalPositions / params.pageSize))
 
   return (
@@ -95,6 +97,15 @@ export default async function ClubPositionsPage({ searchParams }: PageProps){
                     </div>
                   </div>
                 )}
+                {position.status === 'archived' && (
+                  <div className="rounded-md border border-emerald-100 bg-emerald-50 p-4">
+                    <h4 className="font-extrabold text-emerald-950">Restore position</h4>
+                    <p className="mt-2 text-sm leading-6 text-emerald-900">Restore this archived position when the same slug is needed again. This keeps the unique position history intact.</p>
+                    <div className="mt-3">
+                      <AdminActionForm action={restoreClubPositionAction} id={position.id} submitLabel="Restore position" fields={<LabeledTextarea id={`restore-reason-${position.id}`} name="reason" label="Restore reason" required />} />
+                    </div>
+                  </div>
+                )}
               </div>
             </article>
           ))}
@@ -112,6 +123,12 @@ export default async function ClubPositionsPage({ searchParams }: PageProps){
       <section className="rounded-md border border-slate-200 bg-white p-5 shadow-lg shadow-slate-900/5">
         <h2 className="text-xl font-extrabold text-uiussc-charcoal">Create Position</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Add a new official club position definition. Slugs are normalized server-side and must remain unique.</p>
+        {archivedPositions.length > 0 && (
+          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+            <p className="font-extrabold">Archived positions exist in this view.</p>
+            <p className="mt-1">If a new position needs the same slug as an archived one, restore the archived position instead of creating a duplicate.</p>
+          </div>
+        )}
         <div className="mt-4">
           <CreateClubPositionForm />
         </div>

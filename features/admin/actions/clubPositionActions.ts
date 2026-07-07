@@ -53,6 +53,23 @@ export async function createClubPositionAction(_state: AdminActionState, formDat
   if (!parsed.success) return { status: 'error', message: 'Please review the highlighted fields.', fieldErrors: parsed.error.flatten().fieldErrors }
   const admin = await requireAdminAction('canManageVolunteers')
   if ('error' in admin) return admin.error
+  const normalizedSlug = normalizePositionSlug(parsed.data.slug)
+  const { data: existingPosition, error: existingPositionError } = await admin.supabase
+    .from('club_positions')
+    .select('id,status,archived_at')
+    .eq('slug', normalizedSlug)
+    .maybeSingle()
+
+  if (existingPositionError) return safeActionError()
+  if (existingPosition?.status === 'archived' || existingPosition?.archived_at) {
+    return {
+      status: 'error',
+      message: 'An archived position already uses this slug. Restore the archived position instead of creating a duplicate.',
+      fieldErrors: { slug: ['Restore the archived position with this slug.'] },
+    }
+  }
+  if (existingPosition) return { status: 'error', message: 'A position with this slug already exists.', fieldErrors: { slug: ['Use a unique slug.'] } }
+
   const { error } = await admin.supabase.rpc('create_club_position', {
     p_name: parsed.data.name,
     p_slug: parsed.data.slug,
@@ -100,6 +117,16 @@ export async function archiveClubPositionAction(_state: AdminActionState, formDa
   const admin = await requireAdminAction('canManageVolunteers')
   if ('error' in admin) return admin.error
   const { error } = await admin.supabase.rpc('archive_club_position', { p_position_id: parsed.data.id, p_reason: parsed.data.reason })
+  if (error) return safeActionError()
+  return successAction(['/admin/club-positions'])
+}
+
+export async function restoreClubPositionAction(_state: AdminActionState, formData: FormData): Promise<AdminActionState>{
+  const parsed = z.object({ id: idSchema, reason: reasonSchema }).safeParse({ id: formData.get('id'), reason: formData.get('reason') })
+  if (!parsed.success) return { status: 'error', message: 'Please review the highlighted fields.', fieldErrors: parsed.error.flatten().fieldErrors }
+  const admin = await requireAdminAction('canManageVolunteers')
+  if ('error' in admin) return admin.error
+  const { error } = await admin.supabase.rpc('restore_club_position' as never, { p_position_id: parsed.data.id, p_reason: parsed.data.reason } as never)
   if (error) return safeActionError()
   return successAction(['/admin/club-positions'])
 }
@@ -159,4 +186,8 @@ export async function changePrimaryClubPositionAction(_state: AdminActionState, 
   const { error } = await admin.supabase.rpc('change_primary_club_position', { p_assignment_id: parsed.data.id, p_reason: parsed.data.reason })
   if (error) return safeActionError()
   return successAction(['/admin/club-positions'])
+}
+
+function normalizePositionSlug(slug: string){
+  return slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
