@@ -40,6 +40,8 @@ export type AdminEventOperationDetail = AdminEventOperationSummary & {
   internalSummary: string | null
   planningStartAt: string | null
   operationalDeadline: string | null
+  ownerProfileId: string | null
+  ownerProfileName: string | null
   cancellationReason: string | null
   assignments: EventDepartmentAssignment[]
   history: EventOperationHistory[]

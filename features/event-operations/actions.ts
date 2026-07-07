@@ -49,7 +49,7 @@ export async function updateEventOperationAction(_state: AdminActionState, formD
     p_internal_summary: emptyToNull(parsed.data.internalSummary),
     p_planning_start_at: parsed.data.planningStartAt,
     p_operational_deadline: parsed.data.operationalDeadline,
-    p_owner_profile_id: null,
+    p_owner_profile_id: parsed.data.ownerProfileId,
   } as unknown as Database['public']['Functions']['update_club_event_operation']['Args'])
 
   if (error) return safeActionError()

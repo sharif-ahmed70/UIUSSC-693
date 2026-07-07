@@ -22,6 +22,7 @@ export const updateEventOperationSchema = z.object({
   internalSummary: z.string().trim().max(2000).optional(),
   planningStartAt: optionalDateTime,
   operationalDeadline: optionalDateTime,
+  ownerProfileId: z.string().trim().optional().transform((value) => value || null),
 })
 
 export const changeEventStatusSchema = z.object({

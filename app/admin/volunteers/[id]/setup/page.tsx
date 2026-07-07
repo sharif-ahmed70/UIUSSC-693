@@ -59,7 +59,7 @@ export default async function StaffSetupPage({ params }: PageProps){
 
       <StaffSetupWizard
         profileId={id}
-        departments={data.departments.map((department) => ({ id: department.id, name: department.name }))}
+        departments={data.departments.map((department) => ({ id: department.id, name: department.name, slug: department.slug }))}
         existingPositions={existingPositions}
         existingWebsiteAccess={existingWebsiteAccess}
         existingDepartments={existingDepartments}

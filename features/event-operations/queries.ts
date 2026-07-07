@@ -10,7 +10,9 @@ type OperationRow = {
   internal_summary: string | null
   planning_start_at: string | null
   operational_deadline: string | null
+  owner_profile_id: string | null
   cancellation_reason: string | null
+  owner_profile: { full_name: string | null } | null
   events: {
     id: string
     title: string
@@ -117,7 +119,7 @@ export async function getAdminEventOperations(): Promise<AdminEventOperationSumm
   const supabase = await createServerSupabaseClient()
   const { data: operations } = await supabase
     .from('club_event_operations')
-    .select('id,event_id,operational_status,internal_summary,planning_start_at,operational_deadline,cancellation_reason,events(id,title,slug,summary,description,category,event_date,location,status,registration_open,volunteer_requirements)')
+    .select('id,event_id,operational_status,internal_summary,planning_start_at,operational_deadline,owner_profile_id,cancellation_reason,owner_profile:volunteer_profiles!club_event_operations_owner_profile_id_fkey(full_name),events(id,title,slug,summary,description,category,event_date,location,status,registration_open,volunteer_requirements)')
     .order('created_at', { ascending: false })
 
   const operationRows = (operations ?? []) as unknown as OperationRow[]
@@ -146,7 +148,7 @@ export async function getAdminEventOperation(operationId: string): Promise<Admin
   const [{ data: operation }, { data: assignments }, { data: history }] = await Promise.all([
     supabase
       .from('club_event_operations')
-      .select('id,event_id,operational_status,internal_summary,planning_start_at,operational_deadline,cancellation_reason,events(id,title,slug,summary,description,category,event_date,location,status,registration_open,volunteer_requirements)')
+      .select('id,event_id,operational_status,internal_summary,planning_start_at,operational_deadline,owner_profile_id,cancellation_reason,owner_profile:volunteer_profiles!club_event_operations_owner_profile_id_fkey(full_name),events(id,title,slug,summary,description,category,event_date,location,status,registration_open,volunteer_requirements)')
       .eq('id', operationId)
       .maybeSingle(),
     supabase
@@ -178,6 +180,8 @@ export async function getAdminEventOperation(operationId: string): Promise<Admin
     internalSummary: (operation as unknown as OperationRow).internal_summary,
     planningStartAt: (operation as unknown as OperationRow).planning_start_at,
     operationalDeadline: (operation as unknown as OperationRow).operational_deadline,
+    ownerProfileId: (operation as unknown as OperationRow).owner_profile_id,
+    ownerProfileName: (operation as unknown as OperationRow).owner_profile?.full_name ?? null,
     cancellationReason: (operation as unknown as OperationRow).cancellation_reason,
     assignments: assignmentList,
     history: ((history ?? []) as HistoryRow[]).map((item) => ({
@@ -188,6 +192,26 @@ export async function getAdminEventOperation(operationId: string): Promise<Admin
       changedAt: item.changed_at,
     })),
   }
+}
+
+export async function getEventLeadOptions(){
+  const supabase = await createServerSupabaseClient()
+  const { data } = await supabase
+    .from('volunteer_club_positions')
+    .select('volunteer_profile_id, club_positions!inner(name,slug), volunteer_profiles!volunteer_club_positions_volunteer_profile_id_fkey(full_name,email)')
+    .eq('status', 'active')
+    .in('club_positions.slug', ['president', 'vice-president', 'assistant-vice-president', 'general-secretary', 'treasurer'])
+    .order('assigned_at', { ascending: false })
+
+  return ((data ?? []) as unknown as Array<{
+    volunteer_profile_id: string
+    club_positions: { name: string | null; slug: string | null } | null
+    volunteer_profiles: { full_name: string | null; email: string | null } | null
+  }>).filter((item) => item.club_positions?.slug).map((item) => ({
+    id: item.volunteer_profile_id,
+    name: item.volunteer_profiles?.full_name ?? 'Leadership member',
+    position: item.club_positions?.name ?? 'Core leadership',
+  }))
 }
 
 export async function getActiveDepartmentsForEventAssignments(){

@@ -6,12 +6,12 @@ import ProgressBar from '@/components/admin/ProgressBar'
 import StatusBadge from '@/components/admin/StatusBadge'
 import { getSingleEventProgressSummary } from '@/features/event-progress/queries'
 import { assignDepartmentAction, changeAssignmentStatusAction, changeEventStatusAction, updateEventOperationAction } from '@/features/event-operations/actions'
-import { getActiveDepartmentsForEventAssignments, getAdminEventOperation } from '@/features/event-operations/queries'
+import { getActiveDepartmentsForEventAssignments, getAdminEventOperation, getEventLeadOptions } from '@/features/event-operations/queries'
 import { formatDisplayDate, formatEventDate } from '@/lib/date'
 
 export default async function AdminEventDetailPage({ params }: { params: Promise<{ id: string }> }){
   const { id } = await params
-  const [event, departments, eventProgress] = await Promise.all([getAdminEventOperation(id), getActiveDepartmentsForEventAssignments(), getSingleEventProgressSummary(id)])
+  const [event, departments, eventProgress, eventLeadOptions] = await Promise.all([getAdminEventOperation(id), getActiveDepartmentsForEventAssignments(), getSingleEventProgressSummary(id), getEventLeadOptions()])
 
   if (!event) notFound()
 
@@ -54,6 +54,13 @@ export default async function AdminEventDetailPage({ params }: { params: Promise
                 <label htmlFor="internalSummary" className="grid gap-2 text-sm font-bold text-uiussc-charcoal">Internal summary
                   <textarea id="internalSummary" name="internalSummary" defaultValue={event.internalSummary ?? ''} className="min-h-24 rounded-md border border-slate-200 p-3 font-normal text-slate-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20" />
                 </label>
+                <label htmlFor="ownerProfileId" className="grid gap-2 text-sm font-bold text-uiussc-charcoal">Event Lead
+                  <select id="ownerProfileId" name="ownerProfileId" defaultValue={event.ownerProfileId ?? ''} className="min-h-10 rounded-md border border-slate-200 px-3 py-2 font-normal text-slate-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20">
+                    <option value="">No event lead selected</option>
+                    {eventLeadOptions.map((lead) => <option key={lead.id} value={lead.id}>{lead.name} - {lead.position}</option>)}
+                  </select>
+                </label>
+                {event.ownerProfileName && <p className="text-sm font-bold text-slate-600">Current lead: {event.ownerProfileName}</p>}
                 <label htmlFor="planningStartAt" className="grid gap-2 text-sm font-bold text-uiussc-charcoal">Planning start
                   <input id="planningStartAt" name="planningStartAt" type="datetime-local" className="min-h-10 rounded-md border border-slate-200 px-3 py-2 font-normal text-slate-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-uiussc-orange/20" />
                 </label>

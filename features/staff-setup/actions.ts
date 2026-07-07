@@ -44,6 +44,7 @@ export async function setupStaffAccessAction(_state: AdminActionState, formData:
     console.warn('Guided staff setup failed', { code: error.code, message: error.message })
     if (error.code === '42501') return { status: 'error', message: 'You do not have permission to complete this staff setup.' }
     if (error.code === '22023') return { status: 'error', message: 'This setup cannot be completed with the selected profile, responsibility, or department.' }
+    if (error.code === '23505') return { status: 'error', message: 'This responsibility is already actively held. End or transfer the existing assignment before assigning it again.' }
     return safeActionError()
   }
 
