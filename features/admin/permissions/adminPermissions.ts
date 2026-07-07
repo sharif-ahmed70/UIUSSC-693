@@ -16,6 +16,8 @@ export function adminNavigation(permissions: AdminPermissions){
     { href: '/admin/departments', label: 'Departments', enabled: permissions.canManageDepartments },
     { href: '/admin/platform-roles', label: 'Platform Roles', enabled: permissions.canManagePlatformRoles },
     { href: '/admin/access-control', label: 'Access Control', enabled: permissions.canViewAccessControl },
+    { href: '/admin/permissions', label: 'Permission Matrix', enabled: permissions.canViewAccessControl },
+    { href: '/admin/access-review', label: 'Access Review', enabled: permissions.canViewAccessControl },
     { href: '/admin/approval-requests', label: 'Approval Requests', enabled: permissions.canReviewApprovalRequests },
     { href: '/admin/staff-invitations', label: 'Staff Invitations', enabled: permissions.canCreateStaffInvitations },
     { href: '/admin/audit-logs', label: 'Audit Logs', enabled: permissions.canViewAuditLogs },

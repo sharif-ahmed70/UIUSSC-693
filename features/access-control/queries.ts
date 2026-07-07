@@ -1,7 +1,16 @@
 import 'server-only'
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import type { AccessControlSummary, AccessOverrideSummary, AccessUserDetail, AccessUserSummary, SystemPermission } from './types'
+import type {
+  AccessControlSummary,
+  AccessOverrideSummary,
+  AccessReviewUser,
+  AccessUserDetail,
+  AccessUserSummary,
+  OfficialPermissionMatrix,
+  PermissionPolicySummary,
+  SystemPermission,
+} from './types'
 
 type ProfileRow = {
   id: string
@@ -34,10 +43,13 @@ function summarizeUsers(
   memberships: DepartmentMembershipRow[],
 ): AccessUserSummary[]{
   const positionsByProfile = new Map<string, string[]>()
+  const positionSlugsByProfile = new Map<string, string[]>()
   positions.forEach((assignment) => {
     const name = assignment.club_positions?.name
-    if (!name) return
+    const slug = assignment.club_positions?.slug
+    if (!name || !slug) return
     positionsByProfile.set(assignment.volunteer_profile_id, [...(positionsByProfile.get(assignment.volunteer_profile_id) ?? []), name])
+    positionSlugsByProfile.set(assignment.volunteer_profile_id, [...(positionSlugsByProfile.get(assignment.volunteer_profile_id) ?? []), slug])
   })
 
   const rolesByProfile = new Map<string, string[]>()
@@ -66,12 +78,13 @@ function summarizeUsers(
     accountStatus: profile.account_status,
     onboardingStatus: profile.onboarding_status,
     activeClubPositions: positionsByProfile.get(profile.id) ?? [],
+    activeClubPositionSlugs: positionSlugsByProfile.get(profile.id) ?? [],
     activePlatformRoles: rolesByProfile.get(profile.id) ?? [],
     activeDepartmentMemberships: membershipsByProfile.get(profile.id) ?? [],
   }))
 }
 
-async function getAccessUsers(profileId?: string): Promise<AccessUserSummary[]>{
+export async function getAccessUsers(profileId?: string): Promise<AccessUserSummary[]>{
   const supabase = await createServerSupabaseClient()
   let profileQuery = supabase
     .from('volunteer_profiles')
@@ -118,6 +131,148 @@ async function getAccessUsers(profileId?: string): Promise<AccessUserSummary[]>{
     (roles ?? []) as PlatformRoleRow[],
     (memberships ?? []) as unknown as DepartmentMembershipRow[],
   )
+}
+
+type RawPermissionPolicy = {
+  id: string
+  scope_rule: string
+  requires_approval: boolean | null
+  approval_policy_key: string | null
+  system_permissions: {
+    permission_key: string | null
+    name: string | null
+    module_key: string | null
+    risk_level: string | null
+  } | null
+}
+
+type RawPositionPolicy = RawPermissionPolicy & {
+  club_position_slug: string
+}
+
+type RawDepartmentRolePolicy = RawPermissionPolicy & {
+  department_role: string
+}
+
+type RawPlatformRolePolicy = RawPermissionPolicy & {
+  platform_role: string
+}
+
+function toPolicySummary(policy: RawPermissionPolicy): PermissionPolicySummary | null{
+  const permission = policy.system_permissions
+
+  if (!permission?.permission_key || !permission.name || !permission.module_key || !permission.risk_level) {
+    return null
+  }
+
+  return {
+    id: policy.id,
+    permissionKey: permission.permission_key,
+    permissionName: permission.name,
+    moduleKey: permission.module_key,
+    riskLevel: permission.risk_level,
+    scopeRule: policy.scope_rule,
+    requiresApproval: Boolean(policy.requires_approval),
+    approvalPolicyKey: policy.approval_policy_key,
+  }
+}
+
+function groupPolicies<T extends RawPermissionPolicy>(policies: T[], groupKey: (policy: T) => string): Record<string, PermissionPolicySummary[]>{
+  return policies.reduce<Record<string, PermissionPolicySummary[]>>((groups, policy) => {
+    const summary = toPolicySummary(policy)
+    if (!summary) return groups
+
+    const key = groupKey(policy)
+    groups[key] = [...(groups[key] ?? []), summary]
+    return groups
+  }, {})
+}
+
+function groupPermissionsByModule(permissions: Array<Pick<SystemPermission, 'id' | 'permission_key' | 'name' | 'description' | 'risk_level' | 'module_key'>>): OfficialPermissionMatrix['permissionsByModule']{
+  const grouped = permissions.reduce<Map<string, OfficialPermissionMatrix['permissionsByModule'][number]>>((modules, permission) => {
+    const current = modules.get(permission.module_key) ?? { moduleKey: permission.module_key, permissions: [] }
+    current.permissions.push({
+      id: permission.id,
+      permission_key: permission.permission_key,
+      name: permission.name,
+      description: permission.description,
+      risk_level: permission.risk_level,
+    })
+    modules.set(permission.module_key, current)
+    return modules
+  }, new Map())
+
+  return Array.from(grouped.values())
+}
+
+export async function getOfficialPermissionMatrix(): Promise<OfficialPermissionMatrix>{
+  const supabase = await createServerSupabaseClient()
+  const [{ data: permissions }, { data: positionPolicies }, { data: departmentRolePolicies }, { data: platformRolePolicies }] = await Promise.all([
+    supabase
+      .from('system_permissions')
+      .select('id, permission_key, name, description, risk_level, module_key')
+      .eq('is_active', true)
+      .in('module_key', ['event', 'task', 'user', 'department', 'content', 'committee', 'blood', 'finance'])
+      .order('module_key', { ascending: true })
+      .order('permission_key', { ascending: true }),
+    supabase
+      .from('club_position_permission_policies')
+      .select('id, club_position_slug, scope_rule, requires_approval, approval_policy_key, system_permissions(permission_key,name,module_key,risk_level)')
+      .eq('is_active', true)
+      .order('club_position_slug', { ascending: true }),
+    supabase
+      .from('department_role_permission_policies')
+      .select('id, department_role, scope_rule, requires_approval, approval_policy_key, system_permissions(permission_key,name,module_key,risk_level)')
+      .eq('is_active', true)
+      .order('department_role', { ascending: true }),
+    supabase
+      .from('platform_role_permission_policies')
+      .select('id, platform_role, scope_rule, requires_approval, approval_policy_key, system_permissions(permission_key,name,module_key,risk_level)')
+      .eq('is_active', true)
+      .order('platform_role', { ascending: true }),
+  ])
+
+  return {
+    permissionsByModule: groupPermissionsByModule((permissions ?? []) as Array<Pick<SystemPermission, 'id' | 'permission_key' | 'name' | 'description' | 'risk_level' | 'module_key'>>),
+    positionPolicies: groupPolicies((positionPolicies ?? []) as unknown as RawPositionPolicy[], (policy) => policy.club_position_slug),
+    departmentRolePolicies: groupPolicies((departmentRolePolicies ?? []) as unknown as RawDepartmentRolePolicy[], (policy) => policy.department_role),
+    platformRolePolicies: groupPolicies((platformRolePolicies ?? []) as unknown as RawPlatformRolePolicy[], (policy) => policy.platform_role),
+  }
+}
+
+export async function getAccessReviewUsers(): Promise<AccessReviewUser[]>{
+  const [users, matrix] = await Promise.all([getAccessUsers(), getOfficialPermissionMatrix()])
+
+  return users.map((user) => {
+    const sources: AccessReviewUser['permissionSummary'] = []
+
+    user.activePlatformRoles.forEach((role) => {
+      const permissions = matrix.platformRolePolicies[role] ?? []
+      if (permissions.length > 0) {
+        sources.push({ source: `Platform role: ${role}`, permissions })
+      }
+    })
+
+    user.activeClubPositions.forEach((position, index) => {
+      const slug = user.activeClubPositionSlugs[index]
+      const permissions = matrix.positionPolicies[slug] ?? []
+      if (permissions.length > 0) {
+        sources.push({ source: `Club position: ${position}`, permissions })
+      }
+    })
+
+    user.activeDepartmentMemberships.forEach((membership) => {
+      const permissions = matrix.departmentRolePolicies[membership.role] ?? []
+      if (permissions.length > 0) {
+        sources.push({ source: `${membership.departmentName}: ${membership.role}`, permissions })
+      }
+    })
+
+    return {
+      ...user,
+      permissionSummary: sources,
+    }
+  })
 }
 
 export async function getAccessControlSummary(): Promise<AccessControlSummary>{

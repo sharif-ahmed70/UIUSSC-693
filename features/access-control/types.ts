@@ -13,6 +13,7 @@ export type AccessUserSummary = {
   accountStatus: string
   onboardingStatus: string
   activeClubPositions: string[]
+  activeClubPositionSlugs: string[]
   activePlatformRoles: string[]
   activeDepartmentMemberships: Array<{
     departmentName: string
@@ -42,5 +43,33 @@ export type AccessUserDetail = AccessUserSummary & {
   effectiveAccessSummary: Array<{
     moduleKey: string
     permissions: Array<Pick<SystemPermission, 'permission_key' | 'name' | 'risk_level'>>
+  }>
+}
+
+export type PermissionPolicySummary = {
+  id: string
+  permissionKey: string
+  permissionName: string
+  moduleKey: string
+  riskLevel: string
+  scopeRule: string
+  requiresApproval: boolean
+  approvalPolicyKey: string | null
+}
+
+export type OfficialPermissionMatrix = {
+  permissionsByModule: Array<{
+    moduleKey: string
+    permissions: Array<Pick<SystemPermission, 'id' | 'permission_key' | 'name' | 'description' | 'risk_level'>>
+  }>
+  positionPolicies: Record<string, PermissionPolicySummary[]>
+  departmentRolePolicies: Record<string, PermissionPolicySummary[]>
+  platformRolePolicies: Record<string, PermissionPolicySummary[]>
+}
+
+export type AccessReviewUser = AccessUserSummary & {
+  permissionSummary: Array<{
+    source: string
+    permissions: PermissionPolicySummary[]
   }>
 }
