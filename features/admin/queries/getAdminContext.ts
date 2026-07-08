@@ -21,6 +21,7 @@ export async function getAdminContext(): Promise<AdminContext>{
         canReviewApprovalRequests: false,
         canCreateStaffInvitations: false,
         canManageEvents: false,
+        canViewBloodAdmin: false,
       },
       isAdmin: false,
     }
@@ -62,6 +63,7 @@ export async function getAdminContext(): Promise<AdminContext>{
     canReviewApprovalRequests: Boolean(reviewApprovalRequests.data),
     canCreateStaffInvitations: Boolean(createStaffInvitations.data),
     canManageEvents: Boolean(manageEvents.data),
+    canViewBloodAdmin: staff.platformRoles.includes('super_admin'),
   }
 
   return {

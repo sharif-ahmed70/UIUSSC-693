@@ -11,6 +11,7 @@ export type AdminPermissions = {
   canReviewApprovalRequests: boolean
   canCreateStaffInvitations: boolean
   canManageEvents: boolean
+  canViewBloodAdmin: boolean
 }
 
 export type AdminContext = {

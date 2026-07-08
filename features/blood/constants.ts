@@ -29,3 +29,7 @@ export const bloodMatchStatuses = [
 ] as const
 
 export const bloodDonationStatuses = ['reported', 'under_review', 'verified', 'rejected', 'cancelled'] as const
+
+export const publicBloodRequestStatuses = ['pending_review', 'verified', 'matching', 'fulfilled', 'cancelled'] as const
+
+export const bloodAvailabilityStatuses = ['available', 'temporarily_unavailable', 'unavailable'] as const
