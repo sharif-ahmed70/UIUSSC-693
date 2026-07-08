@@ -13,7 +13,7 @@ export const publicBloodRequestSchema = z.object({
   hospitalName: z.string().trim().min(2, 'Enter hospital name.').max(160),
   hospitalArea: optionalText,
   district: optionalText,
-  urgency: z.enum(['normal', 'urgent', 'emergency']),
+  urgency: z.enum(['normal', 'urgent', 'critical']),
   patientReference: optionalText,
   requesterRelationship: optionalText,
   website: z.string().trim().max(0).optional().or(z.literal('')),

@@ -141,7 +141,7 @@ async function callBloodRpc(name: string, args: Record<string, unknown>, paths: 
   }
 
   paths.forEach((path) => revalidatePath(path))
-  return { status: 'success', message: 'Blood Support workflow updated.' }
+  return { status: 'success', message: 'Update saved.' }
 }
 
 export async function updateBloodRequestStatus(_state: BloodFormState, formData: FormData): Promise<BloodFormState>{
@@ -150,6 +150,15 @@ export async function updateBloodRequestStatus(_state: BloodFormState, formData:
   const reason = value(formData, 'reason')
   const rpc = ['under_review', 'approved', 'rejected'].includes(status) ? 'review_blood_request' : 'change_blood_request_status'
   return callBloodRpc(rpc, { p_request_id: requestId, p_new_status: status, p_reason: reason }, ['/staff/blood', '/staff/blood/requests', `/staff/blood/requests/${requestId}`])
+}
+
+export async function updateBloodRequestPriority(_state: BloodFormState, formData: FormData): Promise<BloodFormState>{
+  const requestId = value(formData, 'requestId')
+  return callBloodRpc('change_blood_request_priority', {
+    p_request_id: requestId,
+    p_new_priority: value(formData, 'priority'),
+    p_reason: value(formData, 'reason'),
+  }, ['/staff/blood', '/staff/blood/requests', `/staff/blood/requests/${requestId}`])
 }
 
 export async function createBloodMatchAction(_state: BloodFormState, formData: FormData): Promise<BloodFormState>{
@@ -176,7 +185,25 @@ export async function assignBloodExecutiveAction(_state: BloodFormState, formDat
     p_request_id: requestId,
     p_profile_id: value(formData, 'profileId'),
     p_reason: value(formData, 'reason'),
+    p_action_label: value(formData, 'actionLabel') || 'Follow up blood request',
+    p_due_at: value(formData, 'dueAt') ? new Date(value(formData, 'dueAt')).toISOString() : null,
   }, ['/staff/blood', `/staff/blood/requests/${requestId}`])
+}
+
+export async function completeBloodAssignmentAction(_state: BloodFormState, formData: FormData): Promise<BloodFormState>{
+  const requestId = value(formData, 'requestId')
+  return callBloodRpc('complete_blood_request_assignment', {
+    p_assignment_id: value(formData, 'assignmentId'),
+    p_completion_note: value(formData, 'completionNote'),
+  }, ['/staff/blood', `/staff/blood/requests/${requestId}`])
+}
+
+export async function updateBloodDonorAvailability(_state: BloodFormState, formData: FormData): Promise<BloodFormState>{
+  return callBloodRpc('change_blood_donor_availability', {
+    p_donor_id: value(formData, 'donorId'),
+    p_new_status: value(formData, 'availabilityStatus'),
+    p_reason: value(formData, 'reason'),
+  }, ['/staff/blood/donors'])
 }
 
 export async function recordBloodDonationAction(_state: BloodFormState, formData: FormData): Promise<BloodFormState>{

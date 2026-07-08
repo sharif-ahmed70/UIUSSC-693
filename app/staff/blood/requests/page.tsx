@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { bloodRequestStatuses } from '@/features/blood/constants'
+import { formatBloodPriority, formatBloodRequestStatus, priorityBadgeClass } from '@/features/blood/labels'
 import { getBloodCapabilities, getBloodRequests } from '@/features/blood/queries'
 import { getStaffAccessContext } from '@/features/staff/queries/getStaffAccessContext'
 import { hasOperationalOversight, requireApprovedVolunteer } from '@/lib/auth/authorization'
@@ -30,13 +31,13 @@ export default async function BloodRequestsPage({ searchParams }: BloodRequestsP
     <div className="space-y-6">
       <header>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-uiussc-orange">Blood Support</p>
-        <h1 className="mt-2 text-3xl font-extrabold text-uiussc-charcoal">Blood requests</h1>
+        <h1 className="mt-2 text-3xl font-extrabold text-uiussc-charcoal">Blood Requests</h1>
       </header>
 
       <div className="flex flex-wrap gap-2">
         <Filter href="/staff/blood/requests" label="All" active={!params.status} />
         {bloodRequestStatuses.map((status) => (
-          <Filter key={status} href={`/staff/blood/requests?status=${status}`} label={status.replace(/_/g, ' ')} active={params.status === status} />
+          <Filter key={status} href={`/staff/blood/requests?status=${status}`} label={formatBloodRequestStatus(status)} active={params.status === status} />
         ))}
       </div>
 
@@ -46,12 +47,12 @@ export default async function BloodRequestsPage({ searchParams }: BloodRequestsP
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-lg font-extrabold text-uiussc-charcoal">{request.public_reference_code}</h2>
-                <p className="mt-2 text-sm text-slate-600">{request.blood_group} · {request.units_requested} unit(s) · {request.hospital_name}</p>
-                <p className="mt-1 text-sm text-slate-600">{request.hospital_area ?? 'Area not specified'} · {request.district ?? 'District not specified'}</p>
+                <p className="mt-2 text-sm text-slate-600">{request.blood_group} - {request.units_requested} unit(s) - {request.hospital_name}</p>
+                <p className="mt-1 text-sm text-slate-600">{request.hospital_area ?? 'Area not specified'} - {request.district ?? 'District not specified'}</p>
               </div>
               <div className="text-right">
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">{request.request_status.replace(/_/g, ' ')}</span>
-                <p className="mt-3 text-sm font-bold text-uiussc-navy">{request.urgency}</p>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">{formatBloodRequestStatus(request.request_status)}</span>
+                <p className={`mt-3 rounded-full px-3 py-1 text-xs font-bold ring-1 ${priorityBadgeClass(request.priority)}`}>{formatBloodPriority(request.priority)}</p>
                 <p className="mt-1 text-sm text-slate-600">{formatDisplayDate(request.needed_at)}</p>
               </div>
             </div>

@@ -34,7 +34,7 @@ export default function PublicBloodRequestForm(){
         <Field name="hospitalName" label="Hospital name" error={error(state.fieldErrors, 'hospitalName')} required />
         <Field name="hospitalArea" label="Hospital area" error={error(state.fieldErrors, 'hospitalArea')} />
         <Field name="district" label="District" error={error(state.fieldErrors, 'district')} />
-        <Select name="urgency" label="Urgency" options={['normal', 'urgent', 'emergency']} error={error(state.fieldErrors, 'urgency')} required />
+        <Select name="urgency" label="Blood request priority" options={['normal', 'urgent', 'critical']} error={error(state.fieldErrors, 'urgency')} required />
         <Field name="requesterRelationship" label="Relationship to patient" error={error(state.fieldErrors, 'requesterRelationship')} />
         <Field name="patientReference" label="Patient reference" error={error(state.fieldErrors, 'patientReference')} />
       </div>
