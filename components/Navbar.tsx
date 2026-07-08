@@ -14,7 +14,11 @@ const navItems = [
   { href: '/contact', label: 'Contact' }
 ]
 
-export default function Navbar(){
+type NavbarProps = {
+  unreadNotifications?: number
+}
+
+export default function Navbar({ unreadNotifications = 0 }: NavbarProps){
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const menuId = 'primary-mobile-navigation'
@@ -58,6 +62,12 @@ export default function Navbar(){
           <Link href="/membership" className="ml-2 rounded-md bg-uiussc-orange px-4 py-2 text-sm font-bold text-white shadow-lg shadow-uiussc-orange/20 transition hover:bg-[#e85d00]">
             Join UIUSSC
           </Link>
+          <Link href="/notifications" className="relative rounded-md border border-white/20 px-3 py-2 text-sm font-bold text-white/85 transition hover:border-uiussc-orange hover:text-white" aria-label={unreadNotifications > 0 ? `${unreadNotifications} unread notifications` : 'Notifications'}>
+            <span aria-hidden="true">🔔</span>
+            {unreadNotifications > 0 && (
+              <span className="ml-2 rounded-full bg-uiussc-orange px-2 py-0.5 text-xs text-white">{unreadNotifications > 99 ? '99+' : unreadNotifications}</span>
+            )}
+          </Link>
           <StaffAccessLink className="rounded-md border border-white/20 px-4 py-2 text-sm font-bold text-white/85 transition hover:border-uiussc-orange hover:text-white" />
         </nav>
 
@@ -97,6 +107,14 @@ export default function Navbar(){
               className="mt-2 rounded-md bg-uiussc-orange px-4 py-3 text-center text-sm font-bold text-white"
             >
               Join UIUSSC
+            </Link>
+            <Link
+              href="/notifications"
+              onClick={() => setOpen(false)}
+              className="rounded-md border border-white/20 px-4 py-3 text-center text-sm font-bold text-white"
+              aria-label={unreadNotifications > 0 ? `${unreadNotifications} unread notifications` : 'Notifications'}
+            >
+              <span aria-hidden="true">🔔</span> Notifications{unreadNotifications > 0 ? ` ${unreadNotifications > 99 ? '99+' : unreadNotifications}` : ''}
             </Link>
             <StaffAccessLink
               onClick={() => setOpen(false)}
