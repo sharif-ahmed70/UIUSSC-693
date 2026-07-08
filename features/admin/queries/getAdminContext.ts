@@ -22,6 +22,8 @@ export async function getAdminContext(): Promise<AdminContext>{
         canCreateStaffInvitations: false,
         canManageEvents: false,
         canViewBloodAdmin: false,
+        canViewCommittees: false,
+        canManageCommittees: false,
       },
       isAdmin: false,
     }
@@ -39,6 +41,8 @@ export async function getAdminContext(): Promise<AdminContext>{
     reviewApprovalRequests,
     createStaffInvitations,
     manageEvents,
+    viewCommittees,
+    manageCommittees,
   ] = await Promise.all([
     supabase.rpc('can_review_membership_applications'),
     supabase.rpc('can_manage_volunteers'),
@@ -50,6 +54,8 @@ export async function getAdminContext(): Promise<AdminContext>{
     supabase.rpc('has_effective_permission', { permission_key: 'approval_requests.review', scope_type: 'global' }),
     supabase.rpc('has_effective_permission', { permission_key: 'staff_invitations.create', scope_type: 'global' }),
     supabase.rpc('has_effective_permission', { permission_key: 'events.view_internal', scope_type: 'global' }),
+    supabase.rpc('can_view_committees' as never),
+    supabase.rpc('can_manage_committees' as never),
   ])
 
   const permissions = {
@@ -64,6 +70,8 @@ export async function getAdminContext(): Promise<AdminContext>{
     canCreateStaffInvitations: Boolean(createStaffInvitations.data),
     canManageEvents: Boolean(manageEvents.data),
     canViewBloodAdmin: staff.platformRoles.includes('super_admin'),
+    canViewCommittees: Boolean(viewCommittees.data),
+    canManageCommittees: Boolean(manageCommittees.data),
   }
 
   return {
