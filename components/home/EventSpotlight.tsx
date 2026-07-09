@@ -7,13 +7,13 @@ export default function EventSpotlight({ event }: { event: PublicEvent | null })
   return (
     <section className="landing-section bg-uiussc-charcoal text-white">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-        <SafeImage src={event?.bannerUrl} alt={event ? event.title : 'UIUSSC upcoming program'} className="min-h-80 rounded-2xl" />
+        <SafeImage src={event?.bannerUrl} alt={event ? event.title : 'UIUSSC upcoming program'} className="min-h-64 rounded-2xl" />
         <div>
           <p className="home-eyebrow">Next Upcoming</p>
-          <h2 className="font-display mt-4 text-4xl font-bold leading-tight md:text-5xl">{event ? event.title : 'Programs Coming Soon'}</h2>
+          <h2 className="font-display mt-4 text-3xl font-bold leading-tight md:text-4xl">{event ? event.title : 'Programs Coming Soon'}</h2>
           {event ? (
             <>
-              <p className="mt-5 text-lg leading-8 text-white/72">{event.summary}</p>
+              <p className="mt-4 text-base leading-7 text-white/72">{event.summary}</p>
               <div className="mt-6 grid gap-3 text-sm font-semibold text-white/75 sm:grid-cols-2">
                 <p>{formatEventDate(event.eventDate)}{event.startTime ? ` / ${event.startTime}` : ''}</p>
                 <p>{event.location}</p>

@@ -15,13 +15,13 @@ export default function ImpactGallery({ items }: { items: PublicGalleryItem[] })
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="home-eyebrow">Recent Impact Gallery</p>
-            <h2 className="font-display mt-4 text-4xl font-bold text-uiussc-charcoal md:text-5xl">Moments of Impact</h2>
+            <h2 className="font-display mt-4 text-3xl font-bold text-uiussc-charcoal md:text-4xl">Moments of Impact</h2>
           </div>
           <Link href="/gallery" className="font-bold text-uiussc-charcoal underline decoration-uiussc-orange decoration-2 underline-offset-8 transition hover:text-uiussc-orange">Explore Full Gallery</Link>
         </div>
-        <div className="mt-10 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="mt-8 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
           <article className="group overflow-hidden rounded-2xl border border-[rgba(21,19,18,0.10)] bg-white">
-            <SafeImage src={feature.imageUrl} alt={feature.caption || feature.title} className="h-[28rem] w-full transition duration-500 group-hover:scale-105" />
+            <SafeImage src={feature.imageUrl} alt={feature.caption || feature.title} className="h-80 w-full transition duration-500 group-hover:scale-105" />
             <div className="p-5">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-uiussc-orange">{feature.category}</p>
               <h3 className="mt-2 text-xl font-extrabold text-uiussc-charcoal">{feature.title}</h3>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import HeroSection from '@/components/home/HeroSection'
+import AnnouncementStrip from '@/components/home/AnnouncementStrip'
 import ImpactSnapshot from '@/components/home/ImpactSnapshot'
 import IntroductionSection from '@/components/home/IntroductionSection'
 import FeaturedInitiatives from '@/components/home/FeaturedInitiatives'
@@ -29,6 +30,7 @@ export default async function Home(){
 
   return (
     <div className="landing-shell">
+      <AnnouncementStrip notice={data.announcement} />
       <HeroSection data={data} />
       <ImpactSnapshot metrics={data.impactMetrics} />
       <IntroductionSection image={data.introImage} />
