@@ -8,6 +8,7 @@ type VolunteerDashboardPageProps = {
   searchParams: Promise<{
     module?: string
     eventId?: string
+    attendanceType?: string
   }>
 }
 
@@ -18,7 +19,8 @@ function normalizeModule(module?: string): VolunteerDashboardModule {
 export default async function VolunteerDepartmentDashboardPage({ searchParams }: VolunteerDashboardPageProps){
   const params = await searchParams
   const activeModule = normalizeModule(params.module)
-  const data = await getVolunteerDashboardData({ eventId: params.eventId })
+  const attendanceType = params.attendanceType === 'booth' ? 'booth' : 'meeting'
+  const data = await getVolunteerDashboardData({ eventId: params.eventId, attendanceType })
 
-  return <VolunteerDashboard data={data} activeModule={activeModule} />
+  return <VolunteerDashboard data={data} activeModule={activeModule} attendanceType={attendanceType} />
 }

@@ -38,31 +38,34 @@ function logDashboardError(context: string, error: { message?: string; code?: st
 
 function toEvent(row: Record<string, unknown>): VolunteerDashboardEvent {
   return {
-    attendanceEventId: (row.attendance_event_id as string | null) ?? null,
-    departmentId: row.department_id as string,
-    departmentName: row.department_name as string,
+    attendanceEventId: (row.event_id as string | null) ?? null,
+    departmentId: '',
+    departmentName: 'Volunteer Department',
     eventId: (row.event_id as string | null) ?? null,
-    title: row.title as string,
+    title: row.name as string,
     eventDate: row.event_date as string,
-    eventKind: row.event_kind as string,
+    eventKind: 'meeting',
     location: (row.location as string | null) ?? null,
     status: row.status as string,
-    source: row.source as string,
+    source: 'volunteer_event',
   }
 }
 
 function toMember(row: Record<string, unknown>): VolunteerAttendanceMember {
+  const present = row.present as boolean | null
   return {
-    attendanceRecordId: (row.attendance_record_id as string | null) ?? null,
-    volunteerProfileId: row.volunteer_profile_id as string,
-    serialNumber: Number(row.serial_number ?? 0),
-    pictureUrl: (row.picture_url as string | null) ?? null,
+    attendanceRecordId: null,
+    volunteerProfileId: row.member_id as string,
+    serialNumber: Number(row.serial ?? 0),
+    pictureUrl: (row.picture as string | null) ?? null,
     fullName: row.full_name as string,
     studentId: (row.student_id as string | null) ?? null,
     memberType: row.member_type === 'Panel' ? 'Panel' : 'General',
-    attendanceStatus: ['present', 'absent', 'unmarked'].includes(String(row.attendance_status)) ? row.attendance_status as VolunteerAttendanceMember['attendanceStatus'] : 'unmarked',
+    attendanceStatus: present === true ? 'present' : present === false ? 'absent' : 'unmarked',
     remarks: (row.remarks as string | null) ?? null,
-    boothRecords: Array.isArray(row.booth_records) ? row.booth_records as VolunteerAttendanceMember['boothRecords'] : [],
+    timeSlot: (row.time_slot as string | null) ?? null,
+    updatedAt: (row.updated_at as string | null) ?? null,
+    boothRecords: [],
   }
 }
 
@@ -73,7 +76,9 @@ function emptyMetrics(): VolunteerMetrics {
     absentCount: 0,
     unmarkedCount: 0,
     mostActiveMember: null,
+    mostActiveMemberId: null,
     mostIrregularMember: null,
+    mostIrregularMemberId: null,
   }
 }
 
@@ -86,7 +91,9 @@ function toMetrics(row: Record<string, unknown> | null): VolunteerMetrics {
     absentCount: Number(row.absent_count ?? 0),
     unmarkedCount: Number(row.unmarked_count ?? 0),
     mostActiveMember: (row.most_active_member as string | null) ?? null,
+    mostActiveMemberId: (row.most_active_member_id as string | null) ?? null,
     mostIrregularMember: (row.most_irregular_member as string | null) ?? null,
+    mostIrregularMemberId: (row.most_irregular_member_id as string | null) ?? null,
   }
 }
 
@@ -144,8 +151,10 @@ function toNotification(row: Record<string, unknown>): VolunteerDashboardNotific
 
 export async function getVolunteerDashboardData({
   eventId,
+  attendanceType = 'meeting',
 }: {
   eventId?: string | null
+  attendanceType?: 'meeting' | 'booth'
 }): Promise<VolunteerDashboardData> {
   const [access, supabase] = await Promise.all([
     getStaffAccessContext(),
@@ -170,17 +179,17 @@ export async function getVolunteerDashboardData({
     hasOperationalOversight(access) ||
     Boolean(membership && ['department_head', 'deputy_head'].includes(membership.role))
 
-  const { data: eventsData, error: eventsError } = await untyped.rpc('get_active_events', { p_department_id: department.id })
-  logDashboardError('get_active_events', eventsError)
+  const { data: eventsData, error: eventsError } = await untyped.rpc('fetch_volunteer_events')
+  logDashboardError('fetch_volunteer_events', eventsError)
   const events = ((eventsData ?? []) as Record<string, unknown>[]).map(toEvent)
-  const selectedEvent = events.find((event) => event.attendanceEventId === eventId) ?? events.find((event) => event.attendanceEventId) ?? null
+  const selectedEvent = events.find((event) => event.eventId === eventId) ?? events[0] ?? null
 
-  const selectedAttendanceEventId = selectedEvent?.attendanceEventId ?? null
+  const selectedVolunteerEventId = selectedEvent?.eventId ?? null
 
   const [membersResult, metricsResult, tasksResult, committeeResult, bloodResult, notificationsResult] = await Promise.all([
-    selectedAttendanceEventId ? untyped.rpc('get_event_volunteers', { p_attendance_event_id: selectedAttendanceEventId }) : Promise.resolve({ data: [], error: null }),
-    selectedAttendanceEventId ? untyped.rpc('get_volunteer_metrics', { p_attendance_event_id: selectedAttendanceEventId }) : Promise.resolve({ data: [], error: null }),
-    selectedAttendanceEventId ? untyped.rpc('get_event_tasks', { p_attendance_event_id: selectedAttendanceEventId }) : Promise.resolve({ data: [], error: null }),
+    selectedVolunteerEventId ? untyped.rpc('fetch_event_members', { event_id: selectedVolunteerEventId, attendance_type: attendanceType }) : Promise.resolve({ data: [], error: null }),
+    selectedVolunteerEventId ? untyped.rpc('fetch_attendance_metrics', { event_id: selectedVolunteerEventId }) : Promise.resolve({ data: [], error: null }),
+    Promise.resolve({ data: [], error: null }),
     untyped.rpc('get_committee_members', { p_department_id: department.id }),
     untyped.rpc('get_blood_assignments', { p_department_id: department.id }),
     untyped
@@ -190,8 +199,8 @@ export async function getVolunteerDashboardData({
       .limit(8),
   ])
 
-  logDashboardError('get_event_volunteers', membersResult.error)
-  logDashboardError('get_volunteer_metrics', metricsResult.error)
+  logDashboardError('fetch_event_members', membersResult.error)
+  logDashboardError('fetch_attendance_metrics', metricsResult.error)
   logDashboardError('get_event_tasks', tasksResult.error)
   logDashboardError('get_committee_members', committeeResult.error)
   logDashboardError('get_blood_assignments', bloodResult.error)

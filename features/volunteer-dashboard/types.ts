@@ -23,6 +23,8 @@ export type VolunteerAttendanceMember = {
   memberType: 'General' | 'Panel'
   attendanceStatus: 'unmarked' | 'present' | 'absent'
   remarks: string | null
+  timeSlot: string | null
+  updatedAt: string | null
   boothRecords: BoothAttendanceRecord[]
 }
 
@@ -43,7 +45,9 @@ export type VolunteerMetrics = {
   absentCount: number
   unmarkedCount: number
   mostActiveMember: string | null
+  mostActiveMemberId: string | null
   mostIrregularMember: string | null
+  mostIrregularMemberId: string | null
 }
 
 export type VolunteerDashboardTask = {

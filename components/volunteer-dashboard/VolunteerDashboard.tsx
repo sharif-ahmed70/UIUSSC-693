@@ -1,4 +1,5 @@
 import AttendanceTable from './AttendanceTable'
+import AttendanceTypeToggle from './AttendanceTypeToggle'
 import BloodOverview from './BloodOverview'
 import CommitteeOverview from './CommitteeOverview'
 import EventPreview from './EventPreview'
@@ -12,11 +13,13 @@ import type { VolunteerDashboardData, VolunteerDashboardModule } from '@/feature
 export default function VolunteerDashboard({
   data,
   activeModule,
+  attendanceType,
 }: {
   data: VolunteerDashboardData
   activeModule: VolunteerDashboardModule
+  attendanceType: 'meeting' | 'booth'
 }){
-  const selectedEventId = data.selectedEvent?.attendanceEventId ?? null
+  const selectedEventId = data.selectedEvent?.eventId ?? null
   const counts = {
     attendance: data.members.filter((member) => member.attendanceStatus === 'unmarked').length,
     tasks: data.tasks.filter((task) => !['completed', 'cancelled'].includes(task.status)).length,
@@ -36,10 +39,11 @@ export default function VolunteerDashboard({
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Attendance, tasks, participation, committee context, blood assignments, and alerts in one department workspace.</p>
         </section>
 
-        <EventSelector departmentId={data.department.id} events={data.events} selectedEvent={data.selectedEvent} module={activeModule} />
+        <EventSelector departmentId={data.department.id} events={data.events} selectedEvent={data.selectedEvent} module={activeModule} attendanceType={attendanceType} />
+        {activeModule === 'attendance' && <AttendanceTypeToggle attendanceType={attendanceType} eventId={selectedEventId} />}
         <MetricsCards metrics={data.metrics} />
 
-        {activeModule === 'attendance' && <AttendanceTable attendanceEventId={selectedEventId} members={data.members} canManage={data.canManageAttendance} />}
+        {activeModule === 'attendance' && <AttendanceTable attendanceEventId={selectedEventId} attendanceType={attendanceType} members={data.members} canManage={data.canManageAttendance} highlightMemberId={data.metrics.mostActiveMemberId ?? data.metrics.mostIrregularMemberId} />}
         {activeModule === 'tasks' && <TaskSnapshot tasks={data.tasks} />}
         {activeModule === 'events' && <EventPreview events={data.events} />}
         {activeModule === 'committee' && <CommitteeOverview members={data.committeeMembers} />}

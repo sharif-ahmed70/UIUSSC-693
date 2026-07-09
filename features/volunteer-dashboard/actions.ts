@@ -14,17 +14,15 @@ function emptyToNull(value: FormDataEntryValue | null){
   return text.length > 0 ? text : null
 }
 
-function dashboardPath(eventId?: string | null){
-  return eventId ? `/staff/volunteer/dashboard?eventId=${eventId}` : '/staff/volunteer/dashboard'
+function dashboardPath(eventId?: string | null, attendanceType = 'meeting'){
+  return eventId ? `/staff/volunteer/dashboard?module=attendance&attendanceType=${attendanceType}&eventId=${eventId}` : '/staff/volunteer/dashboard?module=attendance'
 }
 
 export async function createVolunteerAttendanceEventAction(formData: FormData){
   const departmentId = emptyToNull(formData.get('departmentId'))
   const title = emptyToNull(formData.get('title'))
   const eventDate = emptyToNull(formData.get('eventDate'))
-  const eventKind = emptyToNull(formData.get('eventKind')) ?? 'meeting'
-  const location = emptyToNull(formData.get('location'))
-  const sourceEventId = emptyToNull(formData.get('sourceEventId'))
+  const attendanceType = emptyToNull(formData.get('attendanceType')) ?? 'meeting'
 
   if(!departmentId || !title){
     redirect('/staff/volunteer/dashboard?message=event-required')
@@ -34,28 +32,25 @@ export async function createVolunteerAttendanceEventAction(formData: FormData){
   const { data, error } = await (supabase.rpc as unknown as (
     name: string,
     args: Record<string, unknown>
-  ) => Promise<{ data: Array<{ attendance_event_id: string }> | null; error: { message?: string } | null }>)('create_volunteer_attendance_event', {
-    p_department_id: departmentId,
-    p_title: title,
-    p_event_date: eventDate,
-    p_event_kind: eventKind,
-    p_location: location,
-    p_event_id: sourceEventId,
+  ) => Promise<{ data: Array<{ event_id: string }> | null; error: { message?: string } | null }>)('create_missing_event', {
+    name: title,
+    date: eventDate,
   })
 
-  if(error || !data?.[0]?.attendance_event_id){
+  if(error || !data?.[0]?.event_id){
     redirect('/staff/volunteer/dashboard?message=event-failed')
   }
 
   revalidatePath('/staff/volunteer/dashboard')
-  redirect(dashboardPath(data[0].attendance_event_id))
+  redirect(dashboardPath(data[0].event_id, attendanceType))
 }
 
 export async function submitVolunteerAttendanceAction(_state: VolunteerDashboardActionState, formData: FormData): Promise<VolunteerDashboardActionState>{
-  const attendanceEventId = emptyToNull(formData.get('attendanceEventId'))
+  const eventId = emptyToNull(formData.get('eventId'))
+  const attendanceType = emptyToNull(formData.get('attendanceType')) ?? 'meeting'
   const recordsRaw = emptyToNull(formData.get('records'))
 
-  if(!attendanceEventId || !recordsRaw){
+  if(!eventId || !recordsRaw){
     return { status: 'error', message: 'Select an event and mark at least one attendance record.' }
   }
 
@@ -70,9 +65,10 @@ export async function submitVolunteerAttendanceAction(_state: VolunteerDashboard
   const { data, error } = await (supabase.rpc as unknown as (
     name: string,
     args: Record<string, unknown>
-  ) => Promise<{ data: Array<{ saved_count: number }> | null; error: { message?: string } | null }>)('submit_attendance', {
-    p_attendance_event_id: attendanceEventId,
-    p_records: records,
+  ) => Promise<{ data: Array<{ saved_count: number }> | null; error: { message?: string } | null }>)('save_attendance', {
+    event_id: eventId,
+    attendance_type: attendanceType,
+    attendance_data: records,
   })
 
   if(error){

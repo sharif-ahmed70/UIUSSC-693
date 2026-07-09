@@ -20,7 +20,7 @@ The selector shows:
 
 When a missing event or meeting is saved, the server action calls:
 
-`create_volunteer_attendance_event(...)`
+`create_missing_event(name, date)`
 
 The newly created attendance event is auto-selected by redirecting back to the dashboard with `eventId`.
 
@@ -28,7 +28,7 @@ The newly created attendance event is auto-selected by redirecting back to the d
 
 Attendance records are loaded through:
 
-`get_event_volunteers(p_attendance_event_id)`
+`fetch_event_members(event_id, attendance_type)`
 
 Each row includes:
 
@@ -43,21 +43,21 @@ Each row includes:
 
 The UI keeps Present and Absent mutually exclusive. Saving attendance calls the server action, which submits a JSON array to:
 
-`submit_attendance(p_attendance_event_id, p_records)`
+`save_attendance(event_id, attendance_type, attendance_data)`
 
 The RPC validates department scope, upserts records, stores `recorded_by`, stores `recorded_at`, and writes an audit log.
 
 ## Booth vs Meeting Attendance
 
-Meeting attendance is stored in `volunteer_attendance_records`.
+Meeting attendance is stored in `volunteer_attendance` with `attendance_type = 'meeting'` and `time_slot = null`.
 
-Booth attendance is stored in `volunteer_booth_attendance_records` and linked to the main attendance record. The dashboard currently displays booth timeslots as expandable read-only rows under each member. The schema supports multiple booth rows per member for location and timeslot tracking.
+Booth attendance is stored in `volunteer_attendance` with `attendance_type = 'booth'` and a required `tsrange` `time_slot`. This supports multiple booth rows per member for different time slots.
 
 ## Metrics Calculation
 
 Dashboard metrics are loaded through:
 
-`get_volunteer_metrics(p_attendance_event_id)`
+`fetch_attendance_metrics(event_id)`
 
 Metrics include:
 
@@ -84,19 +84,21 @@ This keeps the UI usable for large departments while preserving the database RPC
 
 ## Supabase RPCs
 
-The foundation migration adds:
+The exact attendance API migration adds:
 
-- `get_active_events(p_department_id)`
-- `create_volunteer_attendance_event(...)`
-- `get_event_volunteers(p_attendance_event_id)`
-- `submit_attendance(p_attendance_event_id, p_records)`
-- `get_event_tasks(p_attendance_event_id)`
-- `get_volunteer_metrics(p_attendance_event_id)`
-- `get_committee_members(p_department_id)`
-- `get_blood_assignments(p_department_id)`
+- `volunteer_events`
+- `volunteer_attendance`
+- `fetch_volunteer_events()`
+- `create_missing_event(name, date)`
+- `fetch_event_members(event_id, attendance_type)`
+- `save_attendance(event_id, attendance_type, attendance_data)`
+- `fetch_attendance_metrics(event_id)`
 
 Authorization helpers:
 
+- `volunteer_department_id()`
+- `can_view_volunteer_event(event_id)`
+- `can_manage_volunteer_event_attendance(event_id)`
 - `can_view_volunteer_department(p_department_id)`
 - `can_manage_volunteer_department_attendance(p_department_id)`
 

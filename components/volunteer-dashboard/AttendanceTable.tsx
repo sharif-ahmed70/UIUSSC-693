@@ -10,12 +10,16 @@ const pageSize = 25
 
 export default function AttendanceTable({
   attendanceEventId,
+  attendanceType,
   members,
   canManage,
+  highlightMemberId,
 }: {
   attendanceEventId: string | null
+  attendanceType: 'meeting' | 'booth'
   members: VolunteerAttendanceMember[]
   canManage: boolean
+  highlightMemberId?: string | null
 }){
   const [state, formAction, isPending] = useActionState(submitVolunteerAttendanceAction, initialState)
   const [search, setSearch] = useState('')
@@ -24,9 +28,10 @@ export default function AttendanceTable({
   const [drafts, setDrafts] = useState<Record<string, AttendanceDraft>>(() => Object.fromEntries(members.map((member) => [
     member.volunteerProfileId,
     {
-      volunteerProfileId: member.volunteerProfileId,
+      memberId: member.volunteerProfileId,
       status: member.attendanceStatus,
       remarks: member.remarks ?? '',
+      timeSlot: member.timeSlot ?? '',
     },
   ])))
 
@@ -85,19 +90,28 @@ export default function AttendanceTable({
         <div className="p-6 text-sm font-bold text-slate-600">Select or create an attendance event to load members.</div>
       ) : (
         <form action={formAction}>
-          <input type="hidden" name="attendanceEventId" value={attendanceEventId} />
-          <input type="hidden" name="records" value={JSON.stringify(records)} />
+          <input type="hidden" name="eventId" value={attendanceEventId} />
+          <input type="hidden" name="attendanceType" value={attendanceType} />
+          <input type="hidden" name="records" value={JSON.stringify(records.map((record) => ({
+            memberId: record.memberId,
+            present: record.status === 'present',
+            absent: record.status === 'absent',
+            remarks: record.remarks,
+            timeSlot: record.timeSlot,
+          })))} />
           <div className="max-h-[38rem] overflow-auto">
-            <table className="min-w-[980px] w-full text-left">
+            <table className="min-w-[1100px] w-full text-left">
               <thead className="sticky top-0 bg-slate-50 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-500">
                 <tr>
                   <th className="px-3 py-3">Serial</th>
                   <th className="px-3 py-3">Picture</th>
                   <th className="px-3 py-3">Name</th>
                   <th className="px-3 py-3">Member ID / Student ID</th>
+                  {attendanceType === 'booth' && <th className="px-3 py-3">Booth Time</th>}
                   <th className="px-3 py-3">Present</th>
                   <th className="px-3 py-3">Absent</th>
                   <th className="px-3 py-3">Remarks</th>
+                  <th className="px-3 py-3">Last Updated</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,7 +120,9 @@ export default function AttendanceTable({
                     key={member.volunteerProfileId}
                     member={member}
                     canManage={canManage}
-                    draft={drafts[member.volunteerProfileId] ?? { volunteerProfileId: member.volunteerProfileId, status: 'unmarked', remarks: '' }}
+                    attendanceType={attendanceType}
+                    highlight={highlightMemberId === member.volunteerProfileId}
+                    draft={drafts[member.volunteerProfileId] ?? { memberId: member.volunteerProfileId, status: 'unmarked', remarks: '', timeSlot: '' }}
                     onChange={(draft) => setDrafts((current) => ({ ...current, [member.volunteerProfileId]: draft }))}
                   />
                 ))}
