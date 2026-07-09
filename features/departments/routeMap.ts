@@ -3,7 +3,7 @@ import type { KnownDepartmentSlug } from './types'
 export const departmentRouteMap: Record<KnownDepartmentSlug, string> = {
   blood: '/staff/blood',
   'event-management': '/staff/events',
-  'volunteer-management': '/staff/volunteers',
+  'volunteer-management': '/staff/volunteer/dashboard',
   logistics: '/staff/logistics',
   'graphics-design': '/staff/graphics',
   'public-relations': '/staff/public-relations',
