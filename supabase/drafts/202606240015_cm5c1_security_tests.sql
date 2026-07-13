@@ -1,0 +1,28 @@
+-- CM-5C1 security test draft.
+-- Execute with representative authenticated sessions; do not run as database owner and claim RLS behavior.
+
+-- Expected checks:
+-- 1. Anonymous cannot read submissions, evidence links, or submission history.
+-- 2. Direct client insert/update/delete is denied on submission tables.
+-- 3. PUBLIC execute is revoked from submission RPCs.
+-- 4. Function search_path is fixed.
+-- 5. Unassigned user cannot submit.
+-- 6. Revoked assignee cannot submit.
+-- 7. Progress below 100 cannot submit.
+-- 8. Malformed evidence URL is rejected.
+-- 9. More than 10 evidence links are rejected.
+-- 10. Submission numbering is server-controlled.
+-- 11. Duplicate actionable submission is blocked.
+-- 12. Submitter cannot approve own work.
+-- 13. Department Head/Deputy can review own Department only.
+-- 14. Revision feedback is required.
+-- 15. Revision returns task to in_progress.
+-- 16. New version supersedes earlier revision.
+-- 17. Approval completes task and active assignees.
+-- 18. Completed task cannot receive a new submission.
+-- 19. Withdrawal requires reason.
+-- 20. History and audit rows are written.
+-- 21. CM-5B task/assignee constraints remain unchanged.
+-- 22. CM-5A public Event count remains 4.
+-- 23. CM-4 Access Control remains unchanged.
+-- 24. Blood RLS remains unchanged and Blood public intake remains disabled.
